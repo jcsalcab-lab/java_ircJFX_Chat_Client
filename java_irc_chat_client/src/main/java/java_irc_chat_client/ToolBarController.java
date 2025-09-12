@@ -20,7 +20,7 @@ public class ToolBarController {
     public void abrirChat() {
         if (!baseChatOpen) {
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/JIRCHAT_CONNECT_STAGE.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("JIRCHAT_CONNECT_STAGE.fxml"));
                 baseChat = loader.load();
 
                 // Ajustar tamaño al rightPane

@@ -16,11 +16,11 @@ public class MainApp extends Application {
         VBox rootVBox = new VBox();
 
         // --- Cargar menú ---
-        MenuBar menuBar = FXMLLoader.load(getClass().getResource("/menu.fxml"));
+        MenuBar menuBar = FXMLLoader.load(getClass().getResource("menu.fxml"));
         rootVBox.getChildren().add(menuBar);
 
         // --- Cargar toolbar con controlador ---
-        FXMLLoader toolbarLoader = new FXMLLoader(getClass().getResource("/toolbar.fxml"));
+        FXMLLoader toolbarLoader = new FXMLLoader(getClass().getResource("toolbar.fxml"));
         ToolBar toolBar = toolbarLoader.load();
         ToolBarController tbController = toolbarLoader.getController();
 
