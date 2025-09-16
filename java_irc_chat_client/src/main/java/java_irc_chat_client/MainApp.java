@@ -38,6 +38,7 @@ public class MainApp extends Application {
         // Lado derecho: StackPane para chat
         StackPane rightPane = new StackPane();
         tbController.setRightPane(rightPane);  // pasar referencia al controlador
+        tbController.setLeftPane(leftPane);    // pasar referencia al leftPane
 
         splitPane.getItems().addAll(leftPane, rightPane);
 
@@ -66,4 +67,5 @@ public class MainApp extends Application {
         launch(args);
     }
 }
+
 

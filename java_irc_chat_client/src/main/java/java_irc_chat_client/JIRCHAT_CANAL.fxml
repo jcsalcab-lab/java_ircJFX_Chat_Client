@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/24.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            prefHeight="644.0" prefWidth="899.0">
+
+    <children>
+        <!-- SplitPane horizontal con chat y lista de usuarios -->
+        <SplitPane dividerPositions="0.75" orientation="HORIZONTAL"
+                   AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                   AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="26.0">
+            
+            <!-- Panel del chat -->
+            <items>
+                <AnchorPane minHeight="0.0" minWidth="0.0">
+                    <children>
+                        <TextArea fx:id="chatArea_canal" editable="false" wrapText="true"
+                                  AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                  AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+                    </children>
+                </AnchorPane>
+
+                <!-- Panel de usuarios -->
+                <AnchorPane minHeight="0.0" minWidth="0.0">
+                    <children>
+                        <ListView fx:id="userListView_canal"
+                                  AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                  AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+                    </children>
+                </AnchorPane>
+            </items>
+        </SplitPane>
+
+        <!-- Campo de entrada -->
+        <TextField fx:id="inputField_canal" prefHeight="26.0"
+                   AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+    </children>
+</AnchorPane>
