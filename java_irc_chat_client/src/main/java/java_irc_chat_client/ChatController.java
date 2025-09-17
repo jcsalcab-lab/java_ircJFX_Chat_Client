@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -15,39 +16,70 @@ import org.pircbotx.Configuration;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.*;
-
+import org.pircbotx.User;
+import org.pircbotx.hooks.events.UserListEvent;
+import java.util.stream.Collectors;
+import java.util.Objects;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import javax.net.ssl.SSLSocketFactory;
 
 public class ChatController {
 
     @FXML private AnchorPane rootPane;
     @FXML private TextArea chatArea;
     @FXML private TextField inputField;
+    @FXML private ListView<String> userList;
 
     private VBox leftPane;
     private StackPane rightPane;
-
     private PircBotX bot;
+    private ChatController mainController;
+    
+    public void setMainController(ChatController mainController){ this.mainController = mainController; }
+    
+    private String canal;  // <-- Asegúrate de tener esto
+    
+    public void appendMessage(String usuario, String mensaje){
+        chatArea.appendText("<" + usuario + "> " + mensaje + "\n");
+    }
 
+    public void updateUsers(List<String> users){
+        userList.getItems().setAll(users);
+    }
+
+    public void setBot(PircBotX bot){ this.bot = bot; }
+    public void setCanal(String canal){ this.canal = canal; }
+    
     private static class CanalVentana {
         Stage stage;
         CanalController controller;
-        CanalVentana(Stage s, CanalController c) { stage = s; controller = c; }
+        AnchorPane rootPane;
+
+        CanalVentana(Stage s, CanalController c, AnchorPane p) {
+            stage = s;
+            controller = c;
+            rootPane = p;
+        }
     }
 
     private final Map<String, CanalVentana> canalesAbiertos = new HashMap<>();
     private final Map<String, Button> canalButtons = new HashMap<>();
     private String canalActivo = null;
 
-    // Buffers
+    // Buffers necesarios
     private final Map<String, Set<String>> usersBuffer = new HashMap<>();
     private final Map<String, List<String>> messagesBuffer = new HashMap<>();
 
+    private final List<Stage> floatingWindows = new ArrayList<>();
+    private AnchorPane currentFrontPane;
+
     public void setLeftPane(VBox leftPane) { this.leftPane = leftPane; }
-    public void setRightPane(StackPane rightPane) { this.rightPane = rightPane; }
+    public void setRightPane(StackPane rightPane) { 
+        this.rightPane = rightPane; 
+        this.currentFrontPane = rootPane;
+    }
+
     public AnchorPane getRootPane() { return rootPane; }
 
     @FXML
@@ -55,62 +87,110 @@ public class ChatController {
         inputField.setOnAction(e -> sendCommand());
     }
 
-    // Cierra un canal y actualiza UI (ventana y botón)
+    private void resizeAllFloatingWindows() {
+        Platform.runLater(() -> {
+            for (Stage stage : floatingWindows) {
+                if (rightPane != null) {
+                    stage.setWidth(rightPane.getWidth());
+                    stage.setHeight(rightPane.getHeight());
+                }
+            }
+        });
+    }
+
+    private void repositionAllFloatingWindows() {
+        Platform.runLater(() -> {
+            if (rightPane == null) return;
+            javafx.geometry.Point2D pos = rightPane.localToScreen(0, 0);
+            if (pos == null) return;
+            for (Stage stage : floatingWindows) {
+                stage.setX(pos.getX());
+                stage.setY(pos.getY());
+            }
+        });
+    }
+
+    public void bindFloatingWindowsToRightPane(Stage primaryStage) {
+        if (rightPane == null) return;
+
+        rightPane.widthProperty().addListener((obs, oldV, newV) -> resizeAllFloatingWindows());
+        rightPane.heightProperty().addListener((obs, oldV, newV) -> resizeAllFloatingWindows());
+        primaryStage.xProperty().addListener((obs, oldV, newV) -> repositionAllFloatingWindows());
+        primaryStage.yProperty().addListener((obs, oldV, newV) -> repositionAllFloatingWindows());
+    }
+
+    private void sendCommand() {
+        String text = inputField.getText().trim();
+        if (text.isEmpty()) return;
+        boolean isCommand = text.startsWith("/");
+
+        try {
+            if (isCommand) {
+                String cmd = text.substring(1).trim();
+                if (cmd.startsWith("join ")) abrirCanal(cmd.substring(5).trim());
+                else if (cmd.startsWith("part")) {
+                    String[] parts = cmd.split(" ",3);
+                    String canal = parts.length >=2 ? parts[1] : canalActivo;
+                    String message = parts.length==3 ? parts[2] : "";
+                    cerrarCanalDesdeVentana(canal);
+                    if(!message.isEmpty()) bot.sendRaw().rawLine("PART "+canal+" :"+message);
+                    else bot.sendRaw().rawLine("PART "+canal);
+                }
+                else if (cmd.startsWith("quit")) cerrarTodo("Cerrando cliente");
+                else if (cmd.startsWith("nick ")) bot.sendIRC().changeNick(cmd.substring(5).trim());
+                else bot.sendRaw().rawLine(cmd);
+            } else {
+                if (canalActivo != null && canalesAbiertos.containsKey(canalActivo)) {
+                    CanalVentana v = canalesAbiertos.get(canalActivo);
+                    bot.sendIRC().message(canalActivo, text);
+                    v.controller.appendMessage("Yo", text);
+                } else {
+                    bot.sendIRC().message("#mas_de_40", text);
+                    chatArea.appendText("<Yo> "+text+"\n");
+                }
+            }
+        } catch(Exception e) {
+            chatArea.appendText("⚠ Error al ejecutar comando: "+e.getMessage()+"\n");
+        }
+        inputField.clear();
+    }
+
     public void cerrarCanalDesdeVentana(String canal) {
         CanalVentana ventana = canalesAbiertos.remove(canal);
-
         if (ventana != null) {
             Platform.runLater(() -> ventana.stage.close());
-        }
-
-        Button btn = canalButtons.remove(canal);
-        if (btn != null && leftPane != null) {
-            Platform.runLater(() -> leftPane.getChildren().remove(btn));
-        }
-
-        if (canalActivo != null && canalActivo.equals(canal)) {
-            canalActivo = null;
+            Button btn = canalButtons.remove(canal);
+            if (btn != null && leftPane != null) Platform.runLater(() -> leftPane.getChildren().remove(btn));
+            floatingWindows.remove(ventana.stage);
+            if (canalActivo != null && canalActivo.equals(canal)) canalActivo = null;
+            if (currentFrontPane == ventana.rootPane) currentFrontPane = rootPane;
         }
     }
-    
-    
 
- // Cierra todos los canales, desconecta del servidor y cierra la aplicación
-    public void cerrarTodo(String mensaje) {
-        // 1. Cerrar todos los canales abiertos
-        for (String canal : new ArrayList<>(canalesAbiertos.keySet())) {
-            cerrarCanalDesdeVentana(canal);
-        }
-
-        // 2. Desconectar del servidor IRC
-        if (bot != null) {
-            try {
+    public void cerrarTodo(String mensaje){
+        for(String canal : new ArrayList<>(canalesAbiertos.keySet())) cerrarCanalDesdeVentana(canal);
+        if(bot != null){
+            try{
                 bot.sendIRC().quitServer(mensaje != null ? mensaje : "Cerrando cliente");
-                bot.stopBotReconnect(); // Detener reconexiones automáticas
-                bot.close();            // Cierra hilos internos
-            } catch (Exception e) {
-                // Ignorar errores de desconexión
-            }
+                bot.stopBotReconnect();
+                bot.close();
+            }catch(Exception ignored){}
         }
-
-        // 3. Cerrar la ventana principal y salir completamente
         Platform.runLater(() -> {
-            try {
-                Stage primaryStage = (Stage) rootPane.getScene().getWindow();
-                if (primaryStage != null) primaryStage.close();
-            } finally {
-                // Salir completamente de la aplicación
+            try{
+                Stage primaryStage = (Stage)rootPane.getScene().getWindow();
+                if(primaryStage != null) primaryStage.close();
+            }finally{
                 Platform.exit();
                 System.exit(0);
             }
         });
     }
 
-
     public void connectToIRC() {
         new Thread(() -> {
             try {
-                Configuration configuration = new Configuration.Builder()
+                Configuration config = new Configuration.Builder()
                         .setName("akiles5432")
                         .setLogin("akiles5432")
                         .setRealName("JIRCHAT")
@@ -119,148 +199,144 @@ public class ChatController {
                         .setAutoNickChange(true)
                         .setAutoReconnect(true)
                         .addListener(new ListenerAdapter() {
-
-                            @Override
-                            public void onMessage(MessageEvent event) {
-                                String canal = event.getChannel() != null ? event.getChannel().getName() : null;
-                                if (canal != null && canalesAbiertos.containsKey(canal)) {
-                                    CanalVentana v = canalesAbiertos.get(canal);
-                                    Platform.runLater(() -> v.controller.appendMessage(event.getUser().getNick(), event.getMessage()));
-                                } else if (canal != null) {
-                                    messagesBuffer.putIfAbsent(canal, new ArrayList<>());
-                                    messagesBuffer.get(canal).add("<" + event.getUser().getNick() + "> " + event.getMessage());
-                                } else {
-                                    Platform.runLater(() -> chatArea.appendText("<" + event.getUser().getNick() + "> " + event.getMessage() + "\n"));
-                                }
-                            }
+                            private boolean identificado = false;
 
                             @Override
                             public void onConnect(ConnectEvent event) {
                                 Platform.runLater(() -> chatArea.appendText("✅ Conectado a irc.chatzona.org\n"));
+                                // Envía identificación
+                                bot.sendIRC().message("NickServ", "IDENTIFY <tu_password>");
+                            }
+                            
+                            /* ... dentro de new ListenerAdapter() { */
+                            @Override
+                            public void onUserList(UserListEvent event) {
+                                // Nombre del canal
+                                String canal = event.getChannel() != null ? event.getChannel().getName() : null;
+                                if (canal == null) return;
+
+                                // Obtener los usuarios (User) y convertir a lista de nicks ordenada
+                                Set<User> userObjs = event.getUsers(); // Set<User>
+                                List<String> nicks = userObjs.stream()
+                                    .map(User::getNick)
+                                    .filter(Objects::nonNull)
+                                    .map(String::trim)
+                                    .filter(s -> !s.isEmpty())
+                                    .sorted(String.CASE_INSENSITIVE_ORDER)
+                                    .collect(Collectors.toList());
+
+                                // Guardar en el buffer y actualizar la ventana abierta si existe
+                                usersBuffer.put(canal, new HashSet<>(nicks));
+                                if (canalesAbiertos.containsKey(canal)) {
+                                    CanalVentana v = canalesAbiertos.get(canal);
+                                    Platform.runLater(() -> v.controller.updateUsers(nicks));
+                                }
+
+                                // para depuración (opcional)
+                                Platform.runLater(() -> chatArea.appendText("NAMES ("+canal+"): "+nicks+"\n"));
                             }
 
-                            @Override
-                            public void onDisconnect(DisconnectEvent event) {
-                                Platform.runLater(() -> chatArea.appendText("❌ Desconectado del servidor\n"));
-                            }
 
                             @Override
                             public void onNotice(NoticeEvent event) {
-                                Platform.runLater(() -> chatArea.appendText("[NOTICE] " + event.getMessage() + "\n"));
+                                String from = event.getUser() != null ? event.getUser().getNick() : "Servidor";
+                                String mensaje = event.getMessage();
+                                Platform.runLater(() -> chatArea.appendText("[" + from + "] " + mensaje + "\n"));
+
+                                // Detectar identificación exitosa
+                                if(!identificado && mensaje.toLowerCase().contains("identified")) {
+                                    identificado = true;
+                                    Platform.runLater(() -> chatArea.appendText("✅ Identificación exitosa. Ahora puedes unirte a canales.\n"));
+
+                                    // Unir a todos los canales abiertos
+                                    for(String canal : canalesAbiertos.keySet()){
+                                        bot.sendIRC().joinChannel(canal);
+                                    }
+                                }
                             }
 
                             @Override
-                            public void onServerResponse(ServerResponseEvent event) {
-                                int code = event.getCode();
-                                List<String> parsed = event.getParsedResponse();
-                                AtomicReference<String> channelRef = new AtomicReference<>(null);
+                            public void onMessage(MessageEvent event) {
+                                String canal = event.getChannel() != null ? event.getChannel().getName() : null;
+                                String usuario = event.getUser().getNick();
+                                String mensaje = event.getMessage();
 
-                                for (String p : parsed) {
-                                    if (p.startsWith("#") || p.startsWith("&") || p.startsWith("+") || p.startsWith("!")) {
-                                        channelRef.set(p);
-                                        break;
-                                    }
-                                }
-                                if (channelRef.get() == null && parsed.size() >= 3) {
-                                    channelRef.set(parsed.get(2));
-                                }
-
-                                final String channel = channelRef.get();
-
-                                switch (code) {
-                                    case 353: // RPL_NAMREPLY
-                                        if (channel == null) return;
-                                        usersBuffer.putIfAbsent(channel, new HashSet<>());
-                                        String nickChunk = parsed.get(parsed.size() - 1);
-                                        if (nickChunk.startsWith(":")) nickChunk = nickChunk.substring(1);
-                                        String[] nickTokens = nickChunk.split(" +");
-                                        for (String n : nickTokens) {
-                                            if (!n.isEmpty()) usersBuffer.get(channel).add(n.replaceAll("^[@+~&%]+", ""));
-                                        }
-                                        break;
-
-                                    case 366: // RPL_ENDOFNAMES
-                                        if (channel != null) {
-                                            CanalVentana v = canalesAbiertos.get(channel);
-                                            if (v != null) {
-                                                List<String> userList = new ArrayList<>(usersBuffer.getOrDefault(channel, Collections.emptySet()));
-                                                Collections.sort(userList, String.CASE_INSENSITIVE_ORDER);
-                                                Platform.runLater(() -> {
-                                                    v.controller.updateUsers(userList);
-                                                    usersBuffer.remove(channel);
-                                                });
-                                            }
-                                        }
-                                        break;
+                                if(canal != null && canalesAbiertos.containsKey(canal)) {
+                                    CanalVentana v = canalesAbiertos.get(canal);
+                                    Platform.runLater(() -> v.controller.appendMessage(usuario, mensaje));
+                                } else if(canal != null) {
+                                    messagesBuffer.putIfAbsent(canal, new ArrayList<>());
+                                    messagesBuffer.get(canal).add("<"+usuario+"> "+mensaje);
+                                } else {
+                                    Platform.runLater(() -> chatArea.appendText("<"+usuario+"> "+mensaje+"\n"));
                                 }
                             }
 
+                            @Override
+                            public void onJoin(JoinEvent event){
+                                String canal = event.getChannel().getName();
+                                String usuario = event.getUser().getNick();
+                                usersBuffer.putIfAbsent(canal, new HashSet<>());
+                                usersBuffer.get(canal).add(usuario);
+
+                                if(canalesAbiertos.containsKey(canal)){
+                                    CanalVentana v = canalesAbiertos.get(canal);
+                                    List<String> ulist = new ArrayList<>(usersBuffer.get(canal));
+                                    Collections.sort(ulist, String.CASE_INSENSITIVE_ORDER);
+                                    Platform.runLater(() -> v.controller.updateUsers(ulist));
+                                }
+                            }
+
+                            @Override
+                            public void onPart(PartEvent event){
+                                String canal = event.getChannel().getName();
+                                String usuario = event.getUser().getNick();
+                                if(usersBuffer.containsKey(canal)){
+                                    usersBuffer.get(canal).remove(usuario);
+                                    if(canalesAbiertos.containsKey(canal)){
+                                        CanalVentana v = canalesAbiertos.get(canal);
+                                        List<String> ulist = new ArrayList<>(usersBuffer.get(canal));
+                                        Collections.sort(ulist,String.CASE_INSENSITIVE_ORDER);
+                                        Platform.runLater(() -> v.controller.updateUsers(ulist));
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onQuit(QuitEvent event){
+                                String usuario = event.getUser().getNick();
+                                for(String canal: usersBuffer.keySet()){
+                                    if(usersBuffer.get(canal).remove(usuario) && canalesAbiertos.containsKey(canal)){
+                                        CanalVentana v = canalesAbiertos.get(canal);
+                                        List<String> ulist = new ArrayList<>(usersBuffer.get(canal));
+                                        Collections.sort(ulist,String.CASE_INSENSITIVE_ORDER);
+                                        Platform.runLater(() -> v.controller.updateUsers(ulist));
+                                    }
+                                }
+                            }
                         }).buildConfiguration();
 
-                bot = new PircBotX(configuration);
+                bot = new PircBotX(config);
                 bot.startBot();
-
-            } catch (Exception e) {
-                Platform.runLater(() -> chatArea.appendText("Error al conectar: " + e.getMessage() + "\n"));
+            }catch(Exception e){
+                Platform.runLater(() -> chatArea.appendText("Error al conectar: "+e.getMessage()+"\n"));
             }
         }).start();
     }
 
-    private void sendCommand() {
-        String text = inputField.getText().trim();
-        if (text.isEmpty()) return;
-        boolean isCommand = text.startsWith("/");
-
-        if (isCommand) {
-            String cmd = text.substring(1).trim();
-            try {
-                if (cmd.startsWith("join ")) {
-                    String canal = cmd.substring(5).trim();
-                    abrirCanal(canal);
-                } else if (cmd.startsWith("part")) {
-                    String[] parts = cmd.split(" ", 3);
-                    String canal = parts.length >= 2 ? parts[1] : canalActivo;
-                    String message = parts.length == 3 ? parts[2] : "";
-                    cerrarCanalDesdeVentana(canal);
-                    if (!message.isEmpty()) bot.sendRaw().rawLine("PART " + canal + " :" + message);
-                    else bot.sendRaw().rawLine("PART " + canal);
-                } else if (cmd.startsWith("quit")) {
-                    cerrarTodo("Cerrando cliente");
-                } else if (cmd.startsWith("nick ")) {
-                    bot.sendIRC().changeNick(cmd.substring(5).trim());
-                } else {
-                    bot.sendRaw().rawLine(cmd);
-                }
-            } catch (Exception e) {
-                chatArea.appendText("⚠ Error al ejecutar comando: " + e.getMessage() + "\n");
-            }
-        } else {
-            if (canalActivo != null && canalesAbiertos.containsKey(canalActivo)) {
-                CanalVentana ventana = canalesAbiertos.get(canalActivo);
-                bot.sendIRC().message(canalActivo, text);
-                ventana.controller.appendMessage("Yo", text);
-            } else {
-                bot.sendIRC().message("#mas_de_40", text);
-                chatArea.appendText("<Yo> " + text + "\n");
-            }
-        }
-        inputField.clear();
-    }
-
     private void abrirCanal(String canal) throws IOException {
-        if (canalesAbiertos.containsKey(canal)) {
+        if(canalesAbiertos.containsKey(canal)){
             CanalVentana v = canalesAbiertos.get(canal);
             v.stage.toFront();
-            v.stage.requestFocus();
             canalActivo = canal;
             return;
         }
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("JIRCHAT_CANAL.fxml"));
-        CanalController canalController = new CanalController();
-        loader.setController(canalController);
         AnchorPane canalPane = loader.load();
+        CanalController canalController = loader.getController(); // <-- Aquí obtienes el controller
 
+        // Configurar el controller
         canalController.setBot(bot);
         canalController.setCanal(canal);
         canalController.setMainController(this);
@@ -268,20 +344,25 @@ public class ChatController {
         Stage canalStage = new Stage();
         canalStage.setTitle("Canal " + canal);
         canalStage.setScene(new Scene(canalPane));
-        canalStage.setWidth(rightPane != null ? rightPane.getWidth() : 600);
-        canalStage.setHeight(rightPane != null ? rightPane.getHeight() : 400);
 
-        CanalVentana ventana = new CanalVentana(canalStage, canalController);
+        if(rightPane != null && rightPane.getScene() != null){
+            javafx.geometry.Point2D pos = rightPane.localToScreen(0, 0);
+            if(pos != null){
+                canalStage.setX(pos.getX());
+                canalStage.setY(pos.getY());
+            }
+            canalStage.setWidth(rightPane.getWidth());
+            canalStage.setHeight(rightPane.getHeight());
+        }
+
+        floatingWindows.add(canalStage);
+        CanalVentana ventana = new CanalVentana(canalStage, canalController, canalPane);
         canalesAbiertos.put(canal, ventana);
 
         Button canalBtn = new Button(canal);
         canalBtn.setMaxWidth(Double.MAX_VALUE);
-        canalBtn.setOnAction(e -> {
-            ventana.stage.toFront();
-            ventana.stage.requestFocus();
-            canalActivo = canal;
-        });
-        if (leftPane != null) leftPane.getChildren().add(canalBtn);
+        canalBtn.setOnAction(e -> { canalStage.toFront(); canalActivo = canal; });
+        if(leftPane != null) leftPane.getChildren().add(canalBtn);
         canalButtons.put(canal, canalBtn);
 
         canalStage.setOnCloseRequest(ev -> cerrarCanalDesdeVentana(canal));
@@ -289,24 +370,26 @@ public class ChatController {
         canalActivo = canal;
         canalStage.show();
 
+        // Unirse al canal
         bot.sendIRC().joinChannel(canal);
         bot.sendRaw().rawLineNow("NAMES " + canal);
 
-        if (messagesBuffer.containsKey(canal)) {
+        // Mostrar mensajes buffer si existen
+        if(messagesBuffer.containsKey(canal)){
             List<String> buffer = messagesBuffer.get(canal);
             buffer.forEach(m -> canalController.appendMessage("Servidor", m));
             messagesBuffer.remove(canal);
         }
 
-        if (usersBuffer.containsKey(canal)) {
-            List<String> userList = new ArrayList<>(usersBuffer.get(canal));
-            canalController.updateUsers(userList);
+        // Mostrar usuarios buffer si existen
+        if(usersBuffer.containsKey(canal)){
+            List<String> ulist = new ArrayList<>(usersBuffer.get(canal));
+            Collections.sort(ulist, String.CASE_INSENSITIVE_ORDER);
+            canalController.updateUsers(ulist);
         }
 
-        chatArea.appendText("➡ uniéndote a " + canal + "\n");
+        chatArea.appendText("➡ Uniéndote a " + canal + "\n");
     }
+
+
 }
-
-
-
-

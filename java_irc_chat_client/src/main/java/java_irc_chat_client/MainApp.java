@@ -27,45 +27,38 @@ public class MainApp extends Application {
         // --- Crear SplitPane ---
         SplitPane splitPane = new SplitPane();
 
-        // Lado izquierdo: VBox fijo
         VBox leftPane = new VBox();
         leftPane.setPrefWidth(150);
-        leftPane.setMinWidth(150);
-        leftPane.setMaxWidth(150);
         leftPane.setStyle("-fx-border-color: orange; -fx-border-width: 2;");
         leftPane.setSpacing(10);
 
-        // Lado derecho: StackPane para chat
         StackPane rightPane = new StackPane();
-        tbController.setRightPane(rightPane);  // pasar referencia al controlador
-        tbController.setLeftPane(leftPane);    // pasar referencia al leftPane
+
+        tbController.setLeftPane(leftPane);
+        tbController.setRightPane(rightPane);
 
         splitPane.getItems().addAll(leftPane, rightPane);
-
-        // Mantener divisor fijo
-        splitPane.setDividerPositions(150.0 / 1200); // posición inicial
+        splitPane.setDividerPositions(150.0 / 1200);
         splitPane.getDividers().get(0).positionProperty().addListener((obs, oldVal, newVal) -> {
             splitPane.getDividers().get(0).setPosition(150.0 / splitPane.getWidth());
         });
 
         VBox.setVgrow(splitPane, Priority.ALWAYS);
-
-        // Añadir toolbar y splitPane al VBox principal
         rootVBox.getChildren().addAll(toolBar, splitPane);
 
-        // Crear escena y mostrar
         Scene scene = new Scene(rootVBox, 1200, 800);
         primaryStage.setScene(scene);
         primaryStage.setTitle("JIRCHAT");
         primaryStage.show();
 
-        // Abrir automáticamente la ventana de chat base en el rightPane
-        tbController.abrirChat();
+        // --- Abrir chat y vincular floating windows ---
+        tbController.abrirChat(primaryStage);
     }
 
     public static void main(String[] args) {
         launch(args);
     }
 }
+
 
 

@@ -13,7 +13,7 @@
   <!-- Cabecera para mover la barra -->
         <Label fx:id="dragHandle" text="☰☰" style="-fx-background-color: lightgray; -fx-padding: 4;" />
 
-    <Button fx:id="btnConnect" mnemonicParsing="false" prefHeight="37" prefWidth="37" text="" onAction="#abrirChat">
+    <Button fx:id="btnConnect" mnemonicParsing="false" prefHeight="37" prefWidth="37" text="">
   <graphic>
     <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
       <image>
