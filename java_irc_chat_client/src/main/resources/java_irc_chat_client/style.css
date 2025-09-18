@@ -1,0 +1,18 @@
+/* ListView con filas alternas de colores personalizados */
+.list-cell:filled:even {
+    -fx-background-color: #FFFACD; /* color vainilla */
+    -fx-font-weight: bold;          /* texto en negrita */
+}
+
+.list-cell:filled:odd {
+    -fx-background-color: #ADD8E6; /* azul claro */
+    -fx-font-weight: bold;          /* texto en negrita */
+}
+
+/* Opcional: cuando se selecciona una fila */
+.list-cell:selected {
+    -fx-background-color: #87CEFA; /* azul más intenso para selección */
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
+}
+
