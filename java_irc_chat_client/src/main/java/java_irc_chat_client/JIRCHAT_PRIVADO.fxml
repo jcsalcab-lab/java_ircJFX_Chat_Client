@@ -4,7 +4,6 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.TextFlow?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" 
             xmlns:fx="http://javafx.com/fxml/1"
@@ -16,16 +15,22 @@
     <center>
         <ScrollPane fx:id="chatScrollPane" fitToWidth="true" fitToHeight="true">
             <content>
-                <VBox fx:id="chatBox" spacing="4" padding="10"/>
+                <VBox fx:id="chatBox" spacing="4">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                </VBox>
             </content>
         </ScrollPane>
     </center>
 
     <!-- Zona inferior: campo de texto para escribir -->
     <bottom>
-        <VBox spacing="5" padding="10">
+        <VBox spacing="5">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
             <TextField fx:id="inputField_privado" promptText="Escribe un mensaje privado..."/>
         </VBox>
     </bottom>
 </BorderPane>
-

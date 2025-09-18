@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -16,93 +17,84 @@ import org.pircbotx.PircBotX;
 
 public class PrivadoController {
 
+    // --- FXML ---
+    @FXML private BorderPane rootPane;
     @FXML private VBox chatBox;
     @FXML private ScrollPane chatScrollPane;
     @FXML private TextField inputField_privado;
 
-    private String usuarioPrivado;
+    // --- Variables ---
     private PircBotX bot;
-
-    public PrivadoController() {}
+    private String destinatario;           // Usuario destinatario
+    private ChatController mainController; // Para redirigir mensajes entrantes
+    private String usuarioPrivado;
 
     // --- Setters ---
     public void setBot(PircBotX bot) { this.bot = bot; }
+    public void setDestinatario(String nick) { this.destinatario = nick; }
+    public void setMainController(ChatController mainController) { this.mainController = mainController; }
     public void setUsuarioPrivado(String usuario) { this.usuarioPrivado = usuario; }
+
+    // --- Getter para Stage ---
+    public BorderPane getRootPane() { return rootPane; }
 
     // --- Inicialización del FXML ---
     @FXML
     public void initialize() {
-        inputField_privado.setOnAction(e -> sendCommand());
+        inputField_privado.setOnAction(e -> sendMessage());
     }
 
-    // --- Comandos y envío de mensajes ---
-    private void sendCommand() {
+    // --- Inicialización adicional (scroll al final) ---
+    public void initializeChat() {
+        Platform.runLater(() -> chatScrollPane.setVvalue(1.0));
+    }
+
+    // --- Enviar mensaje ---
+    private void sendMessage() {
         String text = inputField_privado.getText().trim();
-        if (text.isEmpty() || bot == null || usuarioPrivado == null) return;
+        if (text.isEmpty() || bot == null || destinatario == null) return;
 
-        try {
-            if (text.startsWith("/")) {
-                handleCommand(text.substring(1).trim());
-            } else {
-                sendMessageToUser(text);
-            }
-        } finally {
-            inputField_privado.clear();
-        }
-    }
+        // Enviar mensaje al servidor IRC
+        bot.sendIRC().message(destinatario, text);
 
-    private void handleCommand(String cmd) {
-        if (cmd.startsWith("me ")) {
-            bot.sendIRC().action(usuarioPrivado, cmd.substring(3).trim());
-        } else {
-            bot.sendRaw().rawLine(cmd);
-        }
-    }
+        // Mostrar mensaje en ventana propia
+        appendMessage("Yo", text);
 
-    public void sendMessageToUser(String msg) {
-        if (bot != null && usuarioPrivado != null) {
-            bot.sendIRC().message(usuarioPrivado, msg);
-            appendMessage("Yo", msg);
-        }
+        // Limpiar campo
+        inputField_privado.clear();
     }
 
     // --- Mostrar mensajes ---
     public void appendMessage(String usuario, String mensaje) {
         Platform.runLater(() -> {
-            // Prefijo usuario
             Text userText = new Text("<" + usuario + "> ");
             userText.setFont(Font.font("Arial", FontWeight.BOLD, 14));
             userText.setFill(Color.BLACK);
 
-            // Parsear contenido enriquecido
             TextFlow messageFlow = parseIRCMessage(mensaje);
 
-            // Combinar
             TextFlow fullFlow = new TextFlow(userText);
             fullFlow.getChildren().addAll(messageFlow.getChildren());
 
             chatBox.getChildren().add(fullFlow);
-
             autoScroll();
         });
     }
 
     public void appendSystemMessage(String mensaje) {
         Platform.runLater(() -> {
-            String cleanMessage = mensaje.replaceAll("\\p{Cntrl}", "");
-            Text sysText = new Text(cleanMessage);
+            Text sysText = new Text(mensaje);
             sysText.setFont(Font.font("Arial", FontWeight.NORMAL, 13));
             sysText.setFill(Color.GRAY);
             sysText.setStyle("-fx-font-style: italic;");
 
             TextFlow flow = new TextFlow(sysText);
             chatBox.getChildren().add(flow);
-
             autoScroll();
         });
     }
 
-    // --- Parseo enriquecido de mensajes ---
+    // --- Parseo de colores y formato IRC ---
     private TextFlow parseIRCMessage(String mensaje) {
         TextFlow flow = new TextFlow();
         int i = 0;
@@ -112,48 +104,30 @@ public class PrivadoController {
         while (i < mensaje.length()) {
             char c = mensaje.charAt(i);
 
-            if (c == '\u0003') { // código de color IRC
+            if (c == '\u0003') { // color IRC
                 i++;
                 StringBuilder num = new StringBuilder();
                 while (i < mensaje.length() && Character.isDigit(mensaje.charAt(i))) {
                     num.append(mensaje.charAt(i));
                     i++;
                 }
-                try {
-                    int colorCode = Integer.parseInt(num.toString());
-                    currentColor = ircColorToFX(colorCode);
-                } catch (Exception e) {
-                    currentColor = Color.BLACK;
-                }
-            } else if (c == '\u000F') { // reset
-                currentColor = Color.BLACK;
-                bold = false;
-                i++;
-            } else if (c == '\u0002') { // negrita
-                bold = !bold;
-                i++;
-            } else if (c == ':' && i + 1 < mensaje.length() && mensaje.charAt(i+1) == ':') {
-                // soporte básico para emojis/íconos tipo ::smile::
+                try { currentColor = ircColorToFX(Integer.parseInt(num.toString())); } 
+                catch (Exception e) { currentColor = Color.BLACK; }
+            } else if (c == '\u000F') { currentColor = Color.BLACK; bold = false; i++; }
+            else if (c == '\u0002') { bold = !bold; i++; }
+            else if (c == ':' && i + 1 < mensaje.length() && mensaje.charAt(i+1) == ':') {
                 int end = mensaje.indexOf("::", i + 2);
                 if (end > i) {
                     String iconKey = mensaje.substring(i + 2, end);
                     ImageView icon = loadIcon(iconKey);
-                    if (icon != null) {
-                        flow.getChildren().add(icon);
-                    } else {
-                        flow.getChildren().add(new Text("::" + iconKey + "::"));
-                    }
+                    if (icon != null) flow.getChildren().add(icon);
+                    else flow.getChildren().add(new Text("::" + iconKey + "::"));
                     i = end + 2;
-                } else {
-                    flow.getChildren().add(new Text(":"));
-                    i++;
-                }
+                } else { flow.getChildren().add(new Text(":")); i++; }
             } else {
-                // Texto normal
                 StringBuilder textChunk = new StringBuilder();
                 while (i < mensaje.length() && "\u0003\u000F\u0002:".indexOf(mensaje.charAt(i)) == -1) {
-                    textChunk.append(mensaje.charAt(i));
-                    i++;
+                    textChunk.append(mensaje.charAt(i)); i++;
                 }
                 Text t = new Text(textChunk.toString());
                 t.setFill(currentColor);
@@ -161,11 +135,9 @@ public class PrivadoController {
                 flow.getChildren().add(t);
             }
         }
-
         return flow;
     }
 
-    // --- Mapea códigos IRC a colores intensos ---
     private Color ircColorToFX(int code) {
         switch (code) {
             case 0: return Color.WHITE;
@@ -188,26 +160,23 @@ public class PrivadoController {
         }
     }
 
-    // --- Carga de íconos básicos (ejemplo) ---
     private ImageView loadIcon(String key) {
         try {
-            // Aquí podrías mapear claves a imágenes locales
-            String path = "/icons/" + key + ".png"; // ruta en resources/icons
+            String path = "/icons/" + key + ".png";
             Image img = new Image(getClass().getResourceAsStream(path));
             ImageView iv = new ImageView(img);
             iv.setFitWidth(16);
             iv.setFitHeight(16);
             return iv;
-        } catch (Exception e) {
-            return null;
-        }
+        } catch (Exception e) { return null; }
     }
 
-    // --- Scroll automático ---
     private void autoScroll() {
         chatBox.layout();
         chatScrollPane.layout();
         chatScrollPane.setVvalue(1.0);
     }
 }
+
+
 

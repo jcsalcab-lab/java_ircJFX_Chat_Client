@@ -4,21 +4,26 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Stage;
 import javafx.scene.control.ScrollPane;
 import org.pircbotx.PircBotX;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -47,6 +52,10 @@ public class CanalController {
     private String lastPrefix = null;
     private List<String> currentMatches = new ArrayList<>();
     private int matchIndex = 0;
+    
+ // Ventanas de chats privados abiertas (para evitar duplicados)
+    private final Map<String, Stage> privateChats = new HashMap<>();
+
 
     public CanalController() {}
 
@@ -56,8 +65,6 @@ public class CanalController {
     public void setMainController(ChatController mainController) { this.mainController = mainController; }
     public void setUserDoubleClickHandler(Consumer<String> handler) { this.onUserDoubleClick = handler; }
 
-    
-    
   
     // --- Inicialización del FXML ---
     @FXML
@@ -73,12 +80,16 @@ public class CanalController {
             if (event.getClickCount() == 2) {
                 String selectedUser = userListView_canal.getSelectionModel().getSelectedItem();
                 if (selectedUser != null && !selectedUser.isEmpty() && !selectedUser.startsWith("Usuarios:")) {
+                    if (mainController != null) {
+                        mainController.abrirChatPrivado(selectedUser); // <-- abrir chat privado
+                    }
                     inputField_canal.setText("/msg " + selectedUser + " ");
                     inputField_canal.requestFocus();
                     if (onUserDoubleClick != null) onUserDoubleClick.accept(selectedUser);
                 }
             }
         });
+
 
         inputField_canal.setOnAction(e -> sendCommand());
 
@@ -103,7 +114,21 @@ public class CanalController {
     /**
      * Autocompletado: busca nicks en nickCache que empiecen por el prefijo.
      * Si reverse==true (Shift+TAB) rota hacia atrás.
+     *
      */
+    
+    
+    public void abrirChatPrivado(String nick) {
+        if (nick == null || nick.trim().isEmpty()) return;
+
+        // Delegar al ChatController
+        if (mainController != null) {
+            mainController.abrirChatPrivado(nick); // Llama al método corregido
+        }
+    }
+
+
+
  // --- Autocompletado con TAB ---
     private void handleTabCompletion(boolean reverse) {
         String text = inputField_canal.getText();
