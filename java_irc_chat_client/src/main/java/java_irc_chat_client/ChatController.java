@@ -1,12 +1,16 @@
 package java_irc_chat_client;
 
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
@@ -14,6 +18,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.Window;
+import javafx.util.Duration;
 import org.pircbotx.*;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.*;
@@ -23,6 +29,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * ChatController con gestión de ventanas flotantes alineadas al rightPane.
+ */
 public class ChatController {
 
     @FXML
@@ -47,9 +56,15 @@ public class ChatController {
     // Ventanas de canales
     private final Map<String, CanalVentana> canalesAbiertos = new HashMap<>();
     private final Map<String, Button> canalButtons = new HashMap<>();
+
+    // Lista de ventanas flotantes (canales + privadas)
     private final List<Stage> floatingWindows = new ArrayList<>();
 
-    private CanalController controller; // tipo correcto
+    // Para debounce del resize (detectar fin de redimensionamiento)
+    private final PauseTransition resizePause = new PauseTransition(Duration.millis(250));
+    private Stage lastFocusedWindow = null;
+
+    private CanalController controller; // por compatibilidad
 
     private static class CanalVentana {
         Stage stage;
@@ -70,6 +85,7 @@ public class ChatController {
 
     public void setRightPane(StackPane rightPane) {
         this.rightPane = rightPane;
+        attachRightPaneSizeListeners();
     }
 
     public void setRootPane(AnchorPane rootPane) {
@@ -83,13 +99,15 @@ public class ChatController {
     // ------------------ Inicialización ------------------
     @FXML
     public void initialize() {
-        inputField.setOnAction(e -> sendCommand());
-        inputField.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            if (event.getCode() == KeyCode.TAB) {
-                event.consume();
-                handleTabCompletion(event.isShiftDown());
-            }
-        });
+        if (inputField != null) {
+            inputField.setOnAction(e -> sendCommand());
+            inputField.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+                if (event.getCode() == KeyCode.TAB) {
+                    event.consume();
+                    handleTabCompletion(event.isShiftDown());
+                }
+            });
+        }
 
         if (userListView_canal != null) {
             userListView_canal.setOnMouseClicked(event -> {
@@ -101,6 +119,16 @@ public class ChatController {
                 }
             });
         }
+
+        // reiniciar el PauseTransition action
+        resizePause.setOnFinished(ev -> {
+            // Al finalizar el redimensionamiento, devolver al frente la ventana que estaba en primer plano
+            if (lastFocusedWindow != null) {
+                Platform.runLater(() -> {
+                    try { lastFocusedWindow.toFront(); } catch (Exception ignored) {}
+                });
+            }
+        });
     }
 
     public AnchorPane getRootPane() {
@@ -123,7 +151,9 @@ public class ChatController {
             else {
                 if (canalActivo != null && canalesAbiertos.containsKey(canalActivo)) {
                     CanalVentana ventana = canalesAbiertos.get(canalActivo);
-                    ventana.controller.sendMessageToChannel(text);
+                    if (ventana != null && ventana.controller != null) {
+                        ventana.controller.sendMessageToChannel(text);
+                    }
                 } else {
                     if (bot != null)
                         bot.sendIRC().message("#mas_de_40", text);
@@ -193,6 +223,8 @@ public class ChatController {
             stage.setTitle("Chat privado con " + nick);
             stage.setScene(new Scene(root));
             stage.setUserData(controller);
+
+            // Registrar en mapas antes de mostrar
             privateChats.put(key, stage);
             privateChatsController.put(key, controller);
 
@@ -201,15 +233,14 @@ public class ChatController {
             privadoBtn.setMaxWidth(Double.MAX_VALUE);
             privadoBtn.setOnAction(e -> {
                 Stage s = privateChats.get(key);
-                if (s != null)
-                    s.toFront();
+                if (s != null) s.toFront();
             });
-            if (leftPane != null)
-                leftPane.getChildren().add(privadoBtn);
+            if (leftPane != null) Platform.runLater(() -> leftPane.getChildren().add(privadoBtn));
             privadoButtons.put(key, privadoBtn);
 
-            // --- Al cerrar la ventana, limpiar mapas y quitar botón ---
-            stage.setOnCloseRequest(e -> {
+            // Registrar como ventana flotante y escuchar cierre
+            registerFloatingWindow(stage, () -> {
+                // onClose cleanup
                 privateChats.remove(key);
                 privateChatsController.remove(key);
                 Button btn = privadoButtons.remove(key);
@@ -243,7 +274,7 @@ public class ChatController {
     private void abrirCanal(String canal) throws IOException {
         if (canalesAbiertos.containsKey(canal)) {
             CanalVentana v = canalesAbiertos.get(canal);
-            v.stage.toFront();
+            if (v != null && v.stage != null) v.stage.toFront();
             canalActivo = canal;
             return;
         }
@@ -259,19 +290,22 @@ public class ChatController {
         canalStage.setTitle("Canal " + canal);
         canalStage.setScene(new Scene(canalPane));
 
-        floatingWindows.add(canalStage);
+        // Registrar ventana y controlador
         CanalVentana ventana = new CanalVentana(canalStage, canalController, canalPane);
         canalesAbiertos.put(canal, ventana);
 
+        // Botón en panel izquierdo
         Button canalBtn = new Button(canal);
         canalBtn.setMaxWidth(Double.MAX_VALUE);
         canalBtn.setOnAction(e -> {
             canalStage.toFront();
             canalActivo = canal;
         });
-        if (leftPane != null)
-            leftPane.getChildren().add(canalBtn);
+        if (leftPane != null) Platform.runLater(() -> leftPane.getChildren().add(canalBtn));
         canalButtons.put(canal, canalBtn);
+
+        // Registrar como ventana flotante y escuchar cierre
+        registerFloatingWindow(canalStage, () -> cerrarCanalDesdeVentana(canal));
 
         canalStage.setOnCloseRequest(ev -> cerrarCanalDesdeVentana(canal));
         canalActivo = canal;
@@ -286,7 +320,9 @@ public class ChatController {
     public void cerrarCanalDesdeVentana(String canal) {
         CanalVentana ventana = canalesAbiertos.remove(canal);
         if (ventana != null) {
-            Platform.runLater(() -> ventana.stage.close());
+            Platform.runLater(() -> {
+                try { ventana.stage.close(); } catch (Exception ignored) {}
+            });
             Button btn = canalButtons.remove(canal);
             if (btn != null && leftPane != null)
                 Platform.runLater(() -> leftPane.getChildren().remove(btn));
@@ -301,6 +337,7 @@ public class ChatController {
         }
     }
 
+    // ------------------ Conexión IRC ------------------
     public void connectToIRC() {
         new Thread(() -> {
             try {
@@ -383,7 +420,11 @@ public class ChatController {
                             @Override
                             public void onQuit(QuitEvent event) {
                                 for (CanalVentana ventana : canalesAbiertos.values()) {
-                                    actualizarUsuariosCanal(ventana.stage.getTitle(), reconstruirListaConPrefijos(ventana.controller.getCanalChannel()));
+                                    // intenta actualizar si el canal aún existe
+                                    if (ventana.controller != null && ventana.controller.getCanalChannel() != null) {
+                                        actualizarUsuariosCanal(ventana.controller.getCanalChannel().getName(),
+                                                reconstruirListaConPrefijos(ventana.controller.getCanalChannel()));
+                                    }
                                 }
                             }
 
@@ -455,15 +496,104 @@ public class ChatController {
         });
     }
 
+    /**
+     * Bind inicial que debe llamarse desde la clase que crea el primaryStage,
+     * pasándole el Stage principal para manejar el cierre y tambien para
+     * detectar cambios de tamaño (si quieres).
+     */
     public void bindFloatingWindowsToRightPane(Stage primaryStage) {
-        if (primaryStage == null)
-            return;
+        if (primaryStage == null) return;
 
+        // Al cerrar la app, cerramos las ventanas flotantes
         primaryStage.setOnCloseRequest(event -> {
-            for (Stage s : floatingWindows)
+            for (Stage s : new ArrayList<>(floatingWindows))
                 Platform.runLater(s::close);
-            for (Stage s : privateChats.values())
+            for (Stage s : new ArrayList<>(privateChats.values()))
                 Platform.runLater(s::close);
         });
+
+        // También escuchamos cambios en la ventana principal (opcional)
+        primaryStage.widthProperty().addListener((obs, oldV, newV) -> scheduleResize());
+        primaryStage.heightProperty().addListener((obs, oldV, newV) -> scheduleResize());
+    }
+
+    // ------------------ Gestión de ventanas flotantes ------------------
+
+    /**
+     * Registra una ventana como "flotante" para que se posicione y redimensione
+     * en base al rightPane. `onCloseCleanup` se ejecuta cuando la ventana se cierra.
+     */
+    private void registerFloatingWindow(Stage stage, Runnable onCloseCleanup) {
+        if (stage == null) return;
+        if (!floatingWindows.contains(stage)) floatingWindows.add(stage);
+
+        // Guardar la última ventana con foco
+        stage.focusedProperty().addListener((obs, was, now) -> {
+            if (now) lastFocusedWindow = stage;
+        });
+
+        // Cuando se cierra, limpiar referencias y listas
+        stage.setOnCloseRequest(ev -> {
+            floatingWindows.remove(stage);
+            try { onCloseCleanup.run(); } catch (Exception ignored) {}
+        });
+
+        // Si la ventana se crea mientras rightPane ya existe, aplicar tamaño/posición
+        Platform.runLater(this::resizeFloatingWindows);
+    }
+
+    private void attachRightPaneSizeListeners() {
+        if (rightPane == null) return;
+
+        // Cada vez que cambie tamaño el rightPane, programamos resize
+        rightPane.widthProperty().addListener((obs, oldV, newV) -> scheduleResize());
+        rightPane.heightProperty().addListener((obs, oldV, newV) -> scheduleResize());
+
+        // Cuando cambie el scene/window (ej. se muestra la app), forzamos un resize
+        rightPane.sceneProperty().addListener((obs, oldS, newS) -> Platform.runLater(this::resizeFloatingWindows));
+    }
+
+    /**
+     * Llama a resizeFloatingWindows y reinicia el debounce para detectar fin del resize.
+     */
+    private void scheduleResize() {
+        resizeFloatingWindows();
+        resizePause.playFromStart();
+    }
+
+    /**
+     * Reposiciona y redimensiona todas las ventanas flotantes para que coincidan con el rectángulo
+     * del rightPane (lado derecho del SplitPane). Usa coordenadas de pantalla.
+     */
+    private void resizeFloatingWindows() {
+        if (rightPane == null) return;
+        if (rightPane.getScene() == null) return;
+        Window window = rightPane.getScene().getWindow();
+        if (window == null) return;
+
+        // localToScreen (0,0) nos da esquina superior izquierda del rightPane en pantalla
+        javafx.geometry.Point2D topLeft = rightPane.localToScreen(0, 0);
+        if (topLeft == null) return;
+
+        double x = topLeft.getX();
+        double y = topLeft.getY();
+        double width = rightPane.getWidth();
+        double height = rightPane.getHeight();
+
+        // Aplicar a todas las ventanas flotantes
+        for (Stage stage : new ArrayList<>(floatingWindows)) {
+            try {
+                Platform.runLater(() -> {
+                    try {
+                        stage.setX(x);
+                        stage.setY(y);
+                        // Ajustar mínimo para evitar tamaños 0
+                        stage.setWidth(Math.max(1, width));
+                        stage.setHeight(Math.max(1, height));
+                    } catch (Exception ignored) {}
+                });
+            } catch (Exception ignored) {}
+        }
     }
 }
+
