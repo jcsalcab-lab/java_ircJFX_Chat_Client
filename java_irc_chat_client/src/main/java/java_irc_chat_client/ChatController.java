@@ -25,9 +25,12 @@ import java.util.stream.Collectors;
 
 public class ChatController {
 
-    @FXML private TextField inputField;
-    @FXML private ListView<String> userListView_canal;
-    @FXML private TextArea chatArea;
+    @FXML
+    private TextField inputField;
+    @FXML
+    private ListView<String> userListView_canal;
+    @FXML
+    private TextArea chatArea;
 
     private PircBotX bot;
     private String canalActivo = null;
@@ -39,25 +42,43 @@ public class ChatController {
     // Ventanas privadas y sus controladores
     private final Map<String, Stage> privateChats = new HashMap<>();
     private final Map<String, PrivadoController> privateChatsController = new HashMap<>();
+    private final Map<String, Button> privadoButtons = new HashMap<>();
 
     // Ventanas de canales
     private final Map<String, CanalVentana> canalesAbiertos = new HashMap<>();
     private final Map<String, Button> canalButtons = new HashMap<>();
     private final List<Stage> floatingWindows = new ArrayList<>();
 
-    // Estructura interna para manejar ventanas de canal
+    private CanalController controller; // tipo correcto
+
     private static class CanalVentana {
         Stage stage;
         CanalController controller;
         AnchorPane rootPane;
-        CanalVentana(Stage s, CanalController c, AnchorPane p) { stage = s; controller = c; rootPane = p; }
+
+        CanalVentana(Stage s, CanalController c, AnchorPane p) {
+            stage = s;
+            controller = c;
+            rootPane = p;
+        }
     }
 
     // ------------------ Setters ------------------
-    public void setLeftPane(VBox leftPane) { this.leftPane = leftPane; }
-    public void setRightPane(StackPane rightPane) { this.rightPane = rightPane; }
-    public void setRootPane(AnchorPane rootPane) { this.rootPane = rootPane; }
-    public void setBot(PircBotX bot) { this.bot = bot; }
+    public void setLeftPane(VBox leftPane) {
+        this.leftPane = leftPane;
+    }
+
+    public void setRightPane(StackPane rightPane) {
+        this.rightPane = rightPane;
+    }
+
+    public void setRootPane(AnchorPane rootPane) {
+        this.rootPane = rootPane;
+    }
+
+    public void setBot(PircBotX bot) {
+        this.bot = bot;
+    }
 
     // ------------------ Inicialización ------------------
     @FXML
@@ -93,16 +114,19 @@ public class ChatController {
     // ------------------ Enviar comandos ------------------
     private void sendCommand() {
         String text = inputField.getText().trim();
-        if (text.isEmpty() || bot == null) return;
+        if (text.isEmpty() || bot == null)
+            return;
 
         try {
-            if (text.startsWith("/")) handleCommand(text.substring(1).trim());
+            if (text.startsWith("/"))
+                handleCommand(text.substring(1).trim());
             else {
                 if (canalActivo != null && canalesAbiertos.containsKey(canalActivo)) {
                     CanalVentana ventana = canalesAbiertos.get(canalActivo);
                     ventana.controller.sendMessageToChannel(text);
                 } else {
-                    if (bot != null) bot.sendIRC().message("#mas_de_40", text);
+                    if (bot != null)
+                        bot.sendIRC().message("#mas_de_40", text);
                     Platform.runLater(() -> chatArea.appendText("<Yo> " + text + "\n"));
                 }
             }
@@ -119,15 +143,18 @@ public class ChatController {
                 cerrarTodo("Cerrando cliente");
             } else if (cmd.startsWith("msg ")) {
                 String[] parts = cmd.split(" ", 3);
-                if (parts.length >= 3 && bot != null) bot.sendIRC().message(parts[1], parts[2]);
+                if (parts.length >= 3 && bot != null)
+                    bot.sendIRC().message(parts[1], parts[2]);
             } else if (cmd.startsWith("me ")) {
                 if (bot != null && canalActivo != null) {
                     String mensaje = cmd.substring(3).trim();
                     bot.sendIRC().action(canalActivo, mensaje);
                     appendMessage("Yo", "* " + mensaje);
                 }
-            } else if (bot != null) bot.sendRaw().rawLine(cmd);
-            else appendSystemMessage("⚠ No conectado aún.");
+            } else if (bot != null)
+                bot.sendRaw().rawLine(cmd);
+            else
+                appendSystemMessage("⚠ No conectado aún.");
         } catch (Exception e) {
             appendSystemMessage("⚠ Error al ejecutar comando: " + e.getMessage());
         }
@@ -144,7 +171,8 @@ public class ChatController {
 
     // ------------------ Chat privado ------------------
     public void abrirChatPrivado(String nick) {
-        if (nick == null || nick.trim().isEmpty()) return;
+        if (nick == null || nick.trim().isEmpty())
+            return;
         String key = nick.toLowerCase();
 
         if (privateChats.containsKey(key)) {
@@ -168,9 +196,26 @@ public class ChatController {
             privateChats.put(key, stage);
             privateChatsController.put(key, controller);
 
+            // --- Crear botón en el panel izquierdo ---
+            Button privadoBtn = new Button(nick);
+            privadoBtn.setMaxWidth(Double.MAX_VALUE);
+            privadoBtn.setOnAction(e -> {
+                Stage s = privateChats.get(key);
+                if (s != null)
+                    s.toFront();
+            });
+            if (leftPane != null)
+                leftPane.getChildren().add(privadoBtn);
+            privadoButtons.put(key, privadoBtn);
+
+            // --- Al cerrar la ventana, limpiar mapas y quitar botón ---
             stage.setOnCloseRequest(e -> {
                 privateChats.remove(key);
                 privateChatsController.remove(key);
+                Button btn = privadoButtons.remove(key);
+                if (btn != null && leftPane != null) {
+                    Platform.runLater(() -> leftPane.getChildren().remove(btn));
+                }
             });
 
             stage.show();
@@ -189,7 +234,8 @@ public class ChatController {
                 abrirChatPrivado(usuario);
                 ctrl = privateChatsController.get(key);
             }
-            if (ctrl != null) ctrl.appendMessage(usuario, mensaje);
+            if (ctrl != null)
+                ctrl.appendMessage(usuario, mensaje);
         });
     }
 
@@ -219,8 +265,12 @@ public class ChatController {
 
         Button canalBtn = new Button(canal);
         canalBtn.setMaxWidth(Double.MAX_VALUE);
-        canalBtn.setOnAction(e -> { canalStage.toFront(); canalActivo = canal; });
-        if (leftPane != null) leftPane.getChildren().add(canalBtn);
+        canalBtn.setOnAction(e -> {
+            canalStage.toFront();
+            canalActivo = canal;
+        });
+        if (leftPane != null)
+            leftPane.getChildren().add(canalBtn);
         canalButtons.put(canal, canalBtn);
 
         canalStage.setOnCloseRequest(ev -> cerrarCanalDesdeVentana(canal));
@@ -238,12 +288,12 @@ public class ChatController {
         if (ventana != null) {
             Platform.runLater(() -> ventana.stage.close());
             Button btn = canalButtons.remove(canal);
-            if (btn != null && leftPane != null) Platform.runLater(() -> leftPane.getChildren().remove(btn));
+            if (btn != null && leftPane != null)
+                Platform.runLater(() -> leftPane.getChildren().remove(btn));
             floatingWindows.remove(ventana.stage);
         }
     }
 
-    // ------------------ Actualización de usuarios ------------------
     public void actualizarUsuariosCanal(String canal, List<String> usuarios) {
         CanalVentana ventana = canalesAbiertos.get(canal);
         if (ventana != null && ventana.controller != null) {
@@ -251,18 +301,12 @@ public class ChatController {
         }
     }
 
-    // ------------------ Conexión ------------------
     public void connectToIRC() {
         new Thread(() -> {
             try {
-                Configuration config = new Configuration.Builder()
-                        .setName("akiles54321")
-                        .setLogin("akiles54321")
-                        .setRealName("JIRCHAT")
-                        .addServer("irc.chatzona.org", 6697)
-                        .setSocketFactory(SSLSocketFactory.getDefault())
-                        .setAutoNickChange(true)
-                        .setAutoReconnect(true)
+                Configuration config = new Configuration.Builder().setName("akiles54321").setLogin("akiles54321")
+                        .setRealName("JIRCHAT").addServer("irc.chatzona.org", 6697)
+                        .setSocketFactory(SSLSocketFactory.getDefault()).setAutoNickChange(true).setAutoReconnect(true)
                         .addListener(new ListenerAdapter() {
 
                             private boolean identificado = false;
@@ -298,7 +342,6 @@ public class ChatController {
                                 String mensaje = event.getMessage();
                                 String canal = event.getChannel().getName();
 
-                                // Enviar mensaje al CanalController correspondiente
                                 CanalVentana ventana = canalesAbiertos.get(canal);
                                 if (ventana != null) ventana.controller.appendMessage(usuario, mensaje);
                             }
@@ -309,46 +352,102 @@ public class ChatController {
                                 String mensaje = "* " + event.getAction();
                                 String canal = event.getChannel().getName();
 
-                                // Enviar acción al CanalController correspondiente
                                 CanalVentana ventana = canalesAbiertos.get(canal);
                                 if (ventana != null) ventana.controller.appendMessage(usuario, mensaje);
                             }
 
                             @Override
                             public void onUserList(UserListEvent event) {
-                                List<String> usuarios = event.getUsers().stream()
-                                        .map(User::getNick)
+                                List<String> usuariosConPrefijo = event.getUsers().stream()
+                                        .map(u -> {
+                                            String prefix = "";
+                                            if(event.getChannel().getOps().contains(u)) prefix = "@";
+                                            else if(event.getChannel().getVoices().contains(u)) prefix = "+";
+                                            return prefix + u.getNick();
+                                        })
                                         .collect(Collectors.toList());
-                                actualizarUsuariosCanal(event.getChannel().getName(), usuarios);
+
+                                actualizarUsuariosCanal(event.getChannel().getName(), usuariosConPrefijo);
+                            }
+
+                            @Override
+                            public void onJoin(JoinEvent event) {
+                                actualizarUsuariosCanal(event.getChannel().getName(), reconstruirListaConPrefijos(event.getChannel()));
+                            }
+
+                            @Override
+                            public void onPart(PartEvent event) {
+                                actualizarUsuariosCanal(event.getChannel().getName(), reconstruirListaConPrefijos(event.getChannel()));
+                            }
+
+                            @Override
+                            public void onQuit(QuitEvent event) {
+                                for (CanalVentana ventana : canalesAbiertos.values()) {
+                                    actualizarUsuariosCanal(ventana.stage.getTitle(), reconstruirListaConPrefijos(ventana.controller.getCanalChannel()));
+                                }
+                            }
+
+                            @Override
+                            public void onKick(KickEvent event) {
+                                actualizarUsuariosCanal(event.getChannel().getName(), reconstruirListaConPrefijos(event.getChannel()));
+                            }
+
+                            @Override
+                            public void onMode(ModeEvent event) {
+                                if(event.getChannel() != null) {
+                                    String canal = event.getChannel().getName();
+                                    CanalVentana ventana = canalesAbiertos.get(canal);
+                                    if(ventana != null) {
+                                        List<String> usuariosConPrefijo = reconstruirListaConPrefijos(event.getChannel());
+                                        ventana.controller.updateUsers(usuariosConPrefijo);
+                                    }
+                                }
+                            }
+
+                            private List<String> reconstruirListaConPrefijos(org.pircbotx.Channel channel) {
+                                return channel.getUsers().stream()
+                                        .map(u -> {
+                                            String prefix = "";
+                                            if(channel.getOps().contains(u)) prefix = "@";
+                                            else if(channel.getVoices().contains(u)) prefix = "+";
+                                            return prefix + u.getNick();
+                                        })
+                                        .collect(Collectors.toList());
                             }
 
                         }).buildConfiguration();
 
                 bot = new PircBotX(config);
                 bot.startBot();
-            } catch(Exception e) { appendSystemMessage("Error al conectar: " + e.getMessage()); }
+            } catch (Exception e) {
+                appendSystemMessage("Error al conectar: " + e.getMessage());
+            }
         }).start();
     }
 
-    // ------------------ Cerrar todo ------------------
     public void cerrarTodo(String mensaje) {
-        for (String canal : new ArrayList<>(canalesAbiertos.keySet())) cerrarCanalDesdeVentana(canal);
-        for (Stage s : new ArrayList<>(privateChats.values())) Platform.runLater(s::close);
+        for (String canal : new ArrayList<>(canalesAbiertos.keySet()))
+            cerrarCanalDesdeVentana(canal);
+        for (Stage s : new ArrayList<>(privateChats.values()))
+            Platform.runLater(s::close);
         privateChats.clear();
         privateChatsController.clear();
+        privadoButtons.clear();
 
         if (bot != null) {
             try {
                 bot.sendIRC().quitServer(mensaje != null ? mensaje : "Cerrando cliente");
                 bot.stopBotReconnect();
                 bot.close();
-            } catch(Exception ignored){}
+            } catch (Exception ignored) {
+            }
         }
 
         Platform.runLater(() -> {
             try {
                 Stage primaryStage = (Stage) rootPane.getScene().getWindow();
-                if (primaryStage != null) primaryStage.close();
+                if (primaryStage != null)
+                    primaryStage.close();
             } finally {
                 Platform.exit();
                 System.exit(0);
@@ -356,21 +455,15 @@ public class ChatController {
         });
     }
 
-    /**
-     * Vincula las ventanas flotantes al Stage principal,
-     * de manera que se cierren si se cierra el Stage principal.
-     */
     public void bindFloatingWindowsToRightPane(Stage primaryStage) {
-        if (primaryStage == null) return;
+        if (primaryStage == null)
+            return;
 
         primaryStage.setOnCloseRequest(event -> {
-            for (Stage s : floatingWindows) Platform.runLater(s::close);
-            for (Stage s : privateChats.values()) Platform.runLater(s::close);
+            for (Stage s : floatingWindows)
+                Platform.runLater(s::close);
+            for (Stage s : privateChats.values())
+                Platform.runLater(s::close);
         });
     }
-
 }
-
-
-
-

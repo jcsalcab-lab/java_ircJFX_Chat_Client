@@ -1,224 +1,148 @@
-package  java_irc_chat_client;
+package java_irc_chat_client;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import javafx.stage.Stage;
-import javafx.scene.control.ScrollPane;
-import org.pircbotx.PircBotX;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import org.pircbotx.Channel;
+import org.pircbotx.PircBotX;
 
+import java.util.*;
+import java.util.function.Consumer;
 
 public class CanalController {
 
-	@FXML private VBox chatBox; 
-	@FXML private ScrollPane chatScrollPane;
-
+    @FXML private VBox chatBox;
+    @FXML private ScrollPane chatScrollPane;
     @FXML private TextField inputField_canal;
     @FXML private ListView<String> userListView_canal;
 
     private String canal;
     private PircBotX bot;
     private ChatController mainController;
+    private Channel canalChannel;
 
-    // Lista que se muestra en el ListView (incluye encabezado)
     private final ObservableList<String> users = FXCollections.observableArrayList();
-    private Consumer<String> onUserDoubleClick;
-
-    // --- Caché limpia de nicks (solo nicks reales, sin "Usuarios: X") ---
     private final List<String> nickCache = new ArrayList<>();
-
-    // --- Variables para autocompletado ---
+    private final List<String> currentMatches = new ArrayList<>();
+    private int matchIndex = -1;
     private String lastPrefix = null;
-    private List<String> currentMatches = new ArrayList<>();
-    private int matchIndex = 0;
-    
- // Ventanas de chats privados abiertas (para evitar duplicados)
-    private final Map<String, Stage> privateChats = new HashMap<>();
-
+    private Consumer<String> onUserDoubleClick;
+    private SymbolMapper symbolMapper;
 
     public CanalController() {}
 
-    // --- Setters ---
     public void setBot(PircBotX bot) { this.bot = bot; }
     public void setCanal(String canal) { this.canal = canal; }
     public void setMainController(ChatController mainController) { this.mainController = mainController; }
     public void setUserDoubleClickHandler(Consumer<String> handler) { this.onUserDoubleClick = handler; }
+    public void setCanalChannel(Channel canalChannel) { this.canalChannel = canalChannel; }
+    public Channel getCanalChannel() { return canalChannel; }
 
-  
-    // --- Inicialización del FXML ---
     @FXML
     public void initialize() {
-       
-
+        symbolMapper = new SymbolMapper();
         userListView_canal.setItems(users);
-        userListView_canal.getStylesheets().add(
-        	    getClass().getResource("/java_irc_chat_client/style.css").toExternalForm()
-        	);
+        userListView_canal.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) { setText(null); setStyle(""); }
+                else {
+                    setText(item);
+                    setStyle(getIndex() % 2 == 0 ? "-fx-background-color: #FFFACD; -fx-font-weight: bold;" 
+                                                  : "-fx-background-color: #ADD8E6; -fx-font-weight: bold;");
+                }
+            }
+        });
+
+        inputField_canal.setOnAction(e -> sendCommand());
+        inputField_canal.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.TAB) { event.consume(); handleTabCompletion(event.isShiftDown()); }
+        });
 
         userListView_canal.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 String selectedUser = userListView_canal.getSelectionModel().getSelectedItem();
-                if (selectedUser != null && !selectedUser.isEmpty() && !selectedUser.startsWith("Usuarios:")) {
-                    if (mainController != null) {
-                        mainController.abrirChatPrivado(selectedUser); // <-- abrir chat privado
-                    }
+                if (selectedUser != null && !selectedUser.startsWith("Usuarios:")) {
+                    abrirChatPrivado(selectedUser);
                     inputField_canal.setText("/msg " + selectedUser + " ");
-                    inputField_canal.requestFocus();
+                    inputField_canal.positionCaret(inputField_canal.getText().length());
                     if (onUserDoubleClick != null) onUserDoubleClick.accept(selectedUser);
                 }
             }
         });
-
-
-        inputField_canal.setOnAction(e -> sendCommand());
-
-        inputField_canal.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.TAB) {
-                event.consume();
-                handleTabCompletion(event.isShiftDown()); // shift+tab = atrás
-            }
-        });
-
-        
-        // Interceptamos TAB con un EventFilter para cogerlo antes del cambio de foco
-        inputField_canal.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            if (event.getCode() == KeyCode.TAB) {
-                event.consume(); // evita que JavaFX cambie el foco
-                // Pasamos si Shift está pulsado para permitir Shift+TAB (rotar hacia atrás)
-                handleTabCompletion(event.isShiftDown());
-            }
-        });
     }
 
-    /**
-     * Autocompletado: busca nicks en nickCache que empiecen por el prefijo.
-     * Si reverse==true (Shift+TAB) rota hacia atrás.
-     *
-     */
-    
-    
-    public void abrirChatPrivado(String nick) {
-        if (nick == null || nick.trim().isEmpty()) return;
-
-        // Delegar al ChatController
-        if (mainController != null) {
-            mainController.abrirChatPrivado(nick); // Llama al método corregido
-        }
-    }
-
-
-
- // --- Autocompletado con TAB ---
+    // --- TAB Autocompletado ---
     private void handleTabCompletion(boolean reverse) {
         String text = inputField_canal.getText();
         int caretPos = inputField_canal.getCaretPosition();
-
-        // Obtener la palabra actual (último espacio antes del cursor)
         int start = Math.max(0, text.lastIndexOf(' ', caretPos - 1) + 1);
-        String prefix = text.substring(start, caretPos);
+        String prefix = text.substring(start, caretPos).trim();
+        if (prefix.isEmpty()) return;
 
-        if (prefix == null || prefix.trim().isEmpty()) return;
-        prefix = prefix.trim();
-
-        // 🔹 Si el prefijo cambió → recalcular coincidencias
         if (!prefix.equalsIgnoreCase(lastPrefix)) {
             currentMatches.clear();
-
-            for (String u : users) {
-                if (u == null || u.startsWith("Usuarios:")) continue;
-                if (u.toLowerCase().startsWith(prefix.toLowerCase())) {
-                    currentMatches.add(u);
-                }
+            for (String nick : users) {
+                if (nick == null || nick.startsWith("Usuarios:")) continue;
+                String cleanNick = nick.startsWith("@") || nick.startsWith("+") ? nick.substring(1) : nick;
+                if (cleanNick.toLowerCase().startsWith(prefix.toLowerCase())) currentMatches.add(nick);
             }
-            Collections.sort(currentMatches, String.CASE_INSENSITIVE_ORDER);
-
+            currentMatches.sort(String.CASE_INSENSITIVE_ORDER);
             lastPrefix = prefix;
-            matchIndex = -1; // 👈 reseteamos a -1 para que el primer TAB apunte a 0
+            matchIndex = -1;
         }
 
         if (currentMatches.isEmpty()) return;
 
-        // 🔹 Avanzar índice en cada TAB
-        if (reverse) {
-            matchIndex = (matchIndex - 1 + currentMatches.size()) % currentMatches.size();
-        } else {
-            matchIndex = (matchIndex + 1) % currentMatches.size();
-        }
+        matchIndex = reverse
+                ? (matchIndex - 1 + currentMatches.size()) % currentMatches.size()
+                : (matchIndex + 1) % currentMatches.size();
 
         String replacement = currentMatches.get(matchIndex);
-
-        // Reemplazar en el TextField
-        String newText = text.substring(0, start) + replacement + text.substring(caretPos);
-        inputField_canal.setText(newText);
-
-        // Cursor justo después del nick
+        inputField_canal.setText(text.substring(0, start) + replacement + text.substring(caretPos));
         inputField_canal.positionCaret(start + replacement.length());
     }
 
-
-
-
-    // --- Comandos y envío de mensajes ---
+    // --- Envío de mensajes ---
     private void sendCommand() {
         String text = inputField_canal.getText().trim();
         if (text.isEmpty() || bot == null) return;
-
         try {
             if (text.startsWith("/")) handleCommand(text.substring(1).trim());
             else sendMessageToChannel(text);
         } finally {
             inputField_canal.clear();
-            // Reiniciar autocompletado después de enviar
             lastPrefix = null;
             currentMatches.clear();
-            matchIndex = 0;
+            matchIndex = -1;
         }
     }
 
     private void handleCommand(String cmd) {
         if (cmd.startsWith("part")) {
-            String[] parts = cmd.split(" ", 2);
-            String message = parts.length == 2 ? parts[1] : "";
-
-            if (!message.isEmpty()) bot.sendRaw().rawLine("PART " + canal + " :" + message);
-            else bot.sendRaw().rawLine("PART " + canal);
-
+            bot.sendRaw().rawLine("PART " + canal);
             appendSystemMessage("➡ Saliendo de " + canal);
-
-            if (mainController != null) {
+            if (mainController != null)
                 Platform.runLater(() -> mainController.cerrarCanalDesdeVentana(canal));
-            }
-
         } else if (cmd.startsWith("msg ")) {
             String[] parts = cmd.split(" ", 3);
             if (parts.length >= 3) bot.sendIRC().message(parts[1], parts[2]);
-
-        } else if (cmd.startsWith("me ")) {
-            bot.sendIRC().action(canal, cmd.substring(3).trim());
-        } else {
-            bot.sendRaw().rawLine(cmd);
-        }
+        } else if (cmd.startsWith("me ")) bot.sendIRC().action(canal, cmd.substring(3).trim());
+        else bot.sendRaw().rawLine(cmd);
     }
 
     public void sendMessageToChannel(String msg) {
@@ -230,30 +154,35 @@ public class CanalController {
 
     public void appendMessage(String usuario, String mensaje) {
         Platform.runLater(() -> {
-            // Nombre del usuario en negrita
             Text userText = new Text("<" + usuario + "> ");
-            userText.setStyle("-fx-font-weight: bold; -fx-font-family: 'Arial';");
+            userText.setFont(Font.font("Segoe UI Emoji", FontWeight.BOLD, 14));
+            userText.setFill(Color.BLACK);
 
-            // Parsear el mensaje con colores IRC y formato
             TextFlow messageFlow = parseIRCMessage(mensaje);
 
-            // Combinar usuario + mensaje
-            TextFlow fullFlow = new TextFlow();
-            fullFlow.getChildren().add(userText);
+            TextFlow fullFlow = new TextFlow(userText);
             fullFlow.getChildren().addAll(messageFlow.getChildren());
 
             chatBox.getChildren().add(fullFlow);
-
-            // Auto-scroll hacia abajo
-            chatBox.layout();
-            chatScrollPane.layout();
-            chatScrollPane.setVvalue(1.0);
+            autoScroll();
         });
     }
 
-    /**
-     * Parsea un mensaje IRC con códigos de color y negrita (\u0003 = color, \u0002 = bold, \u000F = reset)
-     */
+    public void appendSystemMessage(String mensaje) {
+        Platform.runLater(() -> {
+            TextFlow messageFlow = parseIRCMessage(mensaje);
+
+            for (var t : messageFlow.getChildren()) {
+                ((Text) t).setFill(Color.GRAY);
+                ((Text) t).setFont(Font.font("Segoe UI Emoji", FontWeight.NORMAL, 13));
+                ((Text) t).setStyle("-fx-font-style: italic;");
+            }
+
+            chatBox.getChildren().add(messageFlow);
+            autoScroll();
+        });
+    }
+
     private TextFlow parseIRCMessage(String mensaje) {
         TextFlow flow = new TextFlow();
         int i = 0;
@@ -262,126 +191,89 @@ public class CanalController {
 
         while (i < mensaje.length()) {
             char c = mensaje.charAt(i);
-
-            if (c == '\u0003') { // código de color
+            if (c == '\u0003') { // color
                 i++;
                 StringBuilder num = new StringBuilder();
-                while (i < mensaje.length() && Character.isDigit(mensaje.charAt(i))) {
-                    num.append(mensaje.charAt(i));
-                    i++;
-                }
-                try {
-                    int colorCode = Integer.parseInt(num.toString());
-                    currentColor = ircColorToFX(colorCode);
-                } catch (Exception e) {
-                    currentColor = Color.BLACK;
-                }
-            } else if (c == '\u000F') { // reset
-                currentColor = Color.BLACK;
-                bold = false;
-                i++;
-            } else if (c == '\u0002') { // negrita
-                bold = !bold;
-                i++;
-            } else {
-                // Texto normal hasta el próximo código
-                StringBuilder textChunk = new StringBuilder();
-                while (i < mensaje.length() && "\u0003\u000F\u0002".indexOf(mensaje.charAt(i)) == -1) {
-                    textChunk.append(mensaje.charAt(i));
-                    i++;
-                }
-                Text t = new Text(textChunk.toString());
+                while (i < mensaje.length() && Character.isDigit(mensaje.charAt(i))) num.append(mensaje.charAt(i++));
+                try { currentColor = ircColorToFX(Integer.parseInt(num.toString())); } 
+                catch (Exception e) { currentColor = Color.BLACK; }
+            } else if (c == '\u000F') { currentColor = Color.BLACK; bold = false; i++; } // reset
+            else if (c == '\u0002') { bold = !bold; i++; } // bold
+            else {
+                int codePoint = mensaje.codePointAt(i);
+                String mapped = symbolMapper.mapChar((char) codePoint);
+                Text t = new Text(mapped);
                 t.setFill(currentColor);
-
-                // Fuente clara y consistente
-                if (bold) {
-                    t.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 14));
-                } else {
-                    t.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.NORMAL, 14));
-                }
-
+                t.setFont(Font.font("Segoe UI Emoji", bold ? FontWeight.BOLD : FontWeight.NORMAL, 14));
                 flow.getChildren().add(t);
+
+                i += Character.charCount(codePoint);
             }
         }
         return flow;
     }
 
+    private Color ircColorToFX(int code) {
+        return switch (code) {
+            case 0 -> Color.WHITE; case 1 -> Color.BLACK; case 2 -> Color.DODGERBLUE;
+            case 3 -> Color.LIMEGREEN; case 4 -> Color.RED; case 5 -> Color.SADDLEBROWN;
+            case 6 -> Color.MEDIUMPURPLE; case 7 -> Color.ORANGE; case 8 -> Color.GOLD;
+            case 9 -> Color.GREEN; case 10 -> Color.CYAN; case 11 -> Color.TURQUOISE;
+            case 12 -> Color.ROYALBLUE; case 13 -> Color.HOTPINK; case 14 -> Color.DARKGREY; case 15 -> Color.LIGHTGREY;
+            default -> Color.BLACK;
+        };
+    }
 
-    /**
-     * Mapea códigos de color IRC (0-15) a colores JavaFX
-     */
-    
-    	private Color ircColorToFX(int code) {
-    	    switch (code) {
-    	        case 0: return Color.WHITE;
-    	        case 1: return Color.BLACK;
-    	        case 2: return Color.DODGERBLUE;   // más intenso que BLUE normal
-    	        case 3: return Color.LIMEGREEN;    // verde vivo
-    	        case 4: return Color.RED;
-    	        case 5: return Color.SADDLEBROWN;
-    	        case 6: return Color.MEDIUMPURPLE;
-    	        case 7: return Color.ORANGE;
-    	        case 8: return Color.GOLD;         // amarillo más fuerte
-    	        case 9: return Color.GREEN;        // mejor que LIGHTGREEN
-    	        case 10: return Color.CYAN;        // ya fuerte
-    	        case 11: return Color.TURQUOISE;   // en vez de LIGHTCYAN
-    	        case 12: return Color.ROYALBLUE;   // más intenso que LIGHTBLUE
-    	        case 13: return Color.HOTPINK;     // rosa fuerte
-    	        case 14: return Color.DARKGREY;    // en vez de GREY lavado
-    	        case 15: return Color.LIGHTGREY;   // lo puedes dejar o cambiar a SILVER
-    	        default: return Color.BLACK;
-    	    }
-    	}
-
-
-
-
-    public void appendSystemMessage(String mensaje) {
-        Platform.runLater(() -> {
-            // Crear una copia local dentro del lambda
-            String cleanMessage = mensaje.replaceAll("\\p{Cntrl}", "");
-
-            Text text = new Text(cleanMessage); // 🔹 quitar \n
-            text.setStyle("-fx-font-style: italic; -fx-fill: gray; -fx-font-family: 'Arial';");
-
-            TextFlow textFlow = new TextFlow(text);
-            chatBox.getChildren().add(textFlow);
-
-            // Auto-scroll hacia abajo
+    private void autoScroll() {
+        if (chatScrollPane != null) {
             chatBox.layout();
             chatScrollPane.layout();
             chatScrollPane.setVvalue(1.0);
-        });
+        }
     }
 
+    public void abrirChatPrivado(String nick) {
+        if (nick == null || nick.trim().isEmpty()) return;
+        if (mainController != null) mainController.abrirChatPrivado(nick);
+    }
 
-
-
-    // --- Actualización de usuarios ---
     public void updateUsers(List<String> userList) {
         Platform.runLater(() -> {
             users.clear();
             nickCache.clear();
-
             List<String> validUsers = new ArrayList<>();
-            for (String u : userList) {
-                if (u != null && !u.trim().isEmpty()) validUsers.add(u.trim());
-            }
-            validUsers.sort(String::compareToIgnoreCase);
+            for (String u : userList) if (u != null && !u.trim().isEmpty()) validUsers.add(u.trim());
 
-            // mostramos encabezado + lista en el ListView (igual que antes)
+            // Orden personalizado: @ > + > símbolos > letras/números
+            validUsers.sort((a, b) -> {
+                int rankA = getNickRank(a);
+                int rankB = getNickRank(b);
+                if (rankA != rankB) return Integer.compare(rankA, rankB);
+
+                // Para moderadores, operadores y letras: ignorar mayúsculas
+                if (rankA == 0 || rankA == 1 || rankA == 3) {
+                    String cleanA = a.startsWith("@") || a.startsWith("+") ? a.substring(1) : a;
+                    String cleanB = b.startsWith("@") || b.startsWith("+") ? b.substring(1) : b;
+                    return cleanA.compareToIgnoreCase(cleanB);
+                }
+
+                // Para símbolos, ordenar por Unicode
+                return a.compareTo(b);
+            });
+
             users.add("Usuarios: " + validUsers.size());
             users.addAll(validUsers);
 
-            // y guardamos una caché limpia sólo con nicks, para autocompletar
-            nickCache.addAll(validUsers);
-
-            // Reiniciar estado de autocompletado
-            lastPrefix = null;
-            currentMatches.clear();
-            matchIndex = 0;
+            for (String u : validUsers)
+                nickCache.add(u.startsWith("@") || u.startsWith("+") ? u.substring(1) : u);
         });
     }
 
+    private int getNickRank(String nick) {
+        if (nick.startsWith("@")) return 0;
+        if (nick.startsWith("+")) return 1;
+        char c = nick.charAt(0);
+        if (!Character.isLetterOrDigit(c)) return 2;
+        return 3;
+    }
 }
-

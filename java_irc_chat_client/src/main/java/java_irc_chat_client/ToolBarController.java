@@ -15,64 +15,68 @@ public class ToolBarController {
     private VBox leftPane;
     private ChatController chatController;
     private AnchorPane statusPane; // Referencia al pane del Status
-    
-    
     private AnchorPane currentFrontPane;  // El pane que está en primer plano actualmente
-
 
     public void setRightPane(StackPane rightPane) { this.rightPane = rightPane; }
     public void setLeftPane(VBox leftPane) { this.leftPane = leftPane; }
-
     public ChatController getChatController() { return chatController; }
 
-    // Abrir chat y vincular floating windows al primaryStage
+    /**
+     * Abrir chat y vincular floating windows al primaryStage.
+     */
     @FXML
     public void abrirChat(Stage primaryStage) {
-        if (chatController == null) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("JIRCHAT_CONNECT_STAGE.fxml"));
-                AnchorPane chatPane = loader.load();
-                chatController = loader.getController();
+        if (chatController != null) return; // Ya abierto
 
-                chatController.setLeftPane(leftPane);
-                chatController.setRightPane(rightPane);
-                chatController.connectToIRC();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("JIRCHAT_CONNECT_STAGE.fxml"));
+            AnchorPane chatPane = loader.load();
+            chatController = loader.getController();
 
-                // Guardar el Status pane
-                statusPane = chatController.getRootPane();
-                currentFrontPane = statusPane; // Inicialmente el Status está en primer plano
+            // Vincular panes
+            chatController.setLeftPane(leftPane);
+            chatController.setRightPane(rightPane);
 
-                // Añadir al rightPane sin eliminar otros nodos
-                rightPane.getChildren().add(chatPane);
+            // Añadir al rightPane
+            rightPane.getChildren().add(chatPane);
 
-                // Botón Status
-                if (leftPane != null) {
-                    Button statusButton = new Button("Status");
-                    statusButton.setMaxWidth(Double.MAX_VALUE);
-                    statusButton.setOnAction(e -> showStatus());
-                    leftPane.getChildren().add(statusButton);
-                }
+            // Guardar statusPane y ponerlo en primer plano
+            statusPane = chatController.getRootPane();
+            currentFrontPane = statusPane;
 
-                if (primaryStage != null) {
-                    chatController.bindFloatingWindowsToRightPane(primaryStage);
-                }
+            // Conectar al IRC
+            chatController.connectToIRC();
 
-            } catch (IOException e) {
-                e.printStackTrace();
+            // Crear botón Status en el leftPane
+            if (leftPane != null) {
+                Button statusButton = new Button("Status");
+                statusButton.setMaxWidth(Double.MAX_VALUE);
+                statusButton.setOnAction(e -> showStatus());
+                leftPane.getChildren().add(statusButton);
             }
+
+            // Vincular ventanas flotantes al primaryStage
+            if (primaryStage != null) {
+                chatController.bindFloatingWindowsToRightPane(primaryStage);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-
+    /**
+     * Muestra el panel de estado en primer plano.
+     */
     private void showStatus() {
         if (statusPane == null) return;
 
-        // Traer al frente solo si no hay otra ventana flotante en primer plano
+        // Solo si no hay otra ventana flotante en primer plano
         if (currentFrontPane == null || currentFrontPane == statusPane) {
             statusPane.toFront();
             currentFrontPane = statusPane;
         }
     }
-
 }
+
 
