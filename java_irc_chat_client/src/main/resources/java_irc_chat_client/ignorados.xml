@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ignorados>
+    <ignorado nick="Usuario1" userHost="user1@example.com" flags="PCN"/>
+    <ignorado nick="Usuario2" userHost="user2@example.com" flags="PTD"/>
+    <ignorado nick="Usuario3" userHost="user3@example.com" flags="CIO"/>
+</ignorados>

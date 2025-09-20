@@ -4,48 +4,61 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.control.ScrollPane?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/24.0.1"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="java_irc_chat_client.CanalController"
-            prefHeight="644.0" prefWidth="899.0"
-            fx:id="rootPane">
+<StackPane xmlns="http://javafx.com/javafx/24.0.1"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="java_irc_chat_client.CanalController"
+           prefHeight="644.0" prefWidth="899.0"
+           fx:id="rootStackPane">
 
     <children>
-        <!-- SplitPane horizontal con chat y lista de usuarios -->
-        <SplitPane dividerPositions="0.75" orientation="HORIZONTAL"
-                   AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                   AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="26.0">
+        <!-- Contenedor principal: AnchorPane con chat, usuarios y campo de entrada -->
+        <AnchorPane fx:id="rootPane" prefHeight="644.0" prefWidth="899.0">
 
-            <!-- Panel del chat -->
-            <items>
-                <AnchorPane minHeight="0.0" minWidth="0.0">
-                    <children>
-                        <ScrollPane fx:id="chatScrollPane" fitToWidth="true"
-                                    AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                    AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
-                            <content>
-                                <VBox fx:id="chatBox" spacing="2"/>
-                            </content>
-                        </ScrollPane>
-                    </children>
-                </AnchorPane>
+            <children>
+                <!-- SplitPane horizontal con chat y lista de usuarios -->
+                <SplitPane dividerPositions="0.75" orientation="HORIZONTAL"
+                           AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                           AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="26.0">
 
-                <!-- Panel de usuarios -->
-                <AnchorPane minHeight="0.0" minWidth="0.0">
-                    <children>
-                        <ListView fx:id="userListView_canal"
-                                  AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                  AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
-                    </children>
-                </AnchorPane>
-            </items>
-        </SplitPane>
+                    <!-- Panel del chat -->
+                    <items>
+                        <AnchorPane minHeight="0.0" minWidth="0.0">
+                            <children>
+                                <ScrollPane fx:id="chatScrollPane" fitToWidth="true"
+                                            AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                            AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                                    <content>
+                                        <VBox fx:id="chatBox" spacing="2"/>
+                                    </content>
+                                </ScrollPane>
+                            </children>
+                        </AnchorPane>
 
-        <!-- Campo de entrada -->
-        <TextField fx:id="inputField_canal" prefHeight="26.0"
-                   AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                   promptText="Escribe un mensaje..."/>
+                        <!-- Panel de usuarios -->
+                        <AnchorPane minHeight="0.0" minWidth="0.0">
+                            <children>
+                                <ListView fx:id="userListView_canal"
+                                          AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                                          AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0"/>
+                            </children>
+                        </AnchorPane>
+                    </items>
+                </SplitPane>
+
+                <!-- Campo de entrada -->
+                <TextField fx:id="inputField_canal" prefHeight="26.0"
+                           AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                           promptText="Escribe un mensaje..."/>
+            </children>
+        </AnchorPane>
+
+        <!-- Pane flotante para popups tipo nube/galleta -->
+        <AnchorPane fx:id="popupPane" mouseTransparent="true"
+                    AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0"/>
     </children>
-</AnchorPane>
+</StackPane>
+

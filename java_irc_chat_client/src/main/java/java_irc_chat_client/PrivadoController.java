@@ -39,6 +39,7 @@ public class PrivadoController {
     private void sendMessage() {
         String text = inputField_privado.getText().trim();
         if (text.isEmpty() || bot == null || destinatario == null) return;
+
         bot.sendIRC().message(destinatario, text);
         appendMessage("Yo", text);
         inputField_privado.clear();
@@ -83,15 +84,20 @@ public class PrivadoController {
 
         while (i < mensaje.length()) {
             char c = mensaje.charAt(i);
-            if (c == '\u0003') {
+            if (c == '\u0003') { // Código de color IRC
                 i++;
                 StringBuilder num = new StringBuilder();
                 while (i < mensaje.length() && Character.isDigit(mensaje.charAt(i))) num.append(mensaje.charAt(i++));
                 try { currentColor = ircColorToFX(Integer.parseInt(num.toString())); } 
                 catch (Exception e) { currentColor = Color.BLACK; }
-            } else if (c == '\u000F') { currentColor = Color.BLACK; bold = false; i++; }
-            else if (c == '\u0002') { bold = !bold; i++; }
-            else {
+            } else if (c == '\u000F') { // Reset
+                currentColor = Color.BLACK;
+                bold = false;
+                i++;
+            } else if (c == '\u0002') { // Negrita toggle
+                bold = !bold;
+                i++;
+            } else {
                 int codePoint = mensaje.codePointAt(i);
                 String mapped = symbolMapper.mapChar((char) codePoint);
                 Text t = new Text(mapped);
@@ -102,6 +108,7 @@ public class PrivadoController {
                 i += Character.charCount(codePoint);
             }
         }
+
         return flow;
     }
 
@@ -116,8 +123,15 @@ public class PrivadoController {
         };
     }
 
-    private void autoScroll() { chatBox.layout(); chatScrollPane.layout(); chatScrollPane.setVvalue(1.0); }
+    private void autoScroll() {
+        chatBox.layout();
+        chatScrollPane.layout();
+        chatScrollPane.setVvalue(1.0);
+    }
 
-    public void initializeChat() { Platform.runLater(() -> chatScrollPane.setVvalue(1.0)); }
+    public void initializeChat() {
+        Platform.runLater(() -> chatScrollPane.setVvalue(1.0));
+    }
 }
+
 

@@ -3,26 +3,66 @@ package java_irc_chat_client;
 import java.io.IOException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+
+
 
 public class ToolBarController {
 
     private StackPane rightPane;
     private VBox leftPane;
     private ChatController chatController;
-    private AnchorPane statusPane; // Referencia al pane del Status
-    private AnchorPane currentFrontPane;  // El pane que está en primer plano actualmente
+    private AnchorPane statusPane;  // Pane del Status
+    private AnchorPane currentFrontPane;  // Pane en primer plano
 
     public void setRightPane(StackPane rightPane) { this.rightPane = rightPane; }
     public void setLeftPane(VBox leftPane) { this.leftPane = leftPane; }
     public ChatController getChatController() { return chatController; }
 
+    @FXML
+    private Button btnUserList;
+
     /**
-     * Abrir chat y vincular floating windows al primaryStage.
+     * Abre la ventana de usuarios conocidos y fuerza la recarga del XML cada vez.
+     */
+    @FXML
+    private void abrirUserList() {
+        try {
+            // Crear un FXMLLoader nuevo cada vez
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("JIRCHAT_LISTAS_USUARIOS_CONOCIDOS.fxml"));
+            Parent root = loader.load();
+
+            // Obtener controlador recién creado
+            UsuariosController controller = loader.getController();
+
+            // Cargar los datos desde el XML siempre al abrir la ventana
+            controller.cargarUsuariosDesdeXML();
+
+            Stage stage = new Stage();
+            stage.setTitle("Usuarios Conocidos");
+            stage.setScene(new Scene(root));
+            stage.initOwner(btnUserList.getScene().getWindow());
+            stage.initModality(Modality.NONE);
+
+            // Limpiar tabla al cerrar la ventana para evitar cache de datos
+            stage.setOnCloseRequest(event -> controller.limpiarTabla());
+
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Abre la ventana de chat y vincula las floating windows al primaryStage.
      */
     @FXML
     public void abrirChat(Stage primaryStage) {
@@ -41,7 +81,8 @@ public class ToolBarController {
             rightPane.getChildren().add(chatPane);
 
             // Guardar statusPane y ponerlo en primer plano
-            statusPane = chatController.getRootPane();
+            statusPane = (AnchorPane) chatController.getRootPane();
+
             currentFrontPane = statusPane;
 
             // Conectar al IRC
@@ -71,12 +112,12 @@ public class ToolBarController {
     private void showStatus() {
         if (statusPane == null) return;
 
-        // Solo si no hay otra ventana flotante en primer plano
         if (currentFrontPane == null || currentFrontPane == statusPane) {
             statusPane.toFront();
             currentFrontPane = statusPane;
         }
     }
 }
+
 
 

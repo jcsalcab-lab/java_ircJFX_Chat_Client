@@ -1,17 +1,41 @@
-/* ListView con filas alternas de colores personalizados */
-.list-cell:filled:even {
-    -fx-background-color: #FFFACD; /* color vainilla */
-    -fx-font-weight: bold;          
+/* Fondo y estilo general de mensajes de usuario */
+.user-message {
+    -fx-background-color: transparent;
+    -fx-padding: 2 5 2 5;
 }
 
-.list-cell:filled:odd {
-    -fx-background-color: #ADD8E6; /* azul claro */
-    -fx-font-weight: bold;          
-}
-
-/* Opcional: cuando se selecciona una fila */
-.list-cell:selected {
-    -fx-background-color: #87CEFA; 
-    -fx-text-fill: black;
+.username {
+    -fx-fill: #000080; /* azul marino */
     -fx-font-weight: bold;
 }
+
+.message {
+    -fx-fill: black;
+}
+
+/* Mensajes de sistema con fondo beige */
+.system-message {
+    -fx-background-color: #FFFACD; /* beige vainilla */
+    -fx-padding: 2 5 2 5;
+    -fx-background-radius: 5;
+}
+
+.system-message .join {
+    -fx-fill: green;
+    -fx-font-weight: bold;
+}
+
+.system-message .part {
+    -fx-fill: orange;
+    -fx-font-weight: bold;
+}
+
+.system-message .kick {
+    -fx-fill: red;
+    -fx-font-weight: bold;
+}
+
+.prefix, .suffix {
+    -fx-fill: gray;
+}
+

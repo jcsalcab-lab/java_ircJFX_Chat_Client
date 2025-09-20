@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="java_irc_chat_client.UsuariosController"
+            prefWidth="800.0" prefHeight="600.0">
+    <center>
+        <TabPane fx:id="tabPanePrincipal" tabClosingPolicy="UNAVAILABLE">
+
+            <!-- Pestaña 1: Usuarios -->
+            <Tab text="Usuarios">
+                <BorderPane>
+                    <center>
+                        <TableView fx:id="tablaUsuarios" prefHeight="400.0">
+                            <columns>
+                                <TableColumn fx:id="colUsuario" text="Usuario" prefWidth="200.0"/>
+                                <TableColumn fx:id="colComentario" text="Comentario" prefWidth="300.0"/>
+                                <TableColumn fx:id="colSonido" text="Sonido" prefWidth="200.0"/>
+                            </columns>
+                        </TableView>
+                    </center>
+                    <bottom>
+                        <VBox spacing="10">
+                            <padding>
+                                <Insets top="10" right="10" bottom="10" left="10"/>
+                            </padding>
+                            <HBox spacing="10">
+                                <Label text="Usuario:"/>
+                                <TextField fx:id="txtUsuario" promptText="Introduce usuario"/>
+                                <Label text="Comentario:"/>
+                                <TextField fx:id="txtComentario" promptText="Introduce comentario"/>
+                                <Label text="Sonido:"/>
+                                <TextField fx:id="txtSonido" promptText="Introduce sonido"/>
+                            </HBox>
+                            <HBox spacing="10">
+                                <Button fx:id="btnAgregar" text="+" onAction="#agregarUsuario"/>
+                                <Button fx:id="btnEliminar" text="-" onAction="#eliminarUsuario"/>
+                                <Button fx:id="btnActualizar" text="Actualizar" onAction="#guardarUsuariosEnXML"/>
+                            </HBox>
+                        </VBox>
+                    </bottom>
+                </BorderPane>
+            </Tab>
+
+            <!-- Pestaña 2: Ignorados -->
+            <Tab text="Ignore">
+                <AnchorPane>
+                    <children>
+                        <TableView fx:id="tablaIgnorados" layoutX="10" layoutY="10" prefHeight="300">
+                            <columns>
+                                <TableColumn fx:id="colNick" text="Nick" prefWidth="150"/>
+                                <TableColumn fx:id="colUserHost" text="User@host" prefWidth="250"/>
+                                <TableColumn fx:id="colFlags" text="Flags" prefWidth="150"/>
+                            </columns>
+                        </TableView>
+
+                        <TextField fx:id="txtIgnorarUsuario" layoutX="10" layoutY="320" promptText="nick!user@host"/>
+
+                        <HBox layoutX="10" layoutY="350" spacing="10">
+                            <CheckBox fx:id="chkPrivado" text="Privado"/>
+                            <CheckBox fx:id="chkCanal" text="Canal"/>
+                            <CheckBox fx:id="chkNotices" text="Notices"/>
+                            <CheckBox fx:id="chkCTCP" text="CTCP"/>
+                            <CheckBox fx:id="chkDCC" text="DCC"/>
+                            <CheckBox fx:id="chkInvite" text="Invite"/>
+                            <CheckBox fx:id="chkCodes" text="Codes"/>
+                        </HBox>
+
+                        <HBox layoutX="10" layoutY="380" spacing="10">
+                            <Button fx:id="btnActualizarIgnorados" text="Actualizar" onAction="#actualizarIgnorados"/>
+                            <Button fx:id="btnAgregarIgnorado" text="+" onAction="#agregarIgnorado"/>
+                            <Button fx:id="btnEliminarIgnorado" text="-" onAction="#eliminarIgnorado"/>
+                            <Button fx:id="btnBorrarTodosIgnorados" text="Borrar Todos" onAction="#borrarTodosIgnorados"/>
+                        </HBox>
+                    </children>
+                </AnchorPane>
+            </Tab>
+
+            <!-- Pestaña 3: Auto-OP -->
+            <Tab text="Auto-OP">
+                <AnchorPane>
+                    <children>
+                        <!-- Contenido pendiente -->
+                    </children>
+                </AnchorPane>
+            </Tab>
+
+            <!-- Pestaña 4: Auto-Voz -->
+            <Tab text="Auto-Voz">
+                <AnchorPane>
+                    <children>
+                        <!-- Contenido pendiente -->
+                    </children>
+                </AnchorPane>
+            </Tab>
+
+            <!-- Pestaña 5: Auto-Kick -->
+            <Tab text="Auto-Kick">
+                <AnchorPane>
+                    <children>
+                        <!-- Contenido pendiente -->
+                    </children>
+                </AnchorPane>
+            </Tab>
+            <!-- Pestaña 6: Services -->
+            <Tab text="Services">
+                <AnchorPane>
+                    <children>
+                        <!-- Contenido pendiente -->
+                    </children>
+                </AnchorPane>
+            </Tab>
+
+            <!-- Pestaña 7: Otros -->
+            <Tab text="Otros">
+                <AnchorPane>
+                    <children>
+                        <!-- Contenido pendiente -->
+                    </children>
+                </AnchorPane>
+            </Tab>
+
+        </TabPane>
+    </center>
+</BorderPane>
+
+
+
+

@@ -322,7 +322,7 @@
     <Tooltip text="Modules Loader" />
   </tooltip>
 </Button>
-<Button mnemonicParsing="false" prefHeight="37" prefWidth="37" text="">
+<Button fx:id="btnUserList" mnemonicParsing="false" prefHeight="37" prefWidth="37" text="" onAction="#abrirUserList">
   <graphic>
     <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
       <image>
