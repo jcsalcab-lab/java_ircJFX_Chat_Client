@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ConexionIRCAutoConector>
+    <!-- Estado del auto-conector -->
+    <Auto_conectar_activo>false</Auto_conectar_activo>
+
+    <!-- Filas del TableView -->
+    <TablaAutoConector>
+        <Fila>
+            <Numero>1</Numero>
+            <On>false</On>
+            <Servidor>Servidor1</Servidor>
+            <Nick>Usuario1</Nick>
+        </Fila>
+        <Fila>
+            <Numero>2</Numero>
+            <On>true</On>
+            <Servidor>Servidor2</Servidor>
+            <Nick>El_ArWen</Nick>
+        </Fila>
+    </TablaAutoConector>
+</ConexionIRCAutoConector>
+

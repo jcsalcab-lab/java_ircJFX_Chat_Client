@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Formulario>
+    <conectar>
+        <servidorField>irc.chatzona.org</servidorField>
+        <nickField>El_ArWen</nickField>
+        <chkMultiserver>true</chkMultiserver>
+    </conectar>
+    <opciones>
+        <identdField>xxxxxxx</identdField>
+        <chkSecuenciaInicio>true</chkSecuenciaInicio>
+        <tipoConexionCombo>IRC</tipoConexionCombo>
+        <Opciones_Combo_Tipo_de_Conexiones>
+            <Opcion>IRC</Opcion>
+            <Opcion>SSL</Opcion>
+            <Opcion>WebSocket</Opcion>
+        </Opciones_Combo_Tipo_de_Conexiones>
+    </opciones>
+    <autoConector>
+        <chkAutoConectar>true</chkAutoConectar>
+        <TablaAutoConector>
+            <Fila>
+                <numero>1</numero>
+                <on>false</on>
+                <servidor></servidor>
+                <nick></nick>
+            </Fila>
+            <Fila>
+                <numero>2</numero>
+                <on>true</on>
+                <servidor></servidor>
+                <nick>El_ArWeN</nick>
+            </Fila>
+        </TablaAutoConector>
+    </autoConector>
+</Formulario>
+

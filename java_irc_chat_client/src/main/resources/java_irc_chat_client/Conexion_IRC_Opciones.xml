@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ConexionIRCOpciones>
+    <!-- Datos de opciones de conexión -->
+    <Parametros>
+        <Identd>MiIdentd</Identd>
+        <Secuencia_de_inicio>false</Secuencia_de_inicio>
+        <Tipo_de_Conexion>Directa</Tipo_de_Conexion>
+    </Parametros>
+
+    <!-- Lista completa de opciones para el ComboBox -->
+    <Opciones_Combo_Tipo_de_Conexiones>
+        <Opcion>Directa</Opcion>
+        <Opcion>Socks Firewall</Opcion>
+        <Opcion>Bouncer</Opcion>
+    </Opciones_Combo_Tipo_de_Conexiones>
+</ConexionIRCOpciones>

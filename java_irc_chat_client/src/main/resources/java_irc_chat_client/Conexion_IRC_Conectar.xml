@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ConexionIRCConectar>
+    <!-- Valores principales -->
+    <Servidor_de_IRC>irc.chatzona.org</Servidor_de_IRC>
+    <Nick>El_ArWeN</Nick>
+    <Multiserv>false</Multiserv>
+</ConexionIRCConectar>

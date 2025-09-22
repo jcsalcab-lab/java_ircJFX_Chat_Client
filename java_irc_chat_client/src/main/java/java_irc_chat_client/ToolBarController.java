@@ -1,5 +1,8 @@
 package java_irc_chat_client;
 
+import javafx.event.ActionEvent;
+
+import java.io.File;
 import java.io.IOException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,6 +14,10 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+
 
 
 
@@ -28,6 +35,13 @@ public class ToolBarController {
 
     @FXML
     private Button btnUserList;
+    
+    
+    @FXML
+    private Button btnConnect;
+
+    
+
 
     /**
      * Abre la ventana de usuarios conocidos y fuerza la recarga del XML cada vez.
@@ -60,6 +74,56 @@ public class ToolBarController {
             e.printStackTrace();
         }
     }
+    
+    @FXML
+    private void abrirVentanaConexion(ActionEvent event) {
+        try {
+            // Cargar FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("JIRCHAT_CONEXION.fxml"));
+            Parent root = loader.load();
+
+            // Obtener el controlador de la ventana de conexión
+            ConexionController controller = loader.getController();
+
+            // Cargar los datos directamente desde el fichero físico
+            controller.cargarFormulario(); // ahora es público
+
+            // Crear la nueva ventana
+            Stage stage = new Stage();
+            stage.setTitle("Conexión IRC");
+            stage.setScene(new Scene(root));
+            stage.setResizable(true);
+            stage.initOwner(btnConnect.getScene().getWindow()); // ventana padre
+            stage.initModality(Modality.NONE);
+
+            // Registrar el guardado al cerrar la ventana
+            stage.setOnCloseRequest(e -> {
+                try {
+                    controller.guardarFormulario(); // guarda en el fichero físico
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    Alert alert = new Alert(Alert.AlertType.ERROR,
+                            "Error guardando formulario al cerrar: " + ex.getMessage(),
+                            ButtonType.OK);
+                    alert.showAndWait();
+                }
+            });
+
+            // Mostrar la ventana
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR,
+                    "Error abriendo la ventana de conexión: " + e.getMessage(),
+                    ButtonType.OK);
+            alert.showAndWait();
+        }
+    }
+
+
+
+
 
     /**
      * Abre la ventana de chat y vincula las floating windows al primaryStage.

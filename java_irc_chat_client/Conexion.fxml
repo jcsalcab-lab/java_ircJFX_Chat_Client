@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<TabPane xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="com.example.ConexionController"
+         tabClosingPolicy="UNAVAILABLE"
+         prefWidth="900" prefHeight="600">
+
+    <tabs>
+        <!-- Pestaña 1: Conectar -->
+        <Tab text="Conectar">
+            <content>
+                <VBox spacing="12" alignment="TOP_LEFT" padding="12">
+
+                    <!-- Cuadrícula con borde relieve hacia dentro -->
+                    <GridPane hgap="8" vgap="10" padding="10"
+                              style="-fx-border-color: gray; -fx-border-width: 2; -fx-border-radius: 4;
+                                     -fx-effect: innershadow(gaussian, rgba(0,0,0,0.35), 6, 0.0, 0, 2);">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS" percentWidth="70"/>
+                            <ColumnConstraints hgrow="NEVER" minWidth="90" percentWidth="30"/>
+                        </columnConstraints>
+
+                        <!-- Servidor + Botón Conectar -->
+                        <Label text="Servidor de IRC:" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+                        <TextField fx:id="servidorField" promptText="ej. irc.example.net:6667"
+                                   GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <Button fx:id="btnConectar" text="Conectar"
+                                GridPane.rowIndex="1" GridPane.columnIndex="1" maxWidth="Infinity"/>
+
+                        <!-- Nick + Botones -->
+                        <Label text="Nick (apodo):" GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+                        <HBox spacing="8" alignment="CENTER_LEFT" GridPane.rowIndex="3" GridPane.columnIndex="0" GridPane.columnSpan="2">
+                            <TextField fx:id="nickField" promptText="Tu nick" HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="btnAdmiracion" text="!"/>
+                            <Button fx:id="btnOrganizar" text="Organizar"/>
+                        </HBox>
+
+                        <!-- Checkbox -->
+                        <CheckBox fx:id="chkMultiserver"
+                                  text="Conectar en otra ventana (multiserver)"
+                                  GridPane.rowIndex="4" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+                    </GridPane>
+
+                    <!-- Árbol con scroll -->
+                    <Label text="Lista de servidores/canales:" style="-fx-font-weight: bold;"/>
+                    <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS">
+                        <content>
+                            <TreeView fx:id="serverTreeView" prefWidth="400" prefHeight="300"/>
+                        </content>
+                    </ScrollPane>
+                </VBox>
+            </content>
+        </Tab>
+
+        <!-- Pestaña 2: Opciones -->
+        <Tab text="Opciones">
+            <content>
+                <VBox spacing="10" padding="12">
+                    <Label text="(Pendiente de añadir componentes)" />
+                </VBox>
+            </content>
+        </Tab>
+
+        <!-- Pestaña 3: Auto-conector -->
+        <Tab text="Auto-conector">
+            <content>
+                <VBox spacing="10" padding="12">
+                    <Label text="(Pendiente de añadir componentes)" />
+                </VBox>
+            </content>
+        </Tab>
+    </tabs>
+</TabPane>

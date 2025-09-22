@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ConexionIRC>
+    <!-- Árbol de servidores -->
+    <ArbolServidores>
+        <ChatZona>
+            <Servidor>irc.chatzona.org</Servidor>
+            <Servidor>Júpiter</Servidor>
+            <Servidor>Zarus</Servidor>
+            <Servidor>Zonachat</Servidor>
+        </ChatZona>
+
+        <DALnet>
+            <Servidor>_Aleatorio</Servidor>
+            <Servidor>AS Hotspeed</Servidor>
+            <Servidor>AU Oi.ix</Servidor>
+            <Servidor>EU Mozilla</Servidor>
+            <Servidor>IX</Servidor>
+            <Servidor>US Jingo</Servidor>
+            <Servidor>US Maple</Servidor>
+            <Servidor>US Redemption</Servidor>
+            <Servidor>US Riga-r</Servidor>
+            <Servidor>US Rumble</Servidor>
+        </DALnet>
+
+        <EFnet>
+            <Servidor>CA' AB' Edmonton</Servidor>
+            <Servidor>CA' QB' Montreal</Servidor>
+            <Servidor>EU' NL' Amsterdan</Servidor>
+            <Servidor>EU' PL' Warszawsa</Servidor>
+            <Servidor>EU' UK' LONDO (demon)</Servidor>
+            <Servidor>US' CA' San Luis Obispo</Servidor>
+            <Servidor>US' MI' Ann Arbot</Servidor>
+            <Servidor>US' NY' MINEOLA</Servidor>
+        </EFnet>
+
+        <Feenode>
+            <Servidor>_Feenode</Servidor>
+            <Servidor>Australia</Servidor>
+            <Servidor>EEUU</Servidor>
+            <Servidor>Europa</Servidor>
+        </Feenode>
+
+        <Gamesurge>
+            <Servidor>_Random</Servidor>
+            <Servidor>_Random</Servidor>
+            <Servidor>Clanshells</Servidor>
+            <Servidor>Finland</Servidor>
+            <Servidor>Freemont CA</Servidor>
+            <Servidor>Los Angeles CA</Servidor>
+            <Servidor>New York</Servidor>
+            <Servidor>UK</Servidor>
+            <Servidor>UK</Servidor>
+        </Gamesurge>
+
+        <GlobalIChat>
+            <Servidor>Aleatorio</Servidor>
+            <Servidor>Gollum</Servidor>
+            <Servidor>Tolkien</Servidor>
+        </GlobalIChat>
+
+        <ircHispano>
+            <Servidor>_Aleatorio</Servidor>
+            <Servidor>_LIbres</Servidor>
+            <Servidor>Altecom</Servidor>
+            <Servidor>Arrakis</Servidor>
+            <Servidor>Arrakis</Servidor>
+            <Servidor>Delmos</Servidor>
+            <Servidor>Dune</Servidor>
+            <Servidor>El Mundo Deportivo</Servidor>
+            <Servidor>Iddeio! AUNA 1</Servidor>
+            <Servidor>Iddeo! AUNA 2</Servidor>
+            <Servidor>intelideas</Servidor>
+            <Servidor>Júpiter</Servidor>
+            <Servidor>La Vanguadia Digital</Servidor>
+            <Servidor>LLeida Networkds</Servidor>
+            <Servidor>Luna</Servidor>
+            <Servidor>Mundo-R</Servidor>
+            <Servidor>ONO</Servidor>
+            <Servidor>RST</Servidor>
+            <Servidor>TeleCable 2</Servidor>
+            <Servidor>TeleCable</Servidor>
+            <Servidor>Usuarios de ONO</Servidor>
+        </ircHispano>
+
+        <IRCnet>
+            <Servidor>_Random UA IRCnet</Servidor>
+            <Servidor>_Random EU IRCnet</Servidor>
+            <Servidor>_Random US IRCnet</Servidor>
+            <Servidor>US' NY' New York</Servidor>
+        </IRCnet>
+
+        <Nuevos>
+            <Servidor>AmistadChat.org</Servidor>
+            <Servidor>AniWorld</Servidor>
+            <Servidor>ArgentinaChat</Servidor>
+            <Servidor>AregentinaIRC NETWORK</Servidor>
+            <Servidor>AureAWorld</Servidor>
+            <Servidor>Caminar-juntos</Servidor>
+            <Servidor>ChaterosdePR</Servidor>
+            <Servidor>Chatloquesea</Servidor>
+            <Servidor>DesdeParaguay</Servidor>
+            <Servidor>Duendeirc</Servidor>
+            <Servidor>electriIRC</Servidor>
+            <Servidor>electricIRC</Servidor>
+            <Servidor>Fernet IRC Networks</Servidor>
+            <Servidor>FormosaChat</Servidor>
+            <Servidor>Gileame</Servidor>
+            <Servidor>Gileame</Servidor>
+            <Servidor>Hlatino.chat.org</Servidor>
+            <Servidor>iGamesWorld</Servidor>
+            <Servidor>ircChat.cl</Servidor>
+            <Servidor>irc-hispano.us</Servidor>
+            <Servidor>IRCnode</Servidor>
+            <Servidor>LifeChat</Servidor>
+            <Servidor>MY LATIN CHAT</Servidor>
+            <Servidor>NorteChat IRC</Servidor>
+            <Servidor>PortalZona</Servidor>
+            <Servidor>Red-digital</Servidor>
+            <Servidor>Red-Global</Servidor>
+            <Servidor>Red-Orbita</Servidor>
+            <Servidor>SaturNet</Servidor>
+            <Servidor>ZonadeChat.cl ZoNaLaTiNa</Servidor>
+            <Servidor>ConaLatina</Servidor>
+        </Nuevos>
+
+        <QuakeNet/>
+        <Red_Latino/>
+        <Rizon/>
+        <Undernet/>
+        <UniversoChat/>
+        <Varios/>
+    </ArbolServidores>
+</ConexionIRC>
