@@ -42,8 +42,13 @@ public class PrivadoController {
 
         bot.sendIRC().message(destinatario, text);
         appendMessage("Yo", text);
+
+        // --- Guardar en el log del privado ---
+        ChatLogger.log(destinatario, "Yo", text);
+
         inputField_privado.clear();
     }
+
 
     public void appendMessage(String usuario, String mensaje) {
         Platform.runLater(() -> {

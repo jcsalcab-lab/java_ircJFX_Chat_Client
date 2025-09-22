@@ -131,11 +131,13 @@ public class ChatController {
 
     // ------------------ PRIVADO ------------------
     public void abrirChatPrivado(String nick) {
-        if (privateChats.containsKey(nick) || Boolean.TRUE.equals(solicitudPendiente.get(nick))) {
+        if (privateChats.containsKey(nick)) {
+            privateChats.get(nick).toFront();
             return;
         }
-        mostrarSolicitudPrivado(nick, "");
+        abrirPrivado(nick); // abre directamente
     }
+
 
     public void abrirChatPrivadoConMensaje(String nick, String mensaje) {
         if (privateChats.containsKey(nick)) {
@@ -145,6 +147,7 @@ public class ChatController {
         }
         mostrarSolicitudPrivado(nick, mensaje);
     }
+
 
     private void mostrarSolicitudPrivado(String nick, String mensaje) {
         if (Boolean.TRUE.equals(solicitudPendiente.get(nick))) {
@@ -308,13 +311,24 @@ public class ChatController {
 
     private void scrollToBottom(ScrollPane sp) { Platform.runLater(() -> sp.setVvalue(1.0)); }
 
+    public void onPrivateMessageRemoto(String nick, String mensaje) {
+        if (privateChats.containsKey(nick)) {
+            // Si ya hay chat abierto, solo lo mostramos y añadimos el mensaje
+            privateChats.get(nick).toFront();
+            appendPrivateMessage(nick, mensaje, false);
+        } else {
+            // Solo si no hay chat abierto, mostramos la solicitud
+            mostrarSolicitudPrivado(nick, mensaje);
+        }
+    }
+
     
     public void connectToIRC() {
         new Thread(() -> {
             try {
                 Configuration config = new Configuration.Builder()
-                        .setName("akkiles54321") // tu nick
-                        .setLogin("akkiles54321")
+                        .setName("akkiless54321") // tu nick
+                        .setLogin("akkiless54321")
                         .setRealName("JIRCHAT")
                         .addServer("irc.chatzona.org", 6697)
                         .setSocketFactory(SSLSocketFactory.getDefault())
@@ -359,8 +373,10 @@ public class ChatController {
                             public void onPrivateMessage(PrivateMessageEvent event) {
                                 String nick = event.getUser().getNick();
                                 String mensaje = event.getMessage();
-                                Platform.runLater(() -> mostrarSolicitudPrivado(nick, mensaje));
+
+                                Platform.runLater(() -> onPrivateMessageRemoto(nick, mensaje));
                             }
+
 
                             @Override
                             public void onUserList(UserListEvent event) {

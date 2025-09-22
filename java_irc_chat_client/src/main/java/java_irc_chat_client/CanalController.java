@@ -35,24 +35,20 @@ public class CanalController {
     @FXML private ScrollPane chatScrollPane;
     @FXML private TextField inputField_canal;
     @FXML private ListView<String> userListView_canal;
-    @FXML private AnchorPane popupPane;
+    @FXML private AnchorPane popupPane; // Debe estar sobre chatBox y llenar todo el AnchorPane
 
     private String canal;
     private PircBotX bot;
     private ChatController mainController;
     private Channel canalChannel;
 
-    // lista de usuarios mostrada en el ListView (incluye la línea de contador "Usuarios: n")
     private final ObservableList<String> users = FXCollections.observableArrayList();
-    // cache de nicks sin prefijos
     private final List<String> nickCache = new ArrayList<>();
     private final List<String> currentMatches = new ArrayList<>();
     private int matchIndex = -1;
     private String lastPrefix = null;
     private Consumer<String> onUserDoubleClick;
     private SymbolMapper symbolMapper;
-
-    // Conjunto con los nicks conocidos (minúsculas, sin prefijos)
     private Set<String> knownNicks = Collections.emptySet();
 
     public void setBot(PircBotX bot) { this.bot = bot; }
@@ -62,54 +58,34 @@ public class CanalController {
     public void setCanalChannel(Channel canalChannel) { this.canalChannel = canalChannel; }
     public Channel getCanalChannel() { return canalChannel; }
 
- 
-    
     @FXML
     public void initialize() {
         symbolMapper = new SymbolMapper();
         if (chatBox != null) chatBox.setStyle("-fx-background-color: #FFF8DC;");
-
-        // Items en el ListView
         userListView_canal.setItems(users);
 
-        // cellFactory: pinta filas alternas y destaca los usuarios conocidos en verde neón
+        // ListView: filas alternas y usuarios conocidos
         userListView_canal.setCellFactory(lv -> new ListCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) {
-                    setText(null);
-                    setStyle("");
+                    setText(null); setStyle("");
                 } else {
                     setText(item);
+                    if (item.startsWith("Usuarios:")) { setStyle("-fx-background-color: transparent; -fx-font-weight: bold;"); return; }
 
-                    // si es la línea contador "Usuarios: X" la pintamos de otra forma
-                    if (item.startsWith("Usuarios:")) {
-                        setStyle("-fx-background-color: transparent; -fx-font-weight: bold;");
-                        return;
-                    }
-
-                    // decidir estilo alterno por índice base (si no es conocido)
                     String baseStyle = getIndex() % 2 == 0
                             ? "-fx-background-color: #FFFACD; -fx-font-weight: bold;"
                             : "-fx-background-color: #ADD8E6; -fx-font-weight: bold;";
 
-                    // comprobar si es conocido -> quitar prefijo @/+ y comparar en lowercase
-                    String clean = item;
-                    if (clean.startsWith("@") || clean.startsWith("+")) clean = clean.substring(1);
+                    String clean = item.startsWith("@") || item.startsWith("+") ? item.substring(1) : item;
                     boolean esConocido = knownNicks.contains(clean.toLowerCase());
-
-                    if (esConocido) {
-                        // verde neón (fondo) + texto en negro
-                        setStyle("-fx-background-color: #39FF14; -fx-text-fill: black; -fx-font-weight: bold;");
-                    } else {
-                        setStyle(baseStyle);
-                    }
+                    setStyle(esConocido ? "-fx-background-color: #39FF14; -fx-text-fill: black; -fx-font-weight: bold;" : baseStyle);
                 }
             }
         });
 
-        // input events
         if (inputField_canal != null) {
             inputField_canal.setOnAction(e -> sendCommand());
             inputField_canal.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -117,6 +93,7 @@ public class CanalController {
             });
         }
 
+        // Doble click abre chat privado
         userListView_canal.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 String selectedUser = userListView_canal.getSelectionModel().getSelectedItem();
@@ -130,6 +107,66 @@ public class CanalController {
         });
     }
 
+    /** Solicitud de chat privado entrante */
+    public void onPrivateMessageRequest(String nickRemoto) {
+        Platform.runLater(() -> {
+            if (popupPane == null) return;
+
+            VBox container = crearPopup(nickRemoto + " quiere chatear en privado. Aceptar?", Color.BEIGE);
+            popupPane.getChildren().add(container);
+            container.toFront();
+        });
+    }
+
+    /** Mostrar popup cuando un usuario sale o entra */
+    public void showExitPopup(String nick, String canal) {
+        Platform.runLater(() -> {
+            if (popupPane == null) return;
+
+            VBox container = crearPopup(nick + " sale de " + canal, Color.BEIGE);
+            popupPane.getChildren().add(container);
+            container.toFront();
+        });
+    }
+
+    /** Crea la burbuja de popup animada */
+    private VBox crearPopup(String mensaje, Color color) {
+        StackPane bubble = new StackPane();
+        bubble.setBackground(new Background(new BackgroundFill(color, new CornerRadii(10), Insets.EMPTY)));
+        bubble.setPadding(new Insets(10));
+        bubble.setPrefWidth(200);
+
+        Label label = new Label(mensaje);
+        label.setStyle("-fx-font-weight: bold; -fx-text-fill: #333333;");
+        label.setWrapText(true);
+        label.setMaxWidth(180);
+        bubble.getChildren().add(label);
+
+        Polygon triangle = new Polygon(0.0,0.0, 10.0,0.0, 5.0,10.0);
+        triangle.setFill(color);
+
+        VBox container = new VBox(bubble, triangle);
+        container.setSpacing(0);
+
+        double popupWidth = 200;
+        container.setLayoutX((popupPane.getWidth() - popupWidth) / 2);
+        container.setLayoutY(20);
+
+        TranslateTransition tt = new TranslateTransition(Duration.seconds(5), container);
+        tt.setByY(-50); // sube para verse mejor
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(5), container);
+        ft.setFromValue(1.0);
+        ft.setToValue(0.0);
+
+        tt.play();
+        ft.play();
+
+        ft.setOnFinished(e -> popupPane.getChildren().remove(container));
+        return container;
+    }
+
+    // ------------------ Mensajes y chat ------------------
     private void handleTabCompletion(boolean reverse) {
         String text = inputField_canal.getText();
         int caretPos = inputField_canal.getCaretPosition();
@@ -150,11 +187,8 @@ public class CanalController {
         }
 
         if (currentMatches.isEmpty()) return;
-
-        matchIndex = reverse
-                ? (matchIndex - 1 + currentMatches.size()) % currentMatches.size()
-                : (matchIndex + 1) % currentMatches.size();
-
+        matchIndex = reverse ? (matchIndex - 1 + currentMatches.size()) % currentMatches.size()
+                             : (matchIndex + 1) % currentMatches.size();
         String replacement = currentMatches.get(matchIndex);
         inputField_canal.setText(text.substring(0, start) + replacement + text.substring(caretPos));
         inputField_canal.positionCaret(start + replacement.length());
@@ -178,8 +212,7 @@ public class CanalController {
         if (cmd.startsWith("part")) {
             bot.sendRaw().rawLine("PART " + canal);
             appendSystemMessage("➡ Saliendo de " + canal, MessageType.PART, bot.getNick());
-            if (mainController != null)
-                Platform.runLater(() -> mainController.cerrarCanalDesdeVentana(canal));
+            if (mainController != null) Platform.runLater(() -> mainController.cerrarCanalDesdeVentana(canal));
         } else if (cmd.startsWith("msg ")) {
             String[] parts = cmd.split(" ", 3);
             if (parts.length >= 3) bot.sendIRC().message(parts[1], parts[2]);
@@ -201,20 +234,16 @@ public class CanalController {
             userText.setFill(Color.DARKBLUE);
             userText.setFont(Font.font("System", FontWeight.BOLD, 12));
             flow.getChildren().add(userText);
-
             flow.getChildren().addAll(parseIRCMessage(mensaje).getChildren());
-
             chatBox.getChildren().add(flow);
             autoScroll();
         });
     }
 
-
     public void appendSystemMessage(String mensaje, MessageType type, String nickSalida) {
         Platform.runLater(() -> {
             TextFlow flow = new TextFlow();
             flow.setStyle("-fx-background-color: #FFF8DC; -fx-padding: 3px;");
-
             Text prefix = new Text("___________________________> ");
             Text body = new Text(mensaje);
             Text suffix = new Text(" <___________________________");
@@ -225,99 +254,34 @@ public class CanalController {
                 case KICK -> body.setFill(Color.web("#FF0000"));
             }
 
-            prefix.setFill(Color.DARKGRAY);
-            suffix.setFill(Color.DARKGRAY);
+            prefix.setFill(Color.DARKGRAY); suffix.setFill(Color.DARKGRAY);
             prefix.setFont(Font.font("System", FontWeight.NORMAL, 12));
             body.setFont(Font.font("System", FontWeight.BOLD, 12));
             suffix.setFont(Font.font("System", FontWeight.NORMAL, 12));
 
             flow.getChildren().addAll(prefix, body, suffix);
             flow.setLineSpacing(1.2);
-
             chatBox.getChildren().add(flow);
             autoScroll();
 
-            if (type == MessageType.PART && nickSalida != null) {
-                showExitPopup(nickSalida, canal);
-            }
-        });
-    }
-
-    public void showExitPopup(String nick, String canal) {
-        Platform.runLater(() -> {
-            if (popupPane == null) return;
-
-            StackPane bubble = new StackPane();
-            bubble.setBackground(new Background(new BackgroundFill(Color.BEIGE, new CornerRadii(10), Insets.EMPTY)));
-            bubble.setPadding(new Insets(10));
-            bubble.setPrefWidth(200);
-
-            Label label = new Label(nick + " sale de " + canal);
-            label.setStyle("-fx-font-weight: bold; -fx-text-fill: #333333;");
-            label.setWrapText(true);
-            label.setMaxWidth(180);
-            bubble.getChildren().add(label);
-
-            Polygon triangle = new Polygon(0.0, 0.0, 10.0, 0.0, 5.0, 10.0);
-            triangle.setFill(Color.BEIGE);
-
-            VBox container = new VBox(bubble, triangle);
-            container.setSpacing(0);
-            container.setMouseTransparent(true);
-
-            popupPane.getChildren().add(container);
-
-            popupPane.applyCss();
-            popupPane.layout();
-            double paneWidth = popupPane.getWidth();
-            double popupWidth = 200;
-            container.setLayoutX((paneWidth - popupWidth) / 2);
-            container.setLayoutY(20);
-
-            TranslateTransition tt = new TranslateTransition(Duration.seconds(5), container);
-            tt.setByY(-30);
-
-            FadeTransition ft = new FadeTransition(Duration.seconds(5), container);
-            ft.setFromValue(1.0);
-            ft.setToValue(0.0);
-
-            tt.play();
-            ft.play();
-
-            ft.setOnFinished(e -> popupPane.getChildren().remove(container));
+            ChatLogger.logSystem(canal, mensaje);
+            if (type == MessageType.PART && nickSalida != null) showExitPopup(nickSalida, canal);
         });
     }
 
     private void autoScroll() {
         if (chatScrollPane != null) {
-            chatBox.layout();
-            chatScrollPane.layout();
+            chatBox.layout(); chatScrollPane.layout();
             chatScrollPane.setVvalue(1.0);
         }
     }
 
-    /**
-     * Actualiza la lista de usuarios y el contador correctamente.
-     * Esta función RELOADS la lista de usuarios conocidos desde XML cada vez que se llama,
-     * de forma que los conocidos se reflejen inmediatamente.
-     */
     public void updateUsers(List<String> userList) {
         Platform.runLater(() -> {
-            // ---- recargar knownNicks desde XML (asegura que siempre usamos la versión actual) ----
-            try {
-                Set<String> recargado = KnownUsers.loadKnownNicks();
-                this.knownNicks = (recargado != null) ? recargado : Collections.emptySet();
-            } catch (Exception e) {
-                this.knownNicks = Collections.emptySet();
-            }
+            try { this.knownNicks = KnownUsers.loadKnownNicks(); } 
+            catch (Exception e) { this.knownNicks = Collections.emptySet(); }
 
-            // Depuración / debug: mostrar tamaño
-            System.out.println("CanalController.updateUsers: knownNicks.size() = " + knownNicks.size());
-
-            // ---- construir la lista de usuarios a mostrar ----
-            users.clear();
-            nickCache.clear();
-
+            users.clear(); nickCache.clear();
             List<String> validUsers = userList.stream()
                     .filter(u -> u != null && !u.trim().isEmpty())
                     .sorted(this::compareNicks)
@@ -326,11 +290,8 @@ public class CanalController {
             users.add("Usuarios: " + validUsers.size());
             users.addAll(validUsers);
 
-            for (String u : validUsers) {
-                nickCache.add(u.startsWith("@") || u.startsWith("+") ? u.substring(1) : u);
-            }
+            for (String u : validUsers) nickCache.add(u.startsWith("@") || u.startsWith("+") ? u.substring(1) : u);
 
-            // Forzar refresco para que la cellFactory vuelva a pintar con la nueva knownNicks
             userListView_canal.setItems(null);
             userListView_canal.setItems(users);
             userListView_canal.refresh();
@@ -341,7 +302,6 @@ public class CanalController {
         int rankA = getNickRank(a);
         int rankB = getNickRank(b);
         if (rankA != rankB) return Integer.compare(rankA, rankB);
-
         String cleanA = a.startsWith("@") || a.startsWith("+") ? a.substring(1) : a;
         String cleanB = b.startsWith("@") || b.startsWith("+") ? b.substring(1) : b;
         return cleanA.compareToIgnoreCase(cleanB);
@@ -362,23 +322,22 @@ public class CanalController {
     public String getCanal() { return canal; }
 
     public enum MessageType { JOIN, PART, KICK }
-    
+
     private TextFlow parseIRCMessage(String mensaje) {
         TextFlow flow = new TextFlow();
         Color currentColor = Color.BLACK;
         boolean bold = false;
         int i = 0;
-
         while (i < mensaje.length()) {
             char c = mensaje.charAt(i);
-            if (c == '\u0003') { // Código de color
+            if (c == '\u0003') { // color
                 i++;
                 StringBuilder num = new StringBuilder();
                 while (i < mensaje.length() && Character.isDigit(mensaje.charAt(i))) num.append(mensaje.charAt(i++));
                 try { currentColor = ircColorToFX(Integer.parseInt(num.toString())); }
                 catch (Exception e) { currentColor = Color.BLACK; }
-            } else if (c == '\u000F') { currentColor = Color.BLACK; bold = false; i++; } // Reset
-            else if (c == '\u0002') { bold = !bold; i++; } // Bold
+            } else if (c == '\u000F') { currentColor = Color.BLACK; bold = false; i++; }
+            else if (c == '\u0002') { bold = !bold; i++; }
             else {
                 int codePoint = mensaje.codePointAt(i);
                 Text t = new Text(new String(Character.toChars(codePoint)));
@@ -393,25 +352,13 @@ public class CanalController {
 
     private Color ircColorToFX(int code) {
         return switch (code) {
-            case 0 -> Color.WHITE;
-            case 1 -> Color.BLACK;
-            case 2 -> Color.BLUE;
-            case 3 -> Color.GREEN;
-            case 4 -> Color.RED;
-            case 5 -> Color.BROWN;
-            case 6 -> Color.PURPLE;
-            case 7 -> Color.ORANGE;
-            case 8 -> Color.YELLOW;
-            case 9 -> Color.LIGHTGREEN;
-            case 10 -> Color.CYAN;
-            case 11 -> Color.TURQUOISE;
-            case 12 -> Color.DARKBLUE;
-            case 13 -> Color.PINK;
-            case 14 -> Color.GRAY;
-            case 15 -> Color.LIGHTGRAY;
+            case 0 -> Color.WHITE; case 1 -> Color.BLACK; case 2 -> Color.BLUE;
+            case 3 -> Color.GREEN; case 4 -> Color.RED; case 5 -> Color.BROWN;
+            case 6 -> Color.PURPLE; case 7 -> Color.ORANGE; case 8 -> Color.YELLOW;
+            case 9 -> Color.LIGHTGREEN; case 10 -> Color.CYAN; case 11 -> Color.TURQUOISE;
+            case 12 -> Color.DARKBLUE; case 13 -> Color.PINK; case 14 -> Color.GRAY; case 15 -> Color.LIGHTGRAY;
             default -> Color.BLACK;
         };
     }
-
 }
 

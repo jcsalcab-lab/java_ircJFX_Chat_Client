@@ -1,8 +1,6 @@
 package java_irc_chat_client;
 
 import javafx.event.ActionEvent;
-
-import java.io.File;
 import java.io.IOException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,7 +13,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 
 
@@ -41,6 +38,45 @@ public class ToolBarController {
     private Button btnConnect;
 
     
+    @FXML
+    private void onSetupButtonClicked() {
+        try {
+        	FXMLLoader loader = new FXMLLoader(getClass().getResource("/java_irc_chat_client/JIRCHAT_SETUP.fxml"));
+
+        	Parent root = loader.load();
+        	Stage stage = new Stage();
+        	stage.setTitle("Configuración");
+        	stage.setScene(new Scene(root));
+        	stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    
+    @FXML
+    private void abrirLogs() {
+        try {
+        	FXMLLoader loader = new FXMLLoader(getClass().getResource("JIRCHAT_LOGS.fxml"));
+
+            AnchorPane root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Logs");
+            stage.setScene(new Scene(root));
+            stage.setResizable(false); // no maximizar ni minimizar
+            stage.initModality(Modality.NONE); // ventana independiente
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR,
+                    "Error abriendo ventana de logs: " + e.getMessage(),
+                    ButtonType.OK);
+            alert.showAndWait();
+        }
+    }
+
 
 
     /**
@@ -79,7 +115,7 @@ public class ToolBarController {
     private void abrirVentanaConexion(ActionEvent event) {
         try {
             // Cargar FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("JIRCHAT_CONEXION.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/java_irc_chat_client/JIRCHAT_CONEXION.fxml"));
             Parent root = loader.load();
 
             // Obtener el controlador de la ventana de conexión

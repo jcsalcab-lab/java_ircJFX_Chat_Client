@@ -169,7 +169,7 @@
   </tooltip>
 </Button>
 
-<Button mnemonicParsing="false" prefHeight="37" prefWidth="37" text="">
+<Button fx:id="btnLogs" mnemonicParsing="false" prefHeight="37" prefWidth="37" text="" onAction="#abrirLogs">
   <graphic>
     <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
       <image>
@@ -286,18 +286,19 @@
   </tooltip>
 </Button>
 
-<Button mnemonicParsing="false" prefHeight="37" prefWidth="37" text="">
-  <graphic>
-    <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
-      <image>
-        <Image url="@icons/icons8-settings-50.png" />
-      </image>
-    </ImageView>
-  </graphic>
-  <tooltip>
-    <Tooltip text="SetUp" />
-  </tooltip>
+<Button mnemonicParsing="false" prefHeight="37" prefWidth="37" text="" onAction="#onSetupButtonClicked">
+    <graphic>
+        <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@icons/icons8-settings-50.png" />
+            </image>
+        </ImageView>
+    </graphic>
+    <tooltip>
+        <Tooltip text="SetUp" />
+    </tooltip>
 </Button>
+
 <Button mnemonicParsing="false" prefHeight="37" prefWidth="37" text="">
   <graphic>
     <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
