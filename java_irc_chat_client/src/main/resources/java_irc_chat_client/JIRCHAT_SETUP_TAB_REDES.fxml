@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="java_irc_chat_client.ControllerRedes"
+            prefWidth="600" prefHeight="400">
+    <children>
+        <TabPane fx:id="redesTabPane" prefWidth="600" prefHeight="400" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab fx:id="tabRedes" text="Redes">
+                    <AnchorPane />
+                </Tab>
+                <Tab fx:id="tabNicks" text="Nicks">
+                    <AnchorPane />
+                </Tab>
+                <Tab fx:id="tabCanales" text="Canales">
+                    <AnchorPane />
+                </Tab>
+                <Tab fx:id="tabAutoEntrar" text="Auto-entrar">
+                    <AnchorPane />
+                </Tab>
+            </tabs>
+        </TabPane>
+    </children>
+</AnchorPane>

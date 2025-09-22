@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="java_irc_chat_client.ControllerVarios"
+            prefWidth="600" prefHeight="400">
+    <children>
+        <TabPane fx:id="variosTabPane" prefWidth="600" prefHeight="400" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab fx:id="tabVarios" text="Varios">
+                    <AnchorPane />
+                </Tab>
+                <Tab fx:id="tabIdioma" text="Idioma">
+                    <AnchorPane />
+                </Tab>
+                <Tab fx:id="tabComandosPersonalizados" text="Comandos personalizados">
+                    <AnchorPane />
+                </Tab>
+            </tabs>
+        </TabPane>
+    </children>
+</AnchorPane>

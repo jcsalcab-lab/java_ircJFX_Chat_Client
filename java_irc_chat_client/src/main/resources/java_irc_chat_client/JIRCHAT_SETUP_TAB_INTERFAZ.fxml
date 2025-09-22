@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" prefWidth="600" prefHeight="400">
+    <children>
+        <TabPane fx:id="interfazTabPane" prefWidth="600" prefHeight="400" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab text="Opciones">
+                    <AnchorPane />
+                </Tab>
+                <Tab text="Skins">
+                    <AnchorPane />
+                </Tab>
+                <Tab text="Temas">
+                    <AnchorPane />
+                </Tab>
+                <Tab text="Barra">
+                    <AnchorPane />
+                </Tab>
+                <Tab text="Panel">
+                    <AnchorPane />
+                </Tab>
+                <Tab text="CanalBar">
+                    <AnchorPane />
+                </Tab>
+                <Tab text="Varios">
+                    <AnchorPane />
+                </Tab>
+                <Tab text="Carteles">
+                    <AnchorPane />
+                </Tab>
+            </tabs>
+        </TabPane>
+    </children>
+</AnchorPane>

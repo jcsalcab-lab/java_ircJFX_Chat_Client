@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="java_irc_chat_client.ESCRITURAController"
+            prefWidth="600" prefHeight="400">
+    <children>
+        <TabPane fx:id="escrituraTabPane" prefWidth="600" prefHeight="400" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab fx:id="tabSets" text="Sets">
+                    <AnchorPane />
+                </Tab>
+                <Tab fx:id="tabNickCompletion" text="Nick Completion">
+                    <AnchorPane />
+                </Tab>
+                <Tab fx:id="tabCorrector" text="Corrector">
+                    <AnchorPane />
+                </Tab>
+                <Tab fx:id="tabConverso" text="Converso">
+                    <AnchorPane />
+                </Tab>
+                <Tab fx:id="tabAdornos" text="Adornos">
+                    <AnchorPane />
+                </Tab>
+            </tabs>
+        </TabPane>
+    </children>
+</AnchorPane>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+
+<TabPane xmlns:fx="http://javafx.com/fxml" fx:controller="java_irc_chat_client.TabAwayController" tabClosingPolicy="UNAVAILABLE">
+
+    <Tab text="Sistema de Ausencia (Away)">
+        <ScrollPane fitToWidth="true">
+            <HBox spacing="15">
+                <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                
+                <VBox spacing="15" prefWidth="350">
+                    <TitledPane text="Sistema de Ausencia" expanded="true">
+                        <VBox spacing="10">
+                            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <CheckBox text="Cambiar nick a"/>
+                                <TextField fx:id="nickAwayTextField" text="&lt;me&gt;^awsy" prefWidth="150"/>
+                            </HBox>
+                            <CheckBox text="Notificar estado si pronuncian tu nick"/>
+                            <CheckBox text="DeOp en canales"/>
+                            <CheckBox text="Anunciar Contestador"/>
+                            <CheckBox text="Desactivar sonidos"/>
+                            <CheckBox text="Contestado"/>
+                        </VBox>
+                    </TitledPane>
+                    <CheckBox text="Multiserver"/>
+                </VBox>
+
+                <VBox spacing="10" prefWidth="350">
+                    <ListView fx:id="awayListView" prefHeight="150" prefWidth="300"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="¿ Razón ?"/>
+                        <TextField fx:id="razonTextField" text="zzzZZZzzzzZZZzzzz" prefWidth="200"/>
+                    </HBox>
+                    <HBox spacing="10">
+                        <Button text="+"/>
+                        <Button text="-"/>
+                        <Button text="Editar"/>
+                        <Button text="Away"/>
+                    </HBox>
+                </VBox>
+            </HBox>
+        </ScrollPane>
+    </Tab>
+
+    <Tab text="Opciones">
+        <ScrollPane fitToWidth="true">
+            <VBox spacing="15">
+                <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+
+                <TitledPane text="Contestador automática" expanded="true">
+                    <VBox spacing="10">
+                        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <CheckBox text="Activo"/>
+                            <TextField fx:id="mensajeContestadorTextField" text="tu mensaje fue grabado" prefWidth="250"/>
+                            <Button text="Mensaje"/>
+                            <Button text="Borrar"/>
+                        </HBox>
+                    </VBox>
+                </TitledPane>
+
+                <TitledPane text="Anunciar" expanded="true">
+                    <VBox spacing="10">
+                        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <CheckBox text="Anunciar"/>
+                            <Label text="cada (min.)"/>
+                            <TextField fx:id="cadaTextField" text="5" prefWidth="50"/>
+                        </HBox>
+                        <TextField fx:id="textoAvisoTextField" promptText="Texto aviso"/>
+                        <TextField fx:id="textoVueltaTextField" promptText="Texto vuelta"/>
+                        <TextField fx:id="anunciarSoloTextField" promptText="Anunciar solo en (#canal1,#canal2...)"/>
+                        <TextField fx:id="noAnunciarTextField" promptText="No anunciar en (#canal1, #canal2...)"/>
+                    </VBox>
+                </TitledPane>
+
+                <TitledPane text="Auto-away" expanded="true">
+                    <VBox spacing="10">
+                        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Auto-away en (mins.)"/>
+                            <TextField fx:id="autoAwayMinsTextField" text="0" prefWidth="50"/>
+                            <Button text="Off"/>
+                        </HBox>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Razón para auto-away"/>
+                            <TextField fx:id="razonAutoAwayTextField" text="auto-away.ZZZZZZZ" prefWidth="250"/>
+                        </HBox>
+                        <CheckBox text="Minimizar al systray"/>
+                    </VBox>
+                </TitledPane>
+            </VBox>
+        </ScrollPane>
+    </Tab>
+</TabPane>

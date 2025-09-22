@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="java_irc_chat_client.LogsController"
+            prefWidth="800" prefHeight="500">
+
+    <children>
+        <VBox spacing="10" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+              AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+            
+            <!-- Padding corregido -->
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <!-- Barra de búsqueda -->
+            <HBox spacing="10">
+                <TextField fx:id="searchField" promptText="Buscar en logs..." HBox.hgrow="ALWAYS"/>
+                <Button fx:id="searchButton" text="Buscar" onAction="#onSearch"/>
+            </HBox>
+
+            <!-- Área principal: TableView y botones -->
+            <HBox spacing="10" VBox.vgrow="ALWAYS">
+
+                <!-- Tabla de logs -->
+                <TableView fx:id="logsTable" prefWidth="600" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="nameColumn" text="Nombre" prefWidth="400"/>
+                        <TableColumn fx:id="sizeColumn" text="Tamaño" prefWidth="200"/>
+                    </columns>
+                </TableView>
+
+                <!-- Botones a la derecha -->
+                <VBox spacing="10" alignment="TOP_CENTER">
+                    <Button fx:id="viewButton" text="Ver" onAction="#onView" maxWidth="Infinity"/>
+                    <Button fx:id="editButton" text="Editar" onAction="#onEdit" maxWidth="Infinity"/>
+                    <Button fx:id="deleteButton" text="Borrar" onAction="#onDelete" maxWidth="Infinity"/>
+                </VBox>
+
+            </HBox>
+        </VBox>
+    </children>
+</AnchorPane>
+
+

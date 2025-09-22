@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="java_irc_chat_client.MediaController"
+      spacing="15">
+    <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
+    <!-- Cuadro: Eventos -->
+    <TitledPane text="Eventos" expanded="true">
+        <VBox spacing="10">
+            <CheckBox text="Sonido local en eventos" fx:id="sonidoLocalCheckBox"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Evento:"/>
+                <ComboBox fx:id="eventoComboBox" prefWidth="150"/>
+                <Label text="Sonido:"/>
+                <TextField fx:id="sonidoTextField" prefWidth="150"/>
+                <Button text="\\" fx:id="btnSeleccionarSonido"/>
+                <Button text=">" fx:id="btnReproducirSonido"/>
+            </HBox>
+        </VBox>
+    </TitledPane>
+
+    <!-- Cuadro: Directorios -->
+    <TitledPane text="Directorios" expanded="true">
+        <VBox spacing="10">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Audio:"/>
+                <TextField fx:id="audioTextField" text="download" prefWidth="200"/>
+                <Button text="\\" fx:id="btnAudioDir"/>
+            </HBox>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Video:"/>
+                <TextField fx:id="videoTextField" text="download" prefWidth="200"/>
+                <Button text="\\" fx:id="btnVideoDir"/>
+            </HBox>
+        </VBox>
+    </TitledPane>
+
+    <!-- Cuadro: Temas de sonido -->
+    <TitledPane text="Temas de sonido" expanded="true">
+        <HBox spacing="10">
+            <Button text="Importar" fx:id="btnImportarTema"/>
+            <Button text="Exportar" fx:id="btnExportarTema"/>
+        </HBox>
+    </TitledPane>
+</VBox>
