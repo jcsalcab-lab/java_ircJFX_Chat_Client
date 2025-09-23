@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<TitledPane fx:id="correctorPane" text="Corrector de texto" xmlns:fx="http://javafx.com/fxml" collapsible="false">
+    <HBox spacing="10">
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
+
+        <!-- Panel izquierdo con checkboxes y Palabras -->
+        <VBox spacing="10">
+            <!-- Checkboxes -->
+            <CheckBox fx:id="activoCheckBox" text="Activo"/>
+            <CheckBox fx:id="mayusculaCheckBox" text="Mayúsculas 1ª letra"/>
+            <CheckBox fx:id="subrayarUrlCheckBox" text="Subraya url's"/>
+
+            <!-- Panel Palabras -->
+            <TitledPane text="Palabras" collapsible="false">
+                <VBox spacing="5">
+                    <HBox spacing="5">
+                        <Button fx:id="agregarButton" text="+"/>
+                        <Button fx:id="eliminarButton" text="-"/>
+                    </HBox>
+                </VBox>
+            </TitledPane>
+        </VBox>
+
+        <!-- Panel derecho: ListView con dos columnas -->
+        <TableView fx:id="palabrasTableView" prefWidth="250">
+            <columns>
+                <TableColumn fx:id="reemplazarColumn" text="Reemplazar:"/>
+                <TableColumn fx:id="porColumn" text="Por:"/>
+            </columns>
+        </TableView>
+    </HBox>
+</TitledPane>

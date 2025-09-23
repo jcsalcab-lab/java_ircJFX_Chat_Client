@@ -1,30 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="java_irc_chat_client.ESCRITURAController"
             prefWidth="600" prefHeight="400">
+
     <children>
-        <TabPane fx:id="escrituraTabPane" prefWidth="600" prefHeight="400" tabClosingPolicy="UNAVAILABLE">
+        <TabPane fx:id="escrituraTabPane" prefWidth="800" prefHeight="600" tabClosingPolicy="UNAVAILABLE">
             <tabs>
+
+                <!-- Pestaña Sets -->
                 <Tab fx:id="tabSets" text="Sets">
-                    <AnchorPane />
+                    <!-- Incluye el FXML del Set -->
+                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_SET.fxml"/>
                 </Tab>
+
+                <!-- Pestañas restantes vacías -->
                 <Tab fx:id="tabNickCompletion" text="Nick Completion">
-                    <AnchorPane />
+                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_NICKCOMPLETION.fxml"/>
+
                 </Tab>
                 <Tab fx:id="tabCorrector" text="Corrector">
-                    <AnchorPane />
+                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_CORRECTOR.fxml"/>
+
                 </Tab>
-                <Tab fx:id="tabConverso" text="Converso">
-                    <AnchorPane />
+                <Tab fx:id="tabConverso" text="Conversor">
+                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_CONVERSOR.fxml"/>
+
                 </Tab>
                 <Tab fx:id="tabAdornos" text="Adornos">
-                    <AnchorPane />
+                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_ADORNOS.fxml"/>
+
                 </Tab>
+
             </tabs>
         </TabPane>
     </children>

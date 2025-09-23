@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<HBox fx:id="adornosPane" spacing="10" xmlns:fx="http://javafx.com/fxml">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+
+    <!-- Panel principal izquierdo -->
+    <VBox spacing="10">
+        <!-- Activo + Estilo -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <CheckBox fx:id="activoCheckBox" text="Activo"/>
+            <TextField fx:id="estiloField" promptText="Estilo"/>
+        </HBox>
+
+        <!-- Cuadro Modificadores -->
+        <TitledPane text="Modificadores" collapsible="false">
+            <VBox spacing="10">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+
+                <!-- Botones Estilos de texto y Estilos de color -->
+                <HBox spacing="10">
+                    <Button fx:id="estilosTextoButton" text="Estilos de texto"/>
+                    <Button fx:id="estilosColorButton" text="Estilos de color"/>
+                </HBox>
+
+                <!-- Checkbox Adornos y dos TextFields -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <CheckBox fx:id="adornosCheckBox" text="Adornos"/>
+                    <TextField fx:id="textField1"/>
+                    <TextField fx:id="textField2"/>
+                </HBox>
+
+                <!-- Checkbox Negrita y Subrayado -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <CheckBox fx:id="negritaCheckBox" text="Negrita"/>
+                    <CheckBox fx:id="subrayadoCheckBox" text="Subrayado"/>
+                </HBox>
+
+                <!-- Checkbox Usar colores y botón Ojo -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <CheckBox fx:id="usarColoresCheckBox" text="Usar colores"/>
+                    <Button fx:id="ojoButton" text="Ojo"/>
+                </HBox>
+            </VBox>
+        </TitledPane>
+
+        <!-- TextField Fichero de estilos + botones ! y Más estilos -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button fx:id="botonExclamacion" text="!"/>
+            <Button fx:id="masEstilosButton" text="Más estilos"/>
+            <TextField fx:id="ficheroEstilosField" text="IRcapEstilos" promptText="Fichero de estilos"/>
+        </HBox>
+    </VBox>
+
+    <!-- Panel derecho: ListView + botones + / - -->
+    <VBox spacing="5">
+        <padding>
+            <Insets top="0" right="0" bottom="0" left="0"/>
+        </padding>
+        <ListView fx:id="adornosListView" prefHeight="150"/>
+        <HBox spacing="5">
+            <Button fx:id="agregarButton" text="+"/>
+            <Button fx:id="eliminarButton" text="-"/>
+        </HBox>
+    </VBox>
+</HBox>

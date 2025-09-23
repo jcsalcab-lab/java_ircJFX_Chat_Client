@@ -1,0 +1,130 @@
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="java_irc_chat_client.RedesController"
+            prefWidth="800" prefHeight="600">
+
+    <children>
+        <BorderPane prefWidth="800" prefHeight="600"
+                    AnchorPane.topAnchor="0"
+                    AnchorPane.leftAnchor="0"
+                    AnchorPane.rightAnchor="0"
+                    AnchorPane.bottomAnchor="0">
+            <center>
+                <VBox spacing="10">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+
+                    <!-- Primer cuadro: Redes -->
+                    <TitledPane text="Redes" expanded="true">
+                        <content>
+                            <VBox spacing="10">
+                                <padding>
+                                    <Insets top="10" right="10" bottom="10" left="10"/>
+                                </padding>
+                                <HBox spacing="10">
+                                    <ComboBox fx:id="comboRedes" prefWidth="200"/>
+                                    <Button fx:id="btnNueva" text="Nueva" onAction="#onNueva"/>
+                                    <Button fx:id="btnBorrar" text="Borrar" onAction="#onBorrar"/>
+                                </HBox>
+                            </VBox>
+                        </content>
+                    </TitledPane>
+
+                    <!-- Segundo cuadro: Configuración Red -->
+                    <TitledPane text="Configuración Red" expanded="true">
+                        <content>
+                            <VBox spacing="10">
+                                <padding>
+                                    <Insets top="10" right="10" bottom="10" left="10"/>
+                                </padding>
+                                <GridPane hgap="10" vgap="10">
+                                    <columnConstraints>
+                                        <ColumnConstraints halignment="RIGHT"/>
+                                        <ColumnConstraints hgrow="ALWAYS"/>
+                                        <ColumnConstraints/>
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints vgrow="NEVER"/>
+                                        <RowConstraints vgrow="NEVER"/>
+                                        <RowConstraints vgrow="NEVER"/>
+                                    </rowConstraints>
+
+                                    <Label text="Nombre Red:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtNombreRed" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                                    <Label text="Fichero menús:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtFicheroMenus" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                    <Button fx:id="btnBuscarFichero" text="..." GridPane.rowIndex="1" GridPane.columnIndex="2" onAction="#onBuscarFichero"/>
+
+                                    <Label text="Aparece como:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtApareceComo" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                                </GridPane>
+                            </VBox>
+                        </content>
+                    </TitledPane>
+
+                    <!-- Tercer cuadro: Bots -->
+                    <TitledPane text="Bots" expanded="true">
+                        <content>
+                            <VBox spacing="10">
+                                <padding>
+                                    <Insets top="10" right="10" bottom="10" left="10"/>
+                                </padding>
+                                <GridPane hgap="10" vgap="10">
+                                    <columnConstraints>
+                                        <ColumnConstraints halignment="RIGHT"/>
+                                        <ColumnConstraints hgrow="ALWAYS"/>
+                                    </columnConstraints>
+
+                                    <Label text="Máscara ip bots:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtMascaraIpBots" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                                    <Label text="Nickserv:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtNickserv" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                                    <Label text="Chanserv:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtChanserv" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                                    <Label text="Memoserv:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtMemoserv" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                                    <Label text="Pide ID:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtPideId" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                                </GridPane>
+                            </VBox>
+                        </content>
+                    </TitledPane>
+
+                    <!-- Checkboxes, ayuda y botón Guarda -->
+                    <VBox spacing="5">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+                        <CheckBox fx:id="chkAutoCargarMenus" text="Auto-cargar menús"/>
+                        <CheckBox fx:id="chkMensajeBotsPrivado" text="Mensaje de Bots en privado"/>
+                        <CheckBox fx:id="chkSinPerfil" text="Sin perfil, bots genéricos"/>
+                        <Button fx:id="btnAyuda" text="¿Ayuda?" onAction="#onAyuda"/>
+                        <Button fx:id="btnGuarda" text="Guarda" onAction="#onGuarda"/>
+                    </VBox>
+                </VBox>
+            </center>
+        </BorderPane>
+    </children>
+</AnchorPane>
+
+

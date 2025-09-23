@@ -41,23 +41,28 @@ public class ToolBarController {
     @FXML
     private void onSetupButtonClicked() {
         try {
-        	FXMLLoader loader = new FXMLLoader(getClass().getResource("/java_irc_chat_client/JIRCHAT_SETUP.fxml"));
-
-        	Parent root = loader.load();
-        	Stage stage = new Stage();
-        	stage.setTitle("Configuración");
-        	stage.setScene(new Scene(root));
-        	stage.show();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/java_irc_chat_client/JIRCHAT_SETUP.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Configuración");
+            stage.setScene(new Scene(root));
+            
+            // Evita que se pueda maximizar
+            stage.setResizable(false);
+            
+            // Mostrar ventana
+            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+
     
     @FXML
     private void abrirLogs() {
         try {
-        	FXMLLoader loader = new FXMLLoader(getClass().getResource("JIRCHAT_LOGS.fxml"));
+        	FXMLLoader loader = new FXMLLoader(getClass().getResource("/java_irc_chat_client/JIRCHAT_LOGS.fxml"));
 
             AnchorPane root = loader.load();
 
@@ -86,7 +91,7 @@ public class ToolBarController {
     private void abrirUserList() {
         try {
             // Crear un FXMLLoader nuevo cada vez
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("JIRCHAT_LISTAS_USUARIOS_CONOCIDOS.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/java_irc_chat_client/JIRCHAT_LISTAS_USUARIOS_CONOCIDOS.fxml"));
             Parent root = loader.load();
 
             // Obtener controlador recién creado
@@ -169,7 +174,7 @@ public class ToolBarController {
         if (chatController != null) return; // Ya abierto
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("JIRCHAT_CONNECT_STAGE.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/java_irc_chat_client/JIRCHAT_CONNECT_STAGE.fxml"));
             AnchorPane chatPane = loader.load();
             chatController = loader.getController();
 

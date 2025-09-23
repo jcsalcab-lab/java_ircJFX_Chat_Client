@@ -5,21 +5,29 @@
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="java_irc_chat_client.ControllerVarios"
-            prefWidth="600" prefHeight="400">
+            fx:controller="java_irc_chat_client.Varios_VariosController"
+            prefWidth="800" prefHeight="800">
     <children>
-        <TabPane fx:id="variosTabPane" prefWidth="600" prefHeight="400" tabClosingPolicy="UNAVAILABLE">
+        <TabPane fx:id="variosTabPane" prefWidth="600" prefHeight="700" tabClosingPolicy="UNAVAILABLE">
             <tabs>
                 <Tab fx:id="tabVarios" text="Varios">
-                    <AnchorPane />
+                    <content>
+                        <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_TAB_VARIOS.fxml"/>
+                    </content>
                 </Tab>
                 <Tab fx:id="tabIdioma" text="Idioma">
-                    <AnchorPane />
+                    <content>
+                        <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_VARIOS_TAB_IDIOMA.fxml"/>
+                    </content>
                 </Tab>
                 <Tab fx:id="tabComandosPersonalizados" text="Comandos personalizados">
-                    <AnchorPane />
+                    <content>
+                        <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_VARIOS_COMANDOSPERSONALIZADOS.fxml"/>
+                    </content>
                 </Tab>
             </tabs>
         </TabPane>
     </children>
 </AnchorPane>
+
+

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="java_irc_chat_client.DCC_DCC_Controller"
+            prefWidth="800" prefHeight="500">
+
+    <children>
+        <!-- Contenedor principal vertical -->
+        <VBox spacing="20" AnchorPane.topAnchor="10" AnchorPane.leftAnchor="10"
+              AnchorPane.rightAnchor="10" AnchorPane.bottomAnchor="10">
+
+            <!-- Parte superior con los cuadros -->
+            <HBox spacing="15">
+                
+                <!-- Cuadro Recepción de Ficheros - Auto -->
+                <TitledPane text="Recepción de Ficheros - Auto" collapsible="false">
+                    <content>
+                        <VBox spacing="10">
+                            <padding>
+                                <Insets top="10" right="10" bottom="10" left="10"/>
+                            </padding>
+                            <HBox spacing="15">
+                                <VBox spacing="5">
+                                    <CheckBox text="Acepta"/>
+                                    <ListView fx:id="listAcepta" prefHeight="120" prefWidth="120"/>
+                                    <HBox spacing="5">
+                                        <Button text="+" fx:id="btnAddAcepta"/>
+                                        <Button text="-" fx:id="btnRemoveAcepta"/>
+                                    </HBox>
+                                </VBox>
+                                <VBox spacing="5">
+                                    <CheckBox text="Rechazar"/>
+                                    <ListView fx:id="listRechazar" prefHeight="120" prefWidth="120"/>
+                                    <HBox spacing="5">
+                                        <Button text="+" fx:id="btnAddRechazar"/>
+                                        <Button text="-" fx:id="btnRemoveRechazar"/>
+                                    </HBox>
+                                </VBox>
+                                <VBox spacing="5">
+                                    <CheckBox text="No enviar"/>
+                                    <ListView fx:id="listNoEnviar" prefHeight="120" prefWidth="120"/>
+                                    <HBox spacing="5">
+                                        <Button text="+" fx:id="btnAddNoEnviar"/>
+                                        <Button text="-" fx:id="btnRemoveNoEnviar"/>
+                                    </HBox>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </TitledPane>
+
+                <!-- Cuadro Auto aceptar -->
+                <TitledPane text="Auto aceptar CHAT de" collapsible="false">
+                    <content>
+                        <VBox spacing="10">
+                            <padding>
+                                <Insets top="10" right="10" bottom="10" left="10"/>
+                            </padding>
+                            <Label text="Auto aceptar CHAT de:"/>
+                            <ComboBox fx:id="cbAutoAceptarChat"/>
+
+                            <Label text="Auto aceptar Envíos de:"/>
+                            <ComboBox fx:id="cbAutoAceptarEnvios"/>
+
+                            <VBox spacing="5">
+                                <CheckBox text="Visor de Fserve automático"/>
+                                <CheckBox text="Al abrir chat cerrar queries"/>
+                                <CheckBox text="Pedir si falta al recibir"/>
+                                <CheckBox text="Permite DCC por IP"/>
+                                <CheckBox text="DCC pasivo"/>
+                                <CheckBox text="Responder comandos cola"/>
+                            </VBox>
+                        </VBox>
+                    </content>
+                </TitledPane>
+
+            </HBox>
+
+            <!-- Parte inferior con TextFields -->
+            <HBox spacing="40" alignment="CENTER_LEFT">
+                <VBox spacing="5">
+                    <Label text="Velocidad máxima de envío (KB/s)"/>
+                    <TextField fx:id="txtVelocidad" text="0" prefWidth="200"/>
+                </VBox>
+                <VBox spacing="5">
+                    <Label text="Cancela envío por debajo de (KB/s)"/>
+                    <TextField fx:id="txtCancelaEnvio" text="0" prefWidth="200"/>
+                </VBox>
+            </HBox>
+
+        </VBox>
+    </children>
+</AnchorPane>
+
+
+
+
+

@@ -10,49 +10,44 @@
         <TabPane tabClosingPolicy="UNAVAILABLE" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
                  AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
 
-            <!-- Pestaña General -->
             <Tab text="General">
                 <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_GENERAL.fxml" fx:id="generalTab"/>
             </Tab>
 
-            <!-- Pestaña Protección -->
             <Tab text="Protección">
                 <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_PROTECCION.fxml" fx:id="proteccionTab"/>
             </Tab>
 
-            <!-- Pestaña Away -->
             <Tab text="Away">
                 <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_AWAY.fxml" fx:id="awayTab"/>
             </Tab>
 
-			<!-- Pestaña Sonido -->
-			<Tab text="Sonido">
-   				 <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_MEDIA.fxml" fx:id="mediaTab"/>
-   			</Tab>	 
-   			
-   			 <!-- Pestaña Interface -->
-   			 <Tab text="Interface">
-   				 <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_INTERFAZ.fxml" fx:id="mediaTab"/>
-			</Tab>
-			
-			<!-- Pestaña DCC -->
-   			 <Tab text="DCC">
-   				 <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_DCC.fxml" fx:id="mediaTab"/>
-			</Tab>
-			
-			<!-- Pestaña Escritura -->
-   			 <Tab text="Escritura">
-   				 <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_ESCRITURA.fxml" fx:id="mediaTab"/>
-			</Tab>
-			
-			<Tab text="Redes">
-   				 <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_REDES.fxml" fx:id="mediaTab"/>
-			</Tab>
-			
-			<Tab text="Varios">
-   				 <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_VARIOS.fxml" fx:id="mediaTab"/>
-			</Tab>
+            <Tab text="Sonido">
+                <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_MEDIA.fxml" fx:id="mediaTab"/>
+            </Tab>
+
+            <Tab text="Interface">
+                <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_INTERFAZ.fxml" fx:id="interfaceTab"/>
+            </Tab>
+
+            <Tab text="DCC">
+                <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_DCC.fxml" fx:id="dccTab"/>
+            </Tab>
+
+            <Tab text="Escritura">
+                <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_ESCRITURA.fxml" fx:id="escrituraTab"/>
+            </Tab>
+
+            <Tab text="Redes">
+                <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_REDES.fxml" fx:id="redesTab"/>
+            </Tab>
+
+            <Tab text="Varios">
+                <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_VARIOS.fxml" fx:id="variosTab"/>
+            </Tab>
+
         </TabPane>
     </children>
 </AnchorPane>
+
 

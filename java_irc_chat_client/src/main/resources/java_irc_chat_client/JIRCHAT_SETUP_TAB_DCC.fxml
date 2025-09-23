@@ -8,15 +8,25 @@
             fx:controller="java_irc_chat_client.DCCController"
             prefWidth="600" prefHeight="400">
     <children>
-        <TabPane fx:id="dccTabPane" prefWidth="600" prefHeight="400" tabClosingPolicy="UNAVAILABLE">
+        <TabPane fx:id="dccTabPane" prefWidth="700" prefHeight="600" tabClosingPolicy="UNAVAILABLE">
             <tabs>
+
+                <!-- Subpestaña DCC con include -->
                 <Tab fx:id="tabDCC" text="DCC">
-                    <AnchorPane />
+                    <AnchorPane>
+                        <fx:include source="JIRCHAT_SETUP_TAB_TAB_DCC_DCC.fxml"/>
+                    </AnchorPane>
                 </Tab>
+
+                <!-- Subpestaña Cola de Envios -->
                 <Tab fx:id="tabColaEnvios" text="Cola de Envios">
-                    <AnchorPane />
+                    <AnchorPane>
+                        <fx:include source="JIRCHAT_SETUP_TAB_TAB_COLADEENVIOS.fxml"/>
+                    </AnchorPane>
                 </Tab>
+
             </tabs>
         </TabPane>
     </children>
 </AnchorPane>
+

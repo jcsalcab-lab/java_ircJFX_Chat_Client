@@ -1,26 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="java_irc_chat_client.ControllerRedes"
             prefWidth="600" prefHeight="400">
     <children>
-        <TabPane fx:id="redesTabPane" prefWidth="600" prefHeight="400" tabClosingPolicy="UNAVAILABLE">
+        <TabPane fx:id="redesTabPane" prefWidth="525" prefHeight="650" tabClosingPolicy="UNAVAILABLE">
             <tabs>
                 <Tab fx:id="tabRedes" text="Redes">
-                    <AnchorPane />
+                    <content>
+                        <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_TAB_REDES.fxml"/>
+                    </content>
                 </Tab>
+
                 <Tab fx:id="tabNicks" text="Nicks">
-                    <AnchorPane />
+                    <content>
+       					 <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_REDES_NICKS.fxml"/>
+   					 </content>
                 </Tab>
+
                 <Tab fx:id="tabCanales" text="Canales">
-                    <AnchorPane />
+                    <content>
+       					 <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_REDES_CANALES_TAB.fxml"/>
+   					 </content>
                 </Tab>
+
                 <Tab fx:id="tabAutoEntrar" text="Auto-entrar">
-                    <AnchorPane />
+                    <content>
+       					 <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_REDES_AUTO_ENTRAR.fxml"/>
+   					 </content>
                 </Tab>
             </tabs>
         </TabPane>

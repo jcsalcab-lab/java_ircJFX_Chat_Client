@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="java_irc_chat_client.SetupSetController"
+            prefWidth="800" prefHeight="600">
+
+    <children>
+        <HBox spacing="20">
+            <padding>
+                <Insets top="20" left="20" right="20" bottom="20"/>
+            </padding>
+
+            <!-- Cuadro izquierdo con opciones -->
+            <VBox spacing="15">
+                <TitledPane text="Opciones" expanded="true">
+                    <content>
+                        <VBox spacing="10">
+                            <padding>
+                                <Insets top="10" left="10" right="10" bottom="10"/>
+                            </padding>
+
+                            <CheckBox fx:id="chkCorrectoOrtografico" text="Correcto Ortográfico"/>
+                            <CheckBox fx:id="chkConversorUnidades" text="Conversor unidades"/>
+                            <CheckBox fx:id="chkEncriptador" text="Encriptador"/>
+                            <CheckBox fx:id="chkNickCompletion" text="Nick Completion"/>
+                            <CheckBox fx:id="chkAdornosColores" text="Adornos y colores"/>
+
+                            <HBox spacing="10">
+                                <Button fx:id="btnTiposTamanoLetra" text="Tipos y tamaño de letra" onAction="#onTiposTamanoLetra"/>
+                                <Button fx:id="btnPonerHora" text="Poner hora (timestamp)" onAction="#onPonerHora"/>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </TitledPane>
+
+                <!-- Coloreado de nicks -->
+                <TitledPane text="Coloreado de nicks" expanded="true">
+                    <content>
+                        <VBox spacing="10">
+                            <padding>
+                                <Insets top="10" left="10" right="10" bottom="10"/>
+                            </padding>
+
+                            <Label fx:id="lblColoreadoNick" text="Coloreado de nick"/>
+                            <GridPane hgap="10" vgap="10">
+                                <padding>
+                                    <Insets top="5" left="5" right="5" bottom="5"/>
+                                </padding>
+                                <columnConstraints>
+                                    <ColumnConstraints halignment="RIGHT"/>
+                                    <ColumnConstraints hgrow="ALWAYS"/>
+                                </columnConstraints>
+
+                                <Label text="Menor" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtColorMenor" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                                <Label text="Arroba" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtColorArroba" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                                <Label text="Nick" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtColorNick" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                                <Label text="Mayor" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtColorMayor" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                            </GridPane>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </VBox>
+
+            <!-- Panel derecho con los cuadros restantes -->
+            <VBox spacing="15">
+                <padding>
+                    <Insets top="10" left="10" right="10" bottom="10"/>
+                </padding>
+
+                <!-- Mostrar tu nick al escribir -->
+                <TitledPane text="Mostrar tu nick al escribir" expanded="true">
+                    <content>
+                        <VBox spacing="10">
+                            <HBox spacing="10">
+                                <CheckBox fx:id="chkMostrarNickActivo" text="Activo"/>
+                                <Label fx:id="lblMiNick" text="Mi Nick"/>
+                            </HBox>
+
+                            <GridPane hgap="10" vgap="10">
+                                <padding>
+                                    <Insets top="5" left="5" right="5" bottom="5"/>
+                                </padding>
+                                <columnConstraints>
+                                    <ColumnConstraints halignment="RIGHT"/>
+                                    <ColumnConstraints hgrow="ALWAYS"/>
+                                </columnConstraints>
+
+                                <Label text="Menor" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtMiNickMenor" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                                <Label text="Arroba" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtMiNickArroba" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                                <Label text="Nick" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtMiNickNick" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                                <Label text="Mayor" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                <TextField fx:id="txtMiNickMayor" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                            </GridPane>
+                        </VBox>
+                    </content>
+                </TitledPane>
+
+                <!-- Justificación de texto -->
+                <TitledPane text="Justifica texto al ancho del nick" expanded="true">
+                    <content>
+                        <VBox spacing="10">
+                            <HBox spacing="10">
+                                <Label text="Justifica texto al ancho del nick"/>
+                                <TextField fx:id="txtJustificacionValor" text="27" prefWidth="60"/>
+                            </HBox>
+
+                            <CheckBox fx:id="chkIncluirArrobaMas" text="Incluir @ y +"/>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </VBox>
+
+        </HBox>
+    </children>
+</AnchorPane>

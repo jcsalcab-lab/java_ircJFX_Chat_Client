@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<TitledPane fx:id="nickCompletionPane" text="Nick Completion" xmlns:fx="http://javafx.com/fxml" collapsible="false">
+    <VBox spacing="10">
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
+
+        <!-- Fila Activo + etiqueta [[nick]] -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <CheckBox fx:id="activoCheckBox" text="Activo"/>
+            <Label fx:id="nickLabel" text="[[nick]]"/>
+        </HBox>
+
+        <!-- Primer fila: Botón Separador + TextField Primer separador -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button fx:id="separadorButton" text="Separador"/>
+            <TextField fx:id="primerSeparadorField" promptText="Primer separador"/>
+        </HBox>
+
+        <!-- Segunda fila: Botón Texto + TextField Segundo separador -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button fx:id="textoButton" text="Texto"/>
+            <TextField fx:id="segundoSeparadorField" promptText="Segundo separador"/>
+        </HBox>
+
+        <!-- Botón Guardar Estilo -->
+        <Button fx:id="guardarEstiloButton" text="Guardar Estilo" maxWidth="Infinity"/>
+
+        <!-- ListView + botón - debajo -->
+        <VBox spacing="5" alignment="CENTER_LEFT">
+            <ListView fx:id="nickListView" prefHeight="150"/>
+            <Button fx:id="eliminarButton" text="-"/>
+        </VBox>
+    </VBox>
+</TitledPane>
+

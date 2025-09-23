@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="java_irc_chat_client.IdiomaController"
+            prefWidth="600" prefHeight="400">
+
+    <children>
+        <VBox spacing="10" AnchorPane.topAnchor="10" AnchorPane.leftAnchor="10" 
+              AnchorPane.rightAnchor="10" AnchorPane.bottomAnchor="10"
+              style="-fx-border-color: gray; -fx-border-width: 1; -fx-padding: 10;">
+
+            <!-- Contenedor principal interno -->
+            <HBox spacing="10">
+                <padding>
+                    <Insets top="10" right="10" bottom="10" left="10"/>
+                </padding>
+
+                <!-- TableView con dos columnas -->
+                <TableView fx:id="tblIdiomas" prefWidth="350">
+                    <columns>
+                        <TableColumn fx:id="colPrefIdioma" text="Pref idioma" prefWidth="150"/>
+                        <TableColumn fx:id="colIdioma" text="Idioma" prefWidth="200"/>
+                    </columns>
+                </TableView>
+
+                <!-- Información a la derecha -->
+                <VBox spacing="5" alignment="TOP_LEFT">
+                    <Label text="Info:"/>
+                    <Label fx:id="lblInfo" text="" style="-fx-background-color: transparent;"/>
+                </VBox>
+            </HBox>
+
+            <!-- Checkbox debajo del contenedor principal -->
+            <CheckBox fx:id="chkCambiarTema" text="Cambiar tema de texto si está disponible"/>
+
+            <!-- Botón debajo del checkbox -->
+            <Button fx:id="btnDescargarIdiomas" text="Descargar otros idiomas" prefWidth="200"/>
+        </VBox>
+    </children>
+</AnchorPane>
+
+
+

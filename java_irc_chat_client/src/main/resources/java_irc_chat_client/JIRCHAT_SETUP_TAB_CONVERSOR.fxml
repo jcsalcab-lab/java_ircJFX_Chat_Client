@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<TitledPane fx:id="conversorPane" text="Conversor" xmlns:fx="http://javafx.com/fxml" collapsible="false">
+    <VBox spacing="10">
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
+
+        <!-- Fila Activo + descripción -->
+        <HBox spacing="10" alignment="TOP_LEFT">
+            <CheckBox fx:id="activoCheckBox" text="Activo"/>
+            <Label fx:id="descripcionLabel" text="El conversor de unidades convierte
+medidas automaticamente
+cuando escribe en canales y privados.
+El formato es : NN&amp;CODIGO, donde NN es la cantidad.
+$ el caracter de control y CODIGO es la medida en la que esta NN.
+Consulta la lista de códigos para conocer
+a qué unidad pertenece cada uno">
+                <wrapText>true</wrapText>
+            </Label>
+        </HBox>
+
+        <!-- TextField Cantidad y Medida -->
+        <TextField fx:id="cantidadMedidaField" text="10 dolares" promptText="Cantidad y Medida (ej. 10 dolares)"/>
+
+        <!-- Label con resultado -->
+        <Label fx:id="resultadoLabel" text="10 dolares (1331.09 pts ~ 8"/>
+
+        <!-- TextField Euro en dólares + Botón Ayuda Tags -->
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <TextField fx:id="euroDolaresField" text="1.25" promptText="Euro en dólares"/>
+            <Button fx:id="ayudaTagsButton" text="Ayuda Tags"/>
+        </HBox>
+    </VBox>
+</TitledPane>
+
