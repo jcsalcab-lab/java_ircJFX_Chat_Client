@@ -1,4 +1,4 @@
-package java_irc_chat_client;
+package java_irc_chat_client.formularios_persistencia;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlElement;

@@ -6,6 +6,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
+import java_irc_chat_client.formularios_persistencia.FormularioInterfazBarraConfig;
 
 import java.io.File;
 import java.util.ArrayList;

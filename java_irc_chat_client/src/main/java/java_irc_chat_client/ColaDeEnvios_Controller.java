@@ -5,6 +5,7 @@ import javafx.scene.control.TextField;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
+import java_irc_chat_client.formularios_persistencia.FormularioColaEnviosConfig;
 
 import java.io.File;
 

@@ -9,6 +9,7 @@ import javafx.scene.control.TextField;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
+import java_irc_chat_client.formularios_persistencia.FormularioVariosVariosConfig;
 
 import java.io.File;
 import java.util.ArrayList;

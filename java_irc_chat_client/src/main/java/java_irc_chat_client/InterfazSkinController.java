@@ -5,6 +5,8 @@ import javafx.scene.control.*;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
+import java_irc_chat_client.formularios_persistencia.FormularioInterfazSkinConfig;
+
 import java.io.File;
 
 public class InterfazSkinController {

@@ -3,6 +3,7 @@ package java_irc_chat_client;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
+import java_irc_chat_client.formularios_persistencia.FormularioInterfazOpcionesConfig;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import java.io.File;
