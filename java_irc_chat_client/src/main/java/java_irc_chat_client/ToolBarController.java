@@ -43,19 +43,25 @@ public class ToolBarController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/java_irc_chat_client/JIRCHAT_SETUP.fxml"));
             Parent root = loader.load();
+
+            SetupController setupController = loader.getController();
+
             Stage stage = new Stage();
             stage.setTitle("Configuración");
             stage.setScene(new Scene(root));
-            
-            // Evita que se pueda maximizar
             stage.setResizable(false);
-            
-            // Mostrar ventana
+
+            // Configurar listener de cierre para guardar todas las configuraciones automáticamente
+            setupController.setStage(stage);
+
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+
+
 
 
     

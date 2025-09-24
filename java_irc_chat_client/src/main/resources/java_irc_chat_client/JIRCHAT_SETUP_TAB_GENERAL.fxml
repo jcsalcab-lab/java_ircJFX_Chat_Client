@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TitledPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
 <ScrollPane xmlns:fx="http://javafx.com/fxml" fx:controller="java_irc_chat_client.TabGeneralController" fitToWidth="true">
@@ -16,9 +10,9 @@
         <TitledPane text="Opciones generales" expanded="true">
             <VBox spacing="10">
                 <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
-                <CheckBox text="Invisible"/>
-                <CheckBox text="Wall ops"/>
-                <CheckBox text="Noticias"/>
+                <CheckBox fx:id="invisibleCheckBox" text="Invisible"/>
+                <CheckBox fx:id="wallOpsCheckBox" text="Wall ops"/>
+                <CheckBox fx:id="noticiasCheckBox" text="Noticias"/>
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label text="Otros:"/>
                     <TextField fx:id="otrosTextField" prefWidth="200"/>
@@ -33,18 +27,18 @@
         <TitledPane text="Funciones adicionales" expanded="true">
             <VBox spacing="10">
                 <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
-                <CheckBox text="Medidor de Lag"/>
-                <CheckBox text="Anti-idle"/>
-                <CheckBox text="No responder CTCP's"/>
-                <CheckBox text="Aviso al mencionarte"/>
-                <CheckBox text="Relocalizado de nicks"/>
+                <CheckBox fx:id="medidorLagCheckBox" text="Medidor de Lag"/>
+                <CheckBox fx:id="antiIdleCheckBox" text="Anti-idle"/>
+                <CheckBox fx:id="noResponderCTCPCheckBox" text="No responder CTCP's"/>
+                <CheckBox fx:id="avisoMencionCheckBox" text="Aviso al mencionarte"/>
+                <CheckBox fx:id="relocalizadoNicksCheckBox" text="Relocalizado de nicks"/>
             </VBox>
         </TitledPane>
 
         <TitledPane text="Privados" expanded="true">
             <VBox spacing="10">
                 <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
-                <CheckBox text="Bloquear privados"/>
+                <CheckBox fx:id="bloquearPrivadosCheckBox" text="Bloquear privados"/>
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label text="Mensaje de excusa:"/>
                     <TextField fx:id="mensajeExcusaTextField" text="no privados ahora porfavor necesitas la contraseña" prefWidth="250"/>

@@ -136,6 +136,8 @@ public class TabGeneralController {
             m.marshal(data, configFile);
 
             System.out.println("Configuración guardada en XML.");
+            System.out.println("Guardando XML en: " + configFile.getAbsolutePath());
+
         } catch (Exception e) {
             e.printStackTrace();
         }

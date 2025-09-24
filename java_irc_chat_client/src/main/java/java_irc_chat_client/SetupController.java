@@ -1,53 +1,63 @@
 package java_irc_chat_client;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
-/**
- * Controlador de la ventana Setup.
- * Centraliza la persistencia de todas las configuraciones de las pestañas.
- */
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class SetupController {
 
     @FXML
     private TabPane setupTabPane;
 
-    // Referencias a todos los controladores de las pestañas
-    private ColaDeEnvios_Controller colaDeEnviosController;
-    private ConversorController conversorController;
-    private CorrectorController correctorController;
-    private DCC_DCC_Controller dcc_dcc_Controller;
-    private IdiomaController idiomaController;
-    private InterfazBarraController interfazBarraController;
-    private InterfazCanalBarController interfazCanalBarController;
-    private InterfazCartelesController interfazCartelesController;
-    private InterfazOpcionesController interfazOpcionesController;
-    private InterfazPanelController interfazPanelController;
-    private InterfazSkinController interfazSkinController;
-    private InterfazTemasController interfazTemasController;
-    private InterfazVariosController interfazVariosController;
-    private MediaController mediaController;
-    private RedesAutoEntrarController redesAutoEntrarController;
-    private RedesCanalesController redesCanalesController;
-    private RedesController redesController;
-    private RedesNicksController redesNicksController;
-    private SetupSetController setupSetController;
-    private TabAwayController tabAwayController;
-    private TabGeneralController taabGeneralController;
-    private TabProteccionController tabProteccionController;
-    private Varios_VariosController variosVariosController;
-    private VariosComandosPersonalizadosController comandosPersonalizadosController;
-    private AdornosController adornosController;
-    private NickCompletionController nickCompletionController;
-    
+    // Lista genérica de todos los controladores de Tabs
+    private final List<Object> tabControllers = new ArrayList<>();
+
     @FXML
     private void initialize() {
         System.out.println("SetupController inicializado.");
+
+        try {
+            // Cargar todos los Tabs con sus FXML y controladores
+            cargarTab("/java_irc_chat_client/JIRCHAT_SETUP_TAB_GENERAL.fxml", 0);
+            cargarTab("/java_irc_chat_client/JIRCHAT_SETUP_TAB_PROTECCION.fxml", 1);
+            cargarTab("/java_irc_chat_client/JIRCHAT_SETUP_TAB_AWAY.fxml", 2);
+            cargarTab("/java_irc_chat_client/JIRCHAT_SETUP_TAB_MEDIA.fxml", 3);
+            cargarTab("/java_irc_chat_client/JIRCHAT_SETUP_TAB_INTERFAZ.fxml", 4);
+            cargarTab("/java_irc_chat_client/JIRCHAT_SETUP_TAB_DCC.fxml", 5);
+            cargarTab("/java_irc_chat_client/JIRCHAT_SETUP_TAB_ESCRITURA.fxml", 6);
+            cargarTab("/java_irc_chat_client/JIRCHAT_SETUP_TAB_REDES.fxml", 7);
+            cargarTab("/java_irc_chat_client/JIRCHAT_SETUP_TAB_VARIOS.fxml", 8);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
+    
+    
+    private void cargarTab(String fxmlPath, int tabIndex) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+        Parent tabRoot = loader.load();  // Esto inicializa todos los @FXML
+        Object controller = loader.getController();
+        tabRoot.setUserData(controller);
+
+        Tab tab = setupTabPane.getTabs().get(tabIndex);
+        tab.setContent(tabRoot);
+
+        tabControllers.add(controller); // Guardamos el controlador para luego
+    }
+
+
     /**
-     * Se debe llamar desde quien crea el Stage para capturar el evento de cierre.
+     * Debe llamarse desde quien crea el Stage para capturar el evento de cierre.
      */
     public void setStage(Stage stage) {
         stage.setOnCloseRequest(event -> {
@@ -56,101 +66,22 @@ public class SetupController {
     }
 
     /**
-     * Asignar referencias a los controladores al cargar cada FXML.
-     */
-    public void setControllers(
-            ColaDeEnvios_Controller colaDeEnviosController,
-            ConversorController conversorController,
-            CorrectorController correctorController,
-            DCCController dccController,
-            IdiomaController idiomaController,
-            InterfazBarraController interfazBarraController,
-            InterfazCanalBarController interfazCanalBarController,
-            InterfazCartelesController interfazCartelesController,
-            InterfazOpcionesController interfazOpcionesController,
-            InterfazPanelController interfazPanelController,
-            InterfazSkinController interfazSkinController,
-            InterfazTemasController interfazTemasController,
-            InterfazVariosController interfazVariosController,
-            MediaController mediaController,
-            RedesAutoEntrarController redesAutoEntrarController,
-            RedesCanalesController redesCanalesController,
-            RedesController redesController,
-            RedesNicksController redesNicksController,
-            SetupSetController setupSetController,
-            TabAwayController taabAwayController,
-            TabProteccionController tabProteccionController,
-            Varios_VariosController variosVariosController,
-            VariosComandosPersonalizadosController comandosPersonalizadosController,
-            AdornosController adornosController,
-            NickCompletionController nickCompletionController,
-            TabGeneralController tabGeneralController
-    ) {
-        this.colaDeEnviosController = colaDeEnviosController;
-        this.conversorController = conversorController;
-        this.correctorController = correctorController;
-        this.dcc_dcc_Controller = dcc_dcc_Controller;
-        this.idiomaController = idiomaController;
-        this.interfazBarraController = interfazBarraController;
-        this.interfazCanalBarController = interfazCanalBarController;
-        this.interfazCartelesController = interfazCartelesController;
-        this.interfazOpcionesController = interfazOpcionesController;
-        this.interfazPanelController = interfazPanelController;
-        this.interfazSkinController = interfazSkinController;
-        this.interfazTemasController = interfazTemasController;
-        this.interfazVariosController = interfazVariosController;
-        this.mediaController = mediaController;
-        this.redesAutoEntrarController = redesAutoEntrarController;
-        this.redesCanalesController = redesCanalesController;
-        this.redesController = redesController;
-        this.redesNicksController = redesNicksController;
-        this.setupSetController = setupSetController;
-        this.tabAwayController = taabAwayController;
-        this.taabGeneralController = taabGeneralController;
-        this.tabProteccionController = tabProteccionController;
-        this.variosVariosController = variosVariosController;
-        this.comandosPersonalizadosController = comandosPersonalizadosController;
-        this.adornosController = adornosController;
-        this.nickCompletionController = nickCompletionController;
-        
-    }
-
-    /**
      * Llama a todos los métodos de persistencia de cada controlador.
      */
     private void guardarTodasConfiguraciones() {
-        try {
-            if (colaDeEnviosController != null) colaDeEnviosController.saveConfig();
-            if (conversorController != null) conversorController.guardarConfig();
-            if (correctorController != null) correctorController.guardarConfig();
-            if (dcc_dcc_Controller != null) dcc_dcc_Controller.saveConfig();
-            if (idiomaController != null) idiomaController.guardarConfiguracion();
-            if (interfazBarraController != null) interfazBarraController.saveConfig();
-            if (interfazCanalBarController != null) interfazCanalBarController.saveConfig();
-            if (interfazCartelesController != null) interfazCartelesController.saveConfig();
-            if (interfazOpcionesController != null) interfazOpcionesController.saveConfig();
-            if (interfazPanelController != null) interfazPanelController.saveConfig();
-            if (interfazSkinController != null) interfazSkinController.saveConfig();
-            if (interfazTemasController != null) interfazTemasController.saveConfig();
-            if (interfazVariosController != null) interfazVariosController.saveConfig();
-            if (mediaController != null) mediaController.saveConfig();
-            if (redesAutoEntrarController != null) redesAutoEntrarController.guardarConfiguracion();
-            if (redesCanalesController != null) redesCanalesController.guardarConfiguracion();
-            if (redesController != null) redesController.guardarConfig();
-            if (redesNicksController != null) redesNicksController.guardarConfig();
-            if (setupSetController != null) setupSetController.saveConfig();
-            if (tabAwayController != null) tabAwayController.saveConfig();
-            if (tabProteccionController != null) tabProteccionController.guardarConfiguracion();
-            if (variosVariosController != null) variosVariosController.guardarConfig();
-            if (comandosPersonalizadosController != null) comandosPersonalizadosController.guardarConfiguracion();
-            if (adornosController != null) adornosController.guardarConfig();
-            if (nickCompletionController != null) nickCompletionController.guardarConfig();
-            if (tabProteccionController != null) tabProteccionController.guardarConfiguracion();
-            if (taabGeneralController != null) taabGeneralController.guardarConfiguracion();
-
-            System.out.println("Todas las configuraciones se han guardado correctamente.");
-        } catch (Exception e) {
-            e.printStackTrace();
+        for (Object controller : tabControllers) {
+            if (controller == null) continue; // ignorar null
+            try {
+                controller.getClass().getMethod("guardarConfiguracion").invoke(controller);
+            } catch (NoSuchMethodException nsme) {
+                // Ignorar controladores que no tengan guardarConfiguracion
+            } catch (Exception e) {
+                // Log para que no rompa la aplicación
+                System.err.println("Error guardando configuración en " + controller.getClass().getSimpleName());
+                e.printStackTrace();
+            }
         }
+        System.out.println("Todas las configuraciones se han guardado correctamente.");
     }
+
 }

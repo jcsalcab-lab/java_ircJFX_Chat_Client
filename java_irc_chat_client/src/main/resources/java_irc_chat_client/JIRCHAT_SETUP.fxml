@@ -7,8 +7,10 @@
             fx:controller="java_irc_chat_client.SetupController">
 
     <children>
-        <TabPane tabClosingPolicy="UNAVAILABLE" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
-                 AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+        <TabPane fx:id="setupTabPane" tabClosingPolicy="UNAVAILABLE" 
+         AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+         AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
 
             <Tab text="General">
                 <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_GENERAL.fxml" fx:id="generalTab"/>
