@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="java_irc_chat_client.InterfazCartelesController"
+            prefWidth="500" prefHeight="300">
+
+    <children>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <!-- Cuadro con borde relieve hacia el interior -->
+            <TitledPane text="Eventos" expanded="true">
+                <content>
+                    <BorderPane>
+                        <center>
+                            <ListView fx:id="listEventos" prefWidth="200" prefHeight="200"/>
+                        </center>
+                        <right>
+                            <VBox spacing="8">
+                                <padding>
+                                    <Insets top="10" right="10" bottom="10" left="10"/>
+                                </padding>
+                                <children>
+                                    <HBox spacing="5" alignment="CENTER_LEFT">
+                                        <children>
+                                            <Label text="Mostrar carteles..."/>
+                                            <ComboBox fx:id="comboMostrarCarteles" prefWidth="150"/>
+                                        </children>
+                                    </HBox>
+                                    <CheckBox fx:id="chkDesactivarAway"
+                                              text="Desactivar si están away"/>
+                                </children>
+                            </VBox>
+                        </right>
+                    </BorderPane>
+                </content>
+            </TitledPane>
+        </VBox>
+    </children>
+</AnchorPane>

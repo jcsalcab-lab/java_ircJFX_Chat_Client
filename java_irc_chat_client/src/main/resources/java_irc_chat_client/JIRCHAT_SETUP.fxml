@@ -26,7 +26,7 @@
                 <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_MEDIA.fxml" fx:id="mediaTab"/>
             </Tab>
 
-            <Tab text="Interface">
+            <Tab text="Interfaz">
                 <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_INTERFAZ.fxml" fx:id="interfaceTab"/>
             </Tab>
 

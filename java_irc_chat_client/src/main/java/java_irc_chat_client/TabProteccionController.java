@@ -1,70 +1,145 @@
 package java_irc_chat_client;
 
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TabProteccionController {
 
+    // Flood/DOS
     @FXML private CheckBox ctcpFloodCheckBox;
     @FXML private CheckBox floodTextoCheckBox;
     @FXML private CheckBox dccFloodCheckBox;
     @FXML private CheckBox queryFloodCheckBox;
-    @FXML private CheckBox dosAttacksCheckBox;
+    @FXML private CheckBox ataquesDosCheckBox;
 
+    // Extras
     @FXML private CheckBox reforzarSilenceCheckBox;
     @FXML private CheckBox bloqueaTusnamisCheckBox;
     @FXML private CheckBox floodNetTextoCheckBox;
 
+    // Anti deop/ban/kick
     @FXML private CheckBox antiDeopActivoCheckBox;
     @FXML private CheckBox usarChanservCheckBox;
 
-    @FXML private TextField excluirCTCPTextField;
-    @FXML private Button infoProteccionesButton;
+    // Excluir protecciones
+    @FXML private TextField excluirCtcpTextField;
+
+    // Anti-spam mensajes privados
+    @FXML private CheckBox antiSpamAlAbrirCheckBox;
+    @FXML private CheckBox antiSpamSiempreCheckBox;
+    @FXML private ListView<String> privateSpamListView;
+    @FXML private CheckBox logSpamCheckBox;
+
+    // Anti-spam canales
+    @FXML private CheckBox antiSpamCanalesActivoCheckBox;
+    @FXML private CheckBox anularSpamQuitsCheckBox;
+
+    private static final String CONFIG_FILE = "proteccion_config.xml";
 
     @FXML
-    private void initialize() {
-        System.out.println("TabProteccionController inicializado.");
+    public void initialize() {
+        // Inicialización de la ListView
+        privateSpamListView.setItems(FXCollections.observableArrayList());
     }
 
-    // --- Botón info ---
-    @FXML
-    private void onInfoProteccionesClicked() {
-        System.out.println("Botón infoProtecciones pulsado");
+    // ===== Guardar configuración =====
+    public void guardarConfiguracion() {
+        try {
+            FormularioProteccionConfig config = new FormularioProteccionConfig();
+
+            // Flood/DOS
+            config.setCtcpFlood(ctcpFloodCheckBox.isSelected());
+            config.setFloodTexto(floodTextoCheckBox.isSelected());
+            config.setDccFlood(dccFloodCheckBox.isSelected());
+            config.setQueryFlood(queryFloodCheckBox.isSelected());
+            config.setAtaquesDos(ataquesDosCheckBox.isSelected());
+
+            // Extras
+            config.setReforzarSilence(reforzarSilenceCheckBox.isSelected());
+            config.setBloqueaTusnamis(bloqueaTusnamisCheckBox.isSelected());
+            config.setFloodNetTexto(floodNetTextoCheckBox.isSelected());
+
+            // Anti deop/ban/kick
+            config.setAntiDeopActivo(antiDeopActivoCheckBox.isSelected());
+            config.setUsarChanserv(usarChanservCheckBox.isSelected());
+
+            // Excluir protecciones
+            config.setExcluirCtcp(excluirCtcpTextField.getText());
+
+            // Anti-spam mensajes privados
+            config.setAntiSpamAlAbrir(antiSpamAlAbrirCheckBox.isSelected());
+            config.setAntiSpamSiempre(antiSpamSiempreCheckBox.isSelected());
+            config.setListaPrivateSpam(new ArrayList<>(privateSpamListView.getItems()));
+            config.setLogSpam(logSpamCheckBox.isSelected());
+
+            // Anti-spam canales
+            config.setAntiSpamCanalesActivo(antiSpamCanalesActivoCheckBox.isSelected());
+            config.setAnularSpamQuits(anularSpamQuitsCheckBox.isSelected());
+
+            JAXBContext context = JAXBContext.newInstance(FormularioProteccionConfig.class);
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+            marshaller.marshal(config, new File(CONFIG_FILE));
+
+            System.out.println("Configuración de protección guardada exitosamente.");
+        } catch (JAXBException ex) {
+            ex.printStackTrace();
+        }
     }
 
-    // --- Getters y Setters ---
-    public boolean isCTCPFlood() { return ctcpFloodCheckBox.isSelected(); }
-    public void setCTCPFlood(boolean value) { ctcpFloodCheckBox.setSelected(value); }
+    // ===== Cargar configuración =====
+    public void cargarConfiguracion() {
+        try {
+            File file = new File(CONFIG_FILE);
+            if (!file.exists()) return;
 
-    public boolean isFloodTexto() { return floodTextoCheckBox.isSelected(); }
-    public void setFloodTexto(boolean value) { floodTextoCheckBox.setSelected(value); }
+            JAXBContext context = JAXBContext.newInstance(FormularioProteccionConfig.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            FormularioProteccionConfig config = (FormularioProteccionConfig) unmarshaller.unmarshal(file);
 
-    public boolean isDCCFlood() { return dccFloodCheckBox.isSelected(); }
-    public void setDCCFlood(boolean value) { dccFloodCheckBox.setSelected(value); }
+            // Flood/DOS
+            ctcpFloodCheckBox.setSelected(config.isCtcpFlood());
+            floodTextoCheckBox.setSelected(config.isFloodTexto());
+            dccFloodCheckBox.setSelected(config.isDccFlood());
+            queryFloodCheckBox.setSelected(config.isQueryFlood());
+            ataquesDosCheckBox.setSelected(config.isAtaquesDos());
 
-    public boolean isQueryFlood() { return queryFloodCheckBox.isSelected(); }
-    public void setQueryFlood(boolean value) { queryFloodCheckBox.setSelected(value); }
+            // Extras
+            reforzarSilenceCheckBox.setSelected(config.isReforzarSilence());
+            bloqueaTusnamisCheckBox.setSelected(config.isBloqueaTusnamis());
+            floodNetTextoCheckBox.setSelected(config.isFloodNetTexto());
 
-    public boolean isDosAttacks() { return dosAttacksCheckBox.isSelected(); }
-    public void setDosAttacks(boolean value) { dosAttacksCheckBox.setSelected(value); }
+            // Anti deop/ban/kick
+            antiDeopActivoCheckBox.setSelected(config.isAntiDeopActivo());
+            usarChanservCheckBox.setSelected(config.isUsarChanserv());
 
-    public boolean isReforzarSilence() { return reforzarSilenceCheckBox.isSelected(); }
-    public void setReforzarSilence(boolean value) { reforzarSilenceCheckBox.setSelected(value); }
+            // Excluir protecciones
+            excluirCtcpTextField.setText(config.getExcluirCtcp());
 
-    public boolean isBloqueaTusnamis() { return bloqueaTusnamisCheckBox.isSelected(); }
-    public void setBloqueaTusnamis(boolean value) { bloqueaTusnamisCheckBox.setSelected(value); }
+            // Anti-spam mensajes privados
+            antiSpamAlAbrirCheckBox.setSelected(config.isAntiSpamAlAbrir());
+            antiSpamSiempreCheckBox.setSelected(config.isAntiSpamSiempre());
+            privateSpamListView.setItems(FXCollections.observableArrayList(config.getListaPrivateSpam()));
+            logSpamCheckBox.setSelected(config.isLogSpam());
 
-    public boolean isFloodNetTexto() { return floodNetTextoCheckBox.isSelected(); }
-    public void setFloodNetTexto(boolean value) { floodNetTextoCheckBox.setSelected(value); }
+            // Anti-spam canales
+            antiSpamCanalesActivoCheckBox.setSelected(config.isAntiSpamCanalesActivo());
+            anularSpamQuitsCheckBox.setSelected(config.isAnularSpamQuits());
 
-    public boolean isAntiDeopActivo() { return antiDeopActivoCheckBox.isSelected(); }
-    public void setAntiDeopActivo(boolean value) { antiDeopActivoCheckBox.setSelected(value); }
-
-    public boolean isUsarChanserv() { return usarChanservCheckBox.isSelected(); }
-    public void setUsarChanserv(boolean value) { usarChanservCheckBox.setSelected(value); }
-
-    public String getExcluirCTCP() { return excluirCTCPTextField.getText(); }
-    public void setExcluirCTCP(String value) { excluirCTCPTextField.setText(value); }
+            System.out.println("Configuración de protección cargada exitosamente.");
+        } catch (JAXBException ex) {
+            ex.printStackTrace();
+        }
+    }
 }

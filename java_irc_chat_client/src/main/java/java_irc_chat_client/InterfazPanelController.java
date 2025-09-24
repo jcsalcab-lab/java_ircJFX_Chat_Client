@@ -1,0 +1,74 @@
+package java_irc_chat_client;
+
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
+
+import java.io.File;
+import java.util.ArrayList;
+
+public class InterfazPanelController {
+
+    @FXML private ListView<String> listApartados;
+    @FXML private Button btnAgregar;
+    @FXML private Button btnEliminar;
+
+    private final File configFile = new File(System.getProperty("user.home"), "formulario_setup_panel.xml");
+
+    @FXML
+    public void initialize() {
+        // Cargar configuración
+        loadConfig();
+
+        // Configurar botones
+        btnAgregar.setOnAction(e -> {
+            listApartados.getItems().add("Nuevo Apartado");
+            saveConfig();
+        });
+
+        btnEliminar.setOnAction(e -> {
+            int selectedIndex = listApartados.getSelectionModel().getSelectedIndex();
+            if (selectedIndex >= 0) {
+                listApartados.getItems().remove(selectedIndex);
+                saveConfig();
+            }
+        });
+    }
+
+    // --- Persistencia XML ---
+    public void loadConfig() {
+        try {
+            if (configFile.exists()) {
+                JAXBContext context = JAXBContext.newInstance(FormularioInterfazPanelConfig.class);
+                Unmarshaller um = context.createUnmarshaller();
+                FormularioInterfazPanelConfig config = (FormularioInterfazPanelConfig) um.unmarshal(configFile);
+
+                listApartados.getItems().clear();
+                if (config.getApartados() != null) {
+                    listApartados.getItems().addAll(config.getApartados());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveConfig() {
+        try {
+            FormularioInterfazPanelConfig config = new FormularioInterfazPanelConfig();
+            config.setApartados(new ArrayList<>(listApartados.getItems()));
+
+            JAXBContext context = JAXBContext.newInstance(FormularioInterfazPanelConfig.class);
+            Marshaller m = context.createMarshaller();
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            m.marshal(config, configFile);
+
+            System.out.println("Configuración de Panel guardada en: " + configFile.getAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+

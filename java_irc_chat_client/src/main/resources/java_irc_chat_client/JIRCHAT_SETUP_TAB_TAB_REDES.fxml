@@ -15,10 +15,10 @@
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="java_irc_chat_client.RedesController"
-            prefWidth="800" prefHeight="600">
+            prefWidth="600" prefHeight="600">
 
     <children>
-        <BorderPane prefWidth="800" prefHeight="600"
+        <BorderPane prefWidth="600" prefHeight="600"
                     AnchorPane.topAnchor="0"
                     AnchorPane.leftAnchor="0"
                     AnchorPane.rightAnchor="0"

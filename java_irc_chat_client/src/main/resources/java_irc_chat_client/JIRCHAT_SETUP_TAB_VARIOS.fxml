@@ -5,10 +5,10 @@
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="java_irc_chat_client.Varios_VariosController"
-            prefWidth="800" prefHeight="800">
+            
+            prefWidth="600" prefHeight="600">
     <children>
-        <TabPane fx:id="variosTabPane" prefWidth="600" prefHeight="700" tabClosingPolicy="UNAVAILABLE">
+        <TabPane fx:id="variosTabPane" prefWidth="600" prefHeight="600" tabClosingPolicy="UNAVAILABLE">
             <tabs>
                 <Tab fx:id="tabVarios" text="Varios">
                     <content>

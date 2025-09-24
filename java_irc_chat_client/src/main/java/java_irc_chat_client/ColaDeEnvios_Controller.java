@@ -1,109 +1,77 @@
 package java_irc_chat_client;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
+
+import java.io.File;
 
 public class ColaDeEnvios_Controller {
 
-    // TableView y columnas
-    @FXML
-    private TableView<Envio> tableColaEnvios;
-    @FXML
-    private TableColumn<Envio, Integer> colNumero;
-    @FXML
-    private TableColumn<Envio, String> colNick;
-    @FXML
-    private TableColumn<Envio, String> colFichero;
-    @FXML
-    private TableColumn<Envio, String> colHace;
+    @FXML private TextField txtMaxEnvios;
+    @FXML private TextField txtMaxPorUsuario;
+    @FXML private TextField txtSlotsCola;
+    @FXML private TextField txtSlotsPorUsuario;
+    @FXML private TextField txtSaltarCola;
 
-    // TextFields
-    @FXML
-    private TextField txtMaxEnvios;
-    @FXML
-    private TextField txtMaxPorUsuario;
-    @FXML
-    private TextField txtSlotsCola;
-    @FXML
-    private TextField txtSlotsPorUsuario;
-    @FXML
-    private TextField txtSaltarCola;
-
-    // Botones
-    @FXML
-    private Button btnSubir;
-    @FXML
-    private Button btnBajar;
-    @FXML
-    private Button btnBorrarLinea;
-    @FXML
-    private Button btnBorrarTodo;
+    private final File configFile = new File(System.getProperty("user.home"), "formulario_setup_colaenvios.xml");
 
     @FXML
     public void initialize() {
-        // Inicializar columnas del TableView
-        colNumero.setCellValueFactory(new PropertyValueFactory<>("numero"));
-        colNick.setCellValueFactory(new PropertyValueFactory<>("nick"));
-        colFichero.setCellValueFactory(new PropertyValueFactory<>("fichero"));
-        colHace.setCellValueFactory(new PropertyValueFactory<>("hace"));
+        // Valores por defecto
+        txtMaxEnvios.setText("4");
+        txtMaxPorUsuario.setText("2");
+        txtSlotsCola.setText("0");
+        txtSlotsPorUsuario.setText("3");
+        txtSaltarCola.setText("10");
 
-        // Aquí puedes agregar acciones a los botones
-        btnSubir.setOnAction(event -> subirLinea());
-        btnBajar.setOnAction(event -> bajarLinea());
-        btnBorrarLinea.setOnAction(event -> borrarLinea());
-        btnBorrarTodo.setOnAction(event -> borrarTodo());
+        // Cargar configuración existente
+        loadConfig();
     }
 
-    // Métodos de ejemplo para los botones
-    private void subirLinea() {
-        // Lógica para subir línea
+    // --- Persistencia XML ---
+    public void loadConfig() {
+        try {
+            if (configFile.exists()) {
+                JAXBContext context = JAXBContext.newInstance(FormularioColaEnviosConfig.class);
+                Unmarshaller um = context.createUnmarshaller();
+                FormularioColaEnviosConfig config = (FormularioColaEnviosConfig) um.unmarshal(configFile);
+
+                txtMaxEnvios.setText(String.valueOf(config.getMaxEnvios()));
+                txtMaxPorUsuario.setText(String.valueOf(config.getMaxPorUsuario()));
+                txtSlotsCola.setText(String.valueOf(config.getSlotsCola()));
+                txtSlotsPorUsuario.setText(String.valueOf(config.getSlotsPorUsuario()));
+                txtSaltarCola.setText(String.valueOf(config.getSaltarCola()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void bajarLinea() {
-        // Lógica para bajar línea
+    public void saveConfig() {
+        try {
+            FormularioColaEnviosConfig config = new FormularioColaEnviosConfig();
+            config.setMaxEnvios(parseInt(txtMaxEnvios.getText(), 4));
+            config.setMaxPorUsuario(parseInt(txtMaxPorUsuario.getText(), 2));
+            config.setSlotsCola(parseInt(txtSlotsCola.getText(), 0));
+            config.setSlotsPorUsuario(parseInt(txtSlotsPorUsuario.getText(), 3));
+            config.setSaltarCola(parseInt(txtSaltarCola.getText(), 10));
+
+            JAXBContext context = JAXBContext.newInstance(FormularioColaEnviosConfig.class);
+            Marshaller m = context.createMarshaller();
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            m.marshal(config, configFile);
+
+            System.out.println("Configuración Cola de Envios guardada en: " + configFile.getAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void borrarLinea() {
-        // Lógica para borrar línea seleccionada
-    }
-
-    private void borrarTodo() {
-        // Lógica para borrar todas las líneas
-    }
-
-    // Clase interna de ejemplo para representar un envío en la TableView
-    public static class Envio {
-        private final Integer numero;
-        private final String nick;
-        private final String fichero;
-        private final String hace;
-
-        public Envio(Integer numero, String nick, String fichero, String hace) {
-            this.numero = numero;
-            this.nick = nick;
-            this.fichero = fichero;
-            this.hace = hace;
-        }
-
-        public Integer getNumero() {
-            return numero;
-        }
-
-        public String getNick() {
-            return nick;
-        }
-
-        public String getFichero() {
-            return fichero;
-        }
-
-        public String getHace() {
-            return hace;
-        }
+    private int parseInt(String value, int defaultValue) {
+        try { return Integer.parseInt(value); }
+        catch (NumberFormatException e) { return defaultValue; }
     }
 }
-

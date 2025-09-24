@@ -1,45 +1,76 @@
 package java_irc_chat_client;
 
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Marshaller;
+import jakarta.xml.bind.Unmarshaller;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+
+import java.io.File;
 
 public class MediaController {
 
-    @FXML
-    private ComboBox<String> eventoComboBox;
+    @FXML private CheckBox sonidoLocalCheckBox;
+    @FXML private ComboBox<String> eventoComboBox;
+    @FXML private TextField sonidoTextField;
+    @FXML private TextField audioTextField;
+    @FXML private TextField videoTextField;
 
-    @FXML
-    private TextField sonidoTextField;
+    @FXML private Button btnSeleccionarSonido;
+    @FXML private Button btnReproducirSonido;
+    @FXML private Button btnAudioDir;
+    @FXML private Button btnVideoDir;
+    @FXML private Button btnImportarTema;
+    @FXML private Button btnExportarTema;
 
-    @FXML
-    private TextField audioTextField;
-
-    @FXML
-    private TextField videoTextField;
-
-    @FXML
-    private Button importarButton;
-
-    @FXML
-    private Button exportarButton;
-
-    @FXML
-    private Button seleccionarAudioButton;
-
-    @FXML
-    private Button seleccionarVideoButton;
-
-    @FXML
-    private Button reproducirSonidoButton;
+    private final File configFile = new File(System.getProperty("user.home"), "formulario_setup_media.xml");
 
     @FXML
     private void initialize() {
-        // Inicialización de la ComboBox, por ejemplo
-        eventoComboBox.getItems().addAll("Evento1", "Evento2", "Evento3");
+        System.out.println("MediaController inicializado.");
 
-        // Puedes agregar handlers de botón si quieres
-        // seleccionarAudioButton.setOnAction(...);
+        // Valores de ejemplo para el ComboBox
+        eventoComboBox.getItems().addAll("Conexión", "Mensaje", "Error");
+
+        // Cargar configuración
+        loadConfig();
+    }
+
+    public void loadConfig() {
+        try {
+            if (configFile.exists()) {
+                JAXBContext context = JAXBContext.newInstance(MediaConfig.class);
+                Unmarshaller um = context.createUnmarshaller();
+                MediaConfig config = (MediaConfig) um.unmarshal(configFile);
+
+                sonidoLocalCheckBox.setSelected(config.isSonidoLocal());
+                eventoComboBox.setValue(config.getEventoSeleccionado());
+                sonidoTextField.setText(config.getSonidoPath());
+                audioTextField.setText(config.getAudioDir());
+                videoTextField.setText(config.getVideoDir());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveConfig() {
+        try {
+            MediaConfig config = new MediaConfig();
+            config.setSonidoLocal(sonidoLocalCheckBox.isSelected());
+            config.setEventoSeleccionado(eventoComboBox.getValue());
+            config.setSonidoPath(sonidoTextField.getText());
+            config.setAudioDir(audioTextField.getText());
+            config.setVideoDir(videoTextField.getText());
+
+            JAXBContext context = JAXBContext.newInstance(MediaConfig.class);
+            Marshaller m = context.createMarshaller();
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            m.marshal(config, configFile);
+
+            System.out.println("Configuración guardada en: " + configFile.getAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

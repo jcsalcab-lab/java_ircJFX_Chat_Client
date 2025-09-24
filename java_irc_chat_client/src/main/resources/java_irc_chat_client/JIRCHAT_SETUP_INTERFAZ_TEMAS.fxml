@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="java_irc_chat_client.InterfazTemasController">
+
+    <!-- ListView a la izquierda -->
+    <left>
+        <ListView fx:id="listViewTemas" prefWidth="150"/>
+    </left>
+
+    <!-- Pestañas a la derecha -->
+    <center>
+        <TabPane>
+            <Tab text="Info">
+                <VBox alignment="TOP_LEFT" spacing="10">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                    <Label fx:id="lblInfo" text="info"/>
+                </VBox>
+            </Tab>
+            <Tab text="Opciones">
+                <VBox spacing="10">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                    <CheckBox fx:id="chkDireccion" text="Mostrar Dirección en join/part/quit"/>
+                    <CheckBox fx:id="chkLusers" text="Incluir LUSERS"/>
+                    <CheckBox fx:id="chkAlinear" text="Alinear texto"/>
+                    <HBox spacing="10">
+                        <Label text="Justifica texto al ancho del nick"/>
+                        <TextField fx:id="txtJustifica" text="27" prefWidth="60"/>
+                    </HBox>
+                </VBox>
+            </Tab>
+        </TabPane>
+    </center>
+
+    <!-- Controles inferiores -->
+    <bottom>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <HBox spacing="10">
+                <Label text="Esquema:"/>
+                <ComboBox fx:id="comboEsquema" prefWidth="120"/>
+                <CheckBox fx:id="chkIdiomas" text="Mostrar temas de todos los idiomas"/>
+                <Button fx:id="btnCargar" text="Cargar"/>
+                <CheckBox fx:id="chkColores" text="Colores"/>
+                <CheckBox fx:id="chkFuentes" text="Fuentes"/>
+                <Button fx:id="btnDescargar" text="Descarga nuevos Temas"/>
+            </HBox>
+        </VBox>
+    </bottom>
+</BorderPane>
+

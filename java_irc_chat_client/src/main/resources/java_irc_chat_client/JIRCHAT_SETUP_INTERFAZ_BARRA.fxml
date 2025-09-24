@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="java_irc_chat_client.InterfazBarraController"
+      prefWidth="700" prefHeight="400" spacing="12">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+
+    <!-- Fila superior: CheckBoxes -->
+    <HBox spacing="15">
+        <CheckBox fx:id="chkActiva" text="Activa"/>
+        <CheckBox fx:id="chkLag" text="Mostrar Lag"/>
+        <CheckBox fx:id="chkPlayer" text="Player"/>
+    </HBox>
+
+    <!-- Cuadro Iconos -->
+    <TitledPane text="Iconos" expanded="true" collapsible="false">
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <TableView fx:id="tblIconos" prefHeight="180">
+                <columns>
+                    <TableColumn fx:id="colNumero" text="Nº" prefWidth="40"/>
+                    <TableColumn fx:id="colIcono" text="Ico" prefWidth="60"/>
+                    <TableColumn fx:id="colDescripcion" text="Descripcion" prefWidth="250"/>
+                    <TableColumn fx:id="colComando" text="Comando" prefWidth="250"/>
+                </columns>
+            </TableView>
+
+            <!-- Botones bajo la tabla -->
+            <HBox spacing="10">
+                <Button fx:id="btnExclamacion" text="!"/>
+                <Button fx:id="btnPredefinidos" text="Predefinidos"/>
+            </HBox>
+        </VBox>
+    </TitledPane>
+
+    <!-- Campos de texto Descripcion y Comando -->
+    <HBox spacing="15">
+        <VBox spacing="5">
+            <Label text="Descripcion"/>
+            <TextField fx:id="txtDescripcion"/>
+        </VBox>
+        <VBox spacing="5">
+            <Label text="Comando"/>
+            <TextField fx:id="txtComando"/>
+        </VBox>
+    </HBox>
+
+    <!-- Botones inferiores -->
+    <HBox spacing="12">
+        <Button fx:id="btnAgregar" text="+"/>
+        <Button fx:id="btnEliminar" text="-"/>
+        <Button fx:id="btnActualizar" text="Actualizar"/>
+    </HBox>
+</VBox>

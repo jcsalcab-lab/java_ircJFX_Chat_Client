@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="java_irc_chat_client.InterfazOpcionesController"
+            prefWidth="600" prefHeight="600">
+
+    <center>
+        <VBox spacing="12">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            
+            <!-- Cuadro Opciones -->
+            <TitledPane text="Opciones" expanded="true" collapsible="false">
+                <VBox spacing="10">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                    
+                    <!-- Modo ventanas -->
+                    <HBox spacing="10">
+                        <Label text="Modo ventanas:"/>
+                        <ComboBox fx:id="comboModoVentanas" prefWidth="200"/>
+                    </HBox>
+
+                    <!-- Checkboxes izquierda -->
+                    <VBox spacing="5">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+                        <CheckBox fx:id="chkPanelCanalPv" text="Panel en canal y pv"/>
+                        <CheckBox fx:id="chkAbrirPrivados" text="Abrir privados en 2º plano"/>
+                        <CheckBox fx:id="chkCargarLog" text="Al recibir priv. carga log"/>
+                        <CheckBox fx:id="chkDobleClickPriv" text="Privado en doble click"/>
+                        <CheckBox fx:id="chkHotlinks" text="Hotlinks en Whois"/>
+                        <CheckBox fx:id="chkTooltips" text="Tooltips"/>
+                    </VBox>
+                </VBox>
+            </TitledPane>
+
+            <!-- Cuadro derecho Mostrar en v. activa -->
+            <HBox spacing="15">
+                <TitledPane text="Mostrar en v. activa" expanded="true" collapsible="false">
+                    <VBox spacing="6">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+                        <CheckBox fx:id="chkWhois" text="Whois"/>
+                        <CheckBox fx:id="chkNotices" text="Notices &amp; invites"/>
+                        <CheckBox fx:id="chkNotify" text="Notify"/>
+                        <CheckBox fx:id="chkCTCP" text="CTCP'S"/>
+                    </VBox>
+                </TitledPane>
+            </HBox>
+
+            <!-- Noticias -->
+            <VBox spacing="8">
+                <padding>
+                    <Insets top="5" right="5" bottom="5" left="5"/>
+                </padding>
+                
+                <CheckBox fx:id="chkVentanasNoticias" text="Ventanas Noticias"/>
+                
+                <HBox spacing="8">
+                    <Label text="Filtros Noticias:"/>
+                    <TextField fx:id="txtFiltrosNoticias" prefWidth="400"
+                               text="*GLINE FOR*, *G-line active for*"/>
+                </HBox>
+
+                <Button fx:id="btnTiposTamano" text="Tipos y tamaño de letra"/>
+            </VBox>
+
+        </VBox>
+    </center>
+</BorderPane>

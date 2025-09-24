@@ -4,33 +4,33 @@
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="java_irc_chat_client.ESCRITURAController"
-            prefWidth="600" prefHeight="400">
+            prefWidth="600" prefHeight="600">
 
     <children>
-        <TabPane fx:id="escrituraTabPane" prefWidth="800" prefHeight="600" tabClosingPolicy="UNAVAILABLE">
+        <TabPane fx:id="escrituraTabPane" prefWidth="650" prefHeight="600" tabClosingPolicy="UNAVAILABLE">
             <tabs>
 
                 <!-- Pestaña Sets -->
                 <Tab fx:id="tabSets" text="Sets">
                     <!-- Incluye el FXML del Set -->
-                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_SET.fxml"/>
+                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_ESCRITURA_SET.fxml"/>
                 </Tab>
 
                 <!-- Pestañas restantes vacías -->
                 <Tab fx:id="tabNickCompletion" text="Nick Completion">
-                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_NICKCOMPLETION.fxml"/>
+                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_ESCRITURA_NICKCOMPLETION.fxml"/>
 
                 </Tab>
                 <Tab fx:id="tabCorrector" text="Corrector">
-                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_CORRECTOR.fxml"/>
+                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_ESCRITURA_CORRECTOR.fxml"/>
 
                 </Tab>
                 <Tab fx:id="tabConverso" text="Conversor">
-                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_CONVERSOR.fxml"/>
+                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_ESCRITURA_CONVERSOR.fxml"/>
 
                 </Tab>
                 <Tab fx:id="tabAdornos" text="Adornos">
-                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_ADORNOS.fxml"/>
+                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_ESCRITURA_ADORNOS.fxml"/>
 
                 </Tab>
 

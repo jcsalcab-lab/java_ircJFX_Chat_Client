@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="java_irc_chat_client.InterfazSkinController"
+            prefWidth="600" prefHeight="600">
+
+    <center>
+        <HBox spacing="15">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <!-- ListView a la izquierda -->
+            <ListView fx:id="listSkins" prefWidth="200"/>
+
+            <!-- Contenido derecho -->
+            <VBox spacing="12">
+                <!-- Cuadro Skin -->
+                <TitledPane text="Skin" expanded="true" collapsible="false">
+                    <VBox spacing="10">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+
+                        <Label fx:id="lblInfo" text="info"/>
+
+                        <HBox spacing="10">
+                            <Button fx:id="btnVistaWeb" text="Vista web"/>
+                            <Button fx:id="btnMasInfo" text="+info"/>
+                        </HBox>
+                    </VBox>
+                </TitledPane>
+
+                <!-- Checkboxes -->
+                <VBox spacing="8">
+                    <CheckBox fx:id="chkTemaTexto" text="Incluir Tema de Texto"/>
+                    <CheckBox fx:id="chkTemaSonido" text="Incluir Tema de Sonido"/>
+                </VBox>
+
+                <!-- Cuadro para exclusiones -->
+                <TitledPane text="Si se incluye Tema de Texto, no incluir el cambio de:" expanded="true" collapsible="false">
+                    <HBox spacing="15">
+                        <padding>
+                            <Insets top="10" right="10" bottom="10" left="10"/>
+                        </padding>
+                        <CheckBox fx:id="chkColores" text="Colores"/>
+                        <CheckBox fx:id="chkFuentes" text="Fuentes"/>
+                        <CheckBox fx:id="chkFondos" text="Fondos de ventana"/>
+                    </HBox>
+                </TitledPane>
+
+                <!-- Botones abajo -->
+                <HBox spacing="12">
+                    <Button fx:id="btnCargar" text="Cargar"/>
+                    <Button fx:id="btnDescargar" text="Descargar nuevas skins"/>
+                </HBox>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

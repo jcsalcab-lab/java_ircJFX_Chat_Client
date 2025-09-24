@@ -327,8 +327,8 @@ public class ChatController {
         new Thread(() -> {
             try {
                 Configuration config = new Configuration.Builder()
-                        .setName("akkiless54321") // tu nick
-                        .setLogin("akkiless54321")
+                        .setName("akkiles4321") // tu nick
+                        .setLogin("akkiles4321")
                         .setRealName("JIRCHAT")
                         .addServer("irc.chatzona.org", 6697)
                         .setSocketFactory(SSLSocketFactory.getDefault())

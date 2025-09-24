@@ -1,26 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TitledPane?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="java_irc_chat_client.Varios_VariosController"
-            prefWidth="800" prefHeight="800">
+            prefWidth="600" prefHeight="600">
 
     <children>
-        <VBox spacing="10" AnchorPane.topAnchor="10" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10" AnchorPane.bottomAnchor="10">
+        <VBox spacing="10" AnchorPane.topAnchor="10" AnchorPane.leftAnchor="10"
+              AnchorPane.rightAnchor="10" AnchorPane.bottomAnchor="10">
             <padding>
                 <Insets top="0" right="0" bottom="0" left="0"/>
             </padding>
 
-            <!-- Cuadro "En #canales" -->
+            <!-- En #canales -->
             <TitledPane text="En #canales" expanded="true">
                 <content>
                     <VBox spacing="10">
@@ -51,7 +46,7 @@
                 </content>
             </TitledPane>
 
-            <!-- Cuadro "Antivirus" -->
+            <!-- Antivirus -->
             <TitledPane text="Antivirus" expanded="true">
                 <content>
                     <VBox spacing="10">
@@ -61,7 +56,7 @@
 
                         <HBox spacing="5" alignment="CENTER_LEFT">
                             <Label text="Antivirus:"/>
-                            <TextField fx:id="txtAntivirusPath" text="C:\antivirus path\" prefWidth="200"/>
+                            <TextField fx:id="txtAntivirusPath" text="C:\\antivirus path\\" prefWidth="200"/>
                             <Button fx:id="btnBrowseAntivirus" text="..."/>
                         </HBox>
 
@@ -72,19 +67,15 @@
 
                         <CheckBox fx:id="chkMostrarConsejo" text="Mostrar consejo del día al iniciar"/>
 
-                        <TitledPane text="Configuración" expanded="true">
-                            <content>
-                                <HBox spacing="10">
-                                    <Button fx:id="btnGuardarConfig" text="Guardar"/>
-                                    <Button fx:id="btnRecuperarConfig" text="Recuperar"/>
-                                </HBox>
-                            </content>
-                        </TitledPane>
+                        <HBox spacing="10">
+                            <Button fx:id="btnGuardarAntivirus" text="Guardar"/>
+                            <Button fx:id="btnRecuperarAntivirus" text="Recuperar"/>
+                        </HBox>
                     </VBox>
                 </content>
             </TitledPane>
 
-            <!-- Cuadro "Listas de usuarios" -->
+            <!-- Listas de usuarios -->
             <TitledPane text="Listas de usuarios" expanded="true">
                 <content>
                     <HBox spacing="10">
@@ -101,6 +92,9 @@
                     </HBox>
                 </content>
             </TitledPane>
+
+            <!-- Configuración general -->
+            
 
         </VBox>
     </children>

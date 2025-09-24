@@ -6,7 +6,7 @@
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="java_irc_chat_client.DCC_DCC_Controller"
-            prefWidth="800" prefHeight="500">
+            prefWidth="600" prefHeight="600">
 
     <children>
         <!-- Contenedor principal vertical -->
