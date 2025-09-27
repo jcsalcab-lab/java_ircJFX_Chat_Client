@@ -60,7 +60,7 @@ public class InterfazCartelesController {
         }
     }
 
-    public void saveConfig() {
+    public void guardarConfiguracion() {
         try {
             FormularioCartelesConfig config = new FormularioCartelesConfig();
             config.setEventos(new ArrayList<>(eventosData));

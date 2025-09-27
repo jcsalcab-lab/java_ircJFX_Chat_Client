@@ -58,7 +58,6 @@ public class InterfazSkinController {
                 chkFuentes.setSelected(config.isFuentes());
                 chkFondos.setSelected(config.isFondos());
 
-                // Selección de skin guardada
                 if (config.getSkinSeleccionada() != null) {
                     listSkins.getSelectionModel().select(config.getSkinSeleccionada());
                     lblInfo.setText("Skin seleccionada: " + config.getSkinSeleccionada());
@@ -69,8 +68,9 @@ public class InterfazSkinController {
         }
     }
 
+
     // --- Guardar configuración a XML ---
-    public void saveConfig() {
+    public void guardarConfiguracion() {
         try {
             FormularioInterfazSkinConfig config = new FormularioInterfazSkinConfig();
             config.setTemaTexto(chkTemaTexto.isSelected());
@@ -84,10 +84,9 @@ public class InterfazSkinController {
             Marshaller m = context.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             m.marshal(config, configFile);
-
-            System.out.println("Configuración de Skin guardada en: " + configFile.getAbsolutePath());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 }

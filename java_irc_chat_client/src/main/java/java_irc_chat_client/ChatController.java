@@ -21,6 +21,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.control.TextArea;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
@@ -62,6 +63,9 @@ public class ChatController {
     private Stage lastFocusedWindow = null;
 
     private String password;
+    
+ // Declaramos el campo
+    private ChatController chatController;
 
     // Solicitudes de chat pendientes o aceptadas
     private final Map<String, Boolean> solicitudPendiente = new HashMap<>();
@@ -449,8 +453,8 @@ public class ChatController {
     }
 
     
-    // ------------------ CANALES ------------------
-    private void abrirCanal(String canal) throws IOException {
+ // ------------------ CANALES ------------------
+    public void abrirCanal(String canal) throws IOException {
         if (canalesAbiertos.containsKey(canal)) {
             canalesAbiertos.get(canal).stage.toFront();
             canalActivo = canal;
@@ -473,23 +477,32 @@ public class ChatController {
         CanalVentana ventana = new CanalVentana(canalStage, canalController, canalPane);
         canalesAbiertos.put(canal, ventana);
 
-        Button canalBtn = new Button(canal);
+        final String canalNombre = canal;   // 👈 lo hacemos final
+        Button canalBtn = new Button(canalNombre);
         canalBtn.setMaxWidth(Double.MAX_VALUE);
-        canalBtn.setOnAction(e -> { canalStage.toFront(); canalActivo = canal; });
-        if (leftPane != null) Platform.runLater(() -> leftPane.getChildren().add(canalBtn));
-        canalButtons.put(canal, canalBtn);
+        canalBtn.setOnAction(evt -> {       // 👈 renombramos el parámetro
+            canalStage.toFront();
+            canalActivo = canalNombre;
+        });
 
-        registerFloatingWindow(canalStage, () -> cerrarCanalDesdeVentana(canal));
-        canalStage.setOnCloseRequest(ev -> cerrarCanalDesdeVentana(canal));
+        if (leftPane != null) {
+            Platform.runLater(() -> leftPane.getChildren().add(canalBtn));
+        }
+        canalButtons.put(canalNombre, canalBtn);
 
-        canalActivo = canal;
+        registerFloatingWindow(canalStage, () -> cerrarCanalDesdeVentana(canalNombre));
+        canalStage.setOnCloseRequest(ev -> cerrarCanalDesdeVentana(canalNombre));
+
+        canalActivo = canalNombre;
         canalStage.show();
 
         if (bot != null) {
-            bot.sendIRC().joinChannel(canal);
-            bot.sendRaw().rawLineNow("NAMES " + canal);
+            bot.sendIRC().joinChannel(canalNombre);
+            bot.sendRaw().rawLineNow("NAMES " + canalNombre);
         }
     }
+
+
 
     public void cerrarCanalDesdeVentana(String canal) {
         CanalVentana ventana = canalesAbiertos.remove(canal);
@@ -574,4 +587,18 @@ public class ChatController {
 
         Platform.exit();
     }
+    
+    
+    public void setChatController(ChatController chatController) {
+        this.chatController = chatController;
+    }
+
+    
+    
+    public PircBotX getBot() {
+        return bot;
+    }
+    
+    
+
 }

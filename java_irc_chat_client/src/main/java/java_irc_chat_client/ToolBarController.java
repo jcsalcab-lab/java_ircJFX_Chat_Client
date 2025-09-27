@@ -228,6 +228,31 @@ public class ToolBarController {
             currentFrontPane = statusPane;
         }
     }
+    
+    
+    
+    @FXML
+    private void abrirVentanaListadodeCanales() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("JIRCHAT_LISTA_DE_CANALES.fxml"));
+            Parent root = loader.load();
+
+            CanalesListController controller = loader.getController();
+            controller.setBot(chatController.getBot());
+            controller.setChatController(chatController); // ✅ Inyectamos chatController
+
+            Stage stage = new Stage();
+            stage.setTitle("Listado de Canales");
+            stage.setScene(new Scene(root));
+            stage.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            chatController.appendSystemMessage("⚠ Error al abrir ventana de listado de canales: " + e.getMessage());
+        }
+    }
+
+
 }
 
 

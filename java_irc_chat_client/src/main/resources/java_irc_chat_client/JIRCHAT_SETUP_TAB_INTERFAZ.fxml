@@ -1,54 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" prefWidth="600" prefHeight="600">
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="java_irc_chat_client.INTERFAZController"
+            prefWidth="600" prefHeight="600">
     <children>
         <TabPane fx:id="interfazTabPane" prefWidth="600" prefHeight="600" tabClosingPolicy="UNAVAILABLE">
             <tabs>
-                <Tab text="Opciones">
-                    <content>
-                        <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_INTERFAZ_OPCIONES.fxml"/>
-                    </content>
-                </Tab>
-                <Tab text="Skins">
-                   <content>
-                        <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_INTERFAZ_SKIN.fxml"/>
-                    </content>
-                </Tab>
-                <Tab text="Temas">
-                    <content>
-                        <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_INTERFAZ_TEMAS.fxml"/>
-                    </content>
-                </Tab>
-                <Tab text="Barra">
-                     <content>
-                        <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_INTERFAZ_BARRA.fxml"/>
-                    </content>
-                </Tab>
-                <Tab text="Panel">
-                   <content>
-                        <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_INTERFAZ_PANEL.fxml"/>
-                   </content>
-                </Tab>
-                <Tab text="CanalBar">
-                    <content>
-                        <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_INTERFAZ_CANALBAR.fxml"/>
-                   </content>
-                </Tab>
-                <Tab text="Varios">
-                    <content>
-                        <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_INTERFAZ_VARIOS.fxml"/>
-                   </content>
-                </Tab>
-                <Tab text="Carteles">
-                    <content>
-                        <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_INTERFAZ_CARTELES.fxml"/>
-                   </content>
-                </Tab>
+                <Tab fx:id="tabOpciones" text="Opciones"/>
+                <Tab fx:id="tabSkins" text="Skins"/>
+                <Tab fx:id="tabTemas" text="Temas"/>
+                <Tab fx:id="tabBarra" text="Barra"/>
+                <Tab fx:id="tabPanel" text="Panel"/>
+                <Tab fx:id="tabCanalBar" text="CanalBar"/>
+                <Tab fx:id="tabVarios" text="Varios"/>
+                <Tab fx:id="tabCarteles" text="Carteles"/>
             </tabs>
         </TabPane>
     </children>
 </AnchorPane>
+

@@ -55,8 +55,6 @@ public class TabAwayController {
     @FXML
     private void initialize() {
         System.out.println("TabAwayController inicializado.");
-
-        // Cargar configuración al inicializar
         loadConfig();
     }
 
@@ -86,7 +84,7 @@ public class TabAwayController {
         System.out.println("Borrar SPAM.log");
     }
 
-    // --- Getters y Setters existentes (sin perderlos) ---
+    // --- Getters y Setters existentes ---
     public boolean isAntiSpamAlAbrir() { return antiSpamAlAbrirCheckBox.isSelected(); }
     public void setAntiSpamAlAbrir(boolean value) { antiSpamAlAbrirCheckBox.setSelected(value); }
 
@@ -143,7 +141,7 @@ public class TabAwayController {
         }
     }
 
-    public void saveConfig() {
+    public void guardarConfiguracion() {
         try {
             FormularioAwayConfig config = new FormularioAwayConfig();
 
@@ -163,16 +161,19 @@ public class TabAwayController {
             config.setMensajeContestador(mensajeContestadorTextField.getText());
 
             config.setAnunciar(anunciarCheckBox.isSelected());
-            config.setCadaMinutos(Integer.parseInt(cadaTextField.getText()));
             config.setTextoAviso(textoAvisoTextField.getText());
             config.setTextoVuelta(textoVueltaTextField.getText());
             config.setAnunciarSolo(anunciarSoloTextField.getText());
             config.setNoAnunciar(noAnunciarTextField.getText());
 
-            config.setAutoAwayMins(Integer.parseInt(autoAwayMinsTextField.getText()));
             config.setRazonAutoAway(razonAutoAwayTextField.getText());
             config.setMinimizarSystray(minimizarSystrayCheckBox.isSelected());
 
+            // --- Campos numéricos con validación ---
+            config.setCadaMinutos(parseIntegerSafe(cadaTextField.getText()));
+            config.setAutoAwayMins(parseIntegerSafe(autoAwayMinsTextField.getText()));
+
+            // --- Persistencia XML ---
             JAXBContext context = JAXBContext.newInstance(FormularioAwayConfig.class);
             Marshaller m = context.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
@@ -183,5 +184,17 @@ public class TabAwayController {
             e.printStackTrace();
         }
     }
-}
 
+    /**
+     * Convierte una cadena a entero de forma segura.
+     * Devuelve 0 si la cadena está vacía o no es un número válido.
+     */
+    private int parseIntegerSafe(String text) {
+        try {
+            if (text == null || text.isBlank()) return 0;
+            return Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+}

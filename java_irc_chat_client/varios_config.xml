@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<FormularioVariosConfig>
+    <chkIntentaEntrarBan>false</chkIntentaEntrarBan>
+    <chkReentrarSalirTodos>false</chkReentrarSalirTodos>
+    <txtContadorKicks>1</txtContadorKicks>
+    <chkUsarContadorKicks>false</chkUsarContadorKicks>
+    <txtUsando>&lt;nº&amp;n&gt;</txtUsando>
+    <txtLimiteUsuariosIAL>49</txtLimiteUsuariosIAL>
+    <txtAntivirusPath>C:\\antivirus path\\</txtAntivirusPath>
+    <txtSigueNick>30</txtSigueNick>
+    <chkMostrarConsejo>false</chkMostrarConsejo>
+    <chkAutoOp>false</chkAutoOp>
+    <chkProtegidos>false</chkProtegidos>
+    <chkAlObtenerArroba>false</chkAlObtenerArroba>
+    <chkAutoVoz>true</chkAutoVoz>
+    <chkAutoKick>true</chkAutoKick>
+    <idiomas/>
+    <chkCambiarTema>false</chkCambiarTema>
+    <comandos/>
+    <chkActivo>false</chkActivo>
+    <chkOcultar>false</chkOcultar>
+    <txtPrefijo>.</txtPrefijo>
+</FormularioVariosConfig>

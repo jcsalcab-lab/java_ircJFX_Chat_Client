@@ -99,7 +99,7 @@ public class InterfazTemasController {
         }
     }
 
-    public void saveConfig() {
+    public void guardarConfiguracion() {
         try {
             FormularioInterfazTemasConfig config = new FormularioInterfazTemasConfig();
             config.setDireccion(chkDireccion.isSelected());

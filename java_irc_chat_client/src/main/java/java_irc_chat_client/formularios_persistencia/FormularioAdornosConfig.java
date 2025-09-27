@@ -1,40 +1,96 @@
 package java_irc_chat_client.formularios_persistencia;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
 import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
-@XmlRootElement(name = "AdornosConfig")
+@XmlRootElement(name = "FormularioAdornosConfig")
 public class FormularioAdornosConfig {
 
-    @XmlElement
-    public boolean activo;
+    private boolean activo;
+    private String estilo;
+    private boolean adornos;       // Checkbox principal
+    private boolean negrita;
+    private boolean subrayado;
+    private boolean usarColores;
+    private String ficheroEstilos;
+    private List<String> adornosList = new ArrayList<>(); // Lista de adornos
+
+    public FormularioAdornosConfig() {
+    }
 
     @XmlElement
-    public String estilo;
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
 
     @XmlElement
-    public boolean adornos;
+    public String getEstilo() {
+        return estilo;
+    }
+
+    public void setEstilo(String estilo) {
+        this.estilo = estilo;
+    }
 
     @XmlElement
-    public String textField1;
+    public boolean isAdornos() {
+        return adornos;
+    }
+
+    public void setAdornos(boolean adornos) {
+        this.adornos = adornos;
+    }
 
     @XmlElement
-    public String textField2;
+    public boolean isNegrita() {
+        return negrita;
+    }
+
+    public void setNegrita(boolean negrita) {
+        this.negrita = negrita;
+    }
 
     @XmlElement
-    public boolean negrita;
+    public boolean isSubrayado() {
+        return subrayado;
+    }
+
+    public void setSubrayado(boolean subrayado) {
+        this.subrayado = subrayado;
+    }
 
     @XmlElement
-    public boolean subrayado;
+    public boolean isUsarColores() {
+        return usarColores;
+    }
+
+    public void setUsarColores(boolean usarColores) {
+        this.usarColores = usarColores;
+    }
 
     @XmlElement
-    public boolean usarColores;
+    public String getFicheroEstilos() {
+        return ficheroEstilos;
+    }
 
-    @XmlElement
-    public String ficheroEstilos;
+    public void setFicheroEstilos(String ficheroEstilos) {
+        this.ficheroEstilos = ficheroEstilos;
+    }
 
-    @XmlElement
-    public List<String> listaAdornos = new ArrayList<>();
+    @XmlElementWrapper(name = "AdornosList")
+    @XmlElement(name = "Adorno")
+    public List<String> getAdornosList() {
+        return adornosList;
+    }
+
+    public void setAdornosList(List<String> adornosList) {
+        this.adornosList = adornosList;
+    }
 }

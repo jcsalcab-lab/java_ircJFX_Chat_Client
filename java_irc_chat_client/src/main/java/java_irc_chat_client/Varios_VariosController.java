@@ -44,11 +44,11 @@ public class Varios_VariosController {
     @FXML
     public void initialize() {
         // Eventos antivirus
-        btnGuardarAntivirus.setOnAction(e -> guardarConfig());
+        btnGuardarAntivirus.setOnAction(e -> guardarConfiguracion());
         btnRecuperarAntivirus.setOnAction(e -> cargarConfig());
     }
 
-    public void guardarConfig() {
+    public void guardarConfiguracion() {
         try {
             FormularioVariosVariosConfig config = new FormularioVariosVariosConfig();
 

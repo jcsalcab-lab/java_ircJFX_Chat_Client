@@ -7,49 +7,25 @@
             fx:controller="java_irc_chat_client.SetupController">
 
     <children>
-        <TabPane fx:id="setupTabPane" tabClosingPolicy="UNAVAILABLE" 
-         AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
-         AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+        <TabPane fx:id="setupTabPane" tabClosingPolicy="UNAVAILABLE"
+                 AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                 AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
 
-
-            <Tab text="General">
-                <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_GENERAL.fxml" fx:id="generalTab"/>
-            </Tab>
-
-            <Tab text="Protección">
-                <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_PROTECCION.fxml" fx:id="proteccionTab"/>
-            </Tab>
-
-            <Tab text="Away">
-                <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_AWAY.fxml" fx:id="awayTab"/>
-            </Tab>
-
-            <Tab text="Sonido">
-                <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_MEDIA.fxml" fx:id="mediaTab"/>
-            </Tab>
-
-            <Tab text="Interfaz">
-                <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_INTERFAZ.fxml" fx:id="interfaceTab"/>
-            </Tab>
-
-            <Tab text="DCC">
-                <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_DCC.fxml" fx:id="dccTab"/>
-            </Tab>
-
-            <Tab text="Escritura">
-                <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_ESCRITURA.fxml" fx:id="escrituraTab"/>
-            </Tab>
-
-            <Tab text="Redes">
-                <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_REDES.fxml" fx:id="redesTab"/>
-            </Tab>
-
-            <Tab text="Varios">
-                <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_VARIOS.fxml" fx:id="variosTab"/>
-            </Tab>
+            <tabs>
+                <Tab text="General"/>
+                <Tab text="Protección"/>
+                <Tab text="Away"/>
+                <Tab text="Sonido"/>
+                <Tab text="Interfaz"/>
+                <Tab text="DCC"/>
+                <Tab text="Escritura"/>
+                <Tab text="Redes"/>
+                <Tab text="Varios"/>
+            </tabs>
 
         </TabPane>
     </children>
 </AnchorPane>
+
 
 

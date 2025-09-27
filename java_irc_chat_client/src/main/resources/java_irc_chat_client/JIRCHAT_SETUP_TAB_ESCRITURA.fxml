@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="java_irc_chat_client.ESCRITURAController"
-            prefWidth="600" prefHeight="600">
+            prefWidth="650" prefHeight="600">
 
     <children>
         <TabPane fx:id="escrituraTabPane" prefWidth="650" prefHeight="600" tabClosingPolicy="UNAVAILABLE">
@@ -12,29 +13,156 @@
 
                 <!-- Pestaña Sets -->
                 <Tab fx:id="tabSets" text="Sets">
-                    <!-- Incluye el FXML del Set -->
-                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_ESCRITURA_SET.fxml"/>
+                    <AnchorPane>
+                        <children>
+                            <VBox spacing="10">
+                                <padding>
+                                    <Insets top="10" right="10" bottom="10" left="10"/>
+                                </padding>
+
+                                <!-- Opciones -->
+                                <CheckBox fx:id="chkCorrectoOrtografico" text="Correcto Ortográfico"/>
+                                <CheckBox fx:id="chkConversorUnidades" text="Conversor Unidades"/>
+                                <CheckBox fx:id="chkEncriptador" text="Encriptador"/>
+                                <CheckBox fx:id="chkNickCompletion" text="Nick Completion"/>
+                                <CheckBox fx:id="chkAdornosColores" text="Adornos y Colores"/>
+
+                                <HBox spacing="10">
+                                    <padding>
+                                        <Insets top="5" right="0" bottom="5" left="0"/>
+                                    </padding>
+                                    <Button fx:id="btnTiposTamanoLetra" text="Tipos y tamaño de letra"/>
+                                    <Button fx:id="btnPonerHora" text="Poner hora (timestamp)"/>
+                                </HBox>
+
+                                <!-- Coloreado de nicks -->
+                                <Label fx:id="lblColoreadoNick" text="@2Nick|"/>
+                                <GridPane hgap="10" vgap="10">
+                                    <columnConstraints>
+                                        <ColumnConstraints halignment="RIGHT"/>
+                                        <ColumnConstraints hgrow="ALWAYS"/>
+                                    </columnConstraints>
+                                    <Label text="Menor" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtColorMenor" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                    <Label text="Arroba" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtColorArroba" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                    <Label text="Nick" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtColorNick" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                                    <Label text="Mayor" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtColorMayor" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                                </GridPane>
+
+                                <!-- Mostrar tu nick al escribir -->
+                                <CheckBox fx:id="chkMostrarNickActivo" text="Mostrar Nick Activo"/>
+                                <GridPane hgap="10" vgap="10">
+                                    <Label text="Menor" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtMiNickMenor" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                    <Label text="Arroba" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtMiNickArroba" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                    <Label text="Nick" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtMiNickNick" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                                    <Label text="Mayor" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="txtMiNickMayor" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                                </GridPane>
+
+                                <!-- Justificación -->
+                                <TextField fx:id="txtJustificacionValor" text="27" promptText="Justificación"/>
+                                <CheckBox fx:id="chkIncluirArrobaMas" text="Incluir @ y +"/>
+                            </VBox>
+                        </children>
+                    </AnchorPane>
                 </Tab>
 
-                <!-- Pestañas restantes vacías -->
+                <!-- Pestaña Nick Completion -->
                 <Tab fx:id="tabNickCompletion" text="Nick Completion">
-                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_ESCRITURA_NICKCOMPLETION.fxml"/>
-
+                    <AnchorPane>
+                        <children>
+                            <VBox spacing="10" layoutX="10" layoutY="10">
+                                <padding>
+                                    <Insets top="10" right="10" bottom="10" left="10"/>
+                                </padding>
+                                <CheckBox fx:id="ncActivoCheckBox" text="Activo"/>
+                                <TextField fx:id="ncPrimerSeparadorField" promptText="Primer Separador"/>
+                                <TextField fx:id="ncSegundoSeparadorField" promptText="Segundo Separador"/>
+                                <Button fx:id="ncGuardarEstiloButton" text="Guardar Estilo"/>
+                                <ListView fx:id="ncNickListView"/>
+                                <Button fx:id="ncEliminarButton" text="Eliminar"/>
+                            </VBox>
+                        </children>
+                    </AnchorPane>
                 </Tab>
+
+                <!-- Pestaña Corrector -->
                 <Tab fx:id="tabCorrector" text="Corrector">
-                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_ESCRITURA_CORRECTOR.fxml"/>
-
+                    <AnchorPane>
+                        <children>
+                            <VBox spacing="10" layoutX="10" layoutY="10">
+                                <padding>
+                                    <Insets top="10" right="10" bottom="10" left="10"/>
+                                </padding>
+                                <CheckBox fx:id="crActivoCheckBox" text="Activo"/>
+                                <CheckBox fx:id="crMayusculaCheckBox" text="Mayúscula"/>
+                                <CheckBox fx:id="crSubrayarUrlCheckBox" text="Subrayar URL"/>
+<TableView fx:id="crPalabrasTableView">
+    <columns>
+        <TableColumn fx:id="crColReemplazar" text="Reemplazar" prefWidth="150"/>
+        <TableColumn fx:id="crColPor" text="Por" prefWidth="150"/>
+    </columns>
+</TableView>
+                                <Button fx:id="crAgregarButton" text="Agregar"/>
+                                <Button fx:id="crEliminarButton" text="Eliminar"/>
+                            </VBox>
+                        </children>
+                    </AnchorPane>
                 </Tab>
+
+                <!-- Pestaña Conversor -->
                 <Tab fx:id="tabConverso" text="Conversor">
-                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_ESCRITURA_CONVERSOR.fxml"/>
-
+                    <AnchorPane>
+                        <children>
+                            <VBox spacing="10" layoutX="10" layoutY="10">
+                                <padding>
+                                    <Insets top="10" right="10" bottom="10" left="10"/>
+                                </padding>
+                                <CheckBox fx:id="cvActivoCheckBox" text="Activo"/>
+                                <TextField fx:id="cvCantidadMedidaField" promptText="Cantidad"/>
+                                <TextField fx:id="cvEuroDolaresField" promptText="EUR/USD"/>
+                                <Label fx:id="cvResultadoLabel" text="Resultado"/>
+                                <Button fx:id="cvAyudaTagsButton" text="Ayuda"/>
+                            </VBox>
+                        </children>
+                    </AnchorPane>
                 </Tab>
-                <Tab fx:id="tabAdornos" text="Adornos">
-                    <fx:include source="/java_irc_chat_client/JIRCHAT_SETUP_TAB_ESCRITURA_ADORNOS.fxml"/>
 
+                <!-- Pestaña Adornos -->
+                <Tab fx:id="tabAdornos" text="Adornos">
+                    <AnchorPane>
+                        <children>
+                            <VBox spacing="10" layoutX="10" layoutY="10">
+                                <padding>
+                                    <Insets top="10" right="10" bottom="10" left="10"/>
+                                </padding>
+                                <CheckBox fx:id="adActivoCheckBox" text="Activo"/>
+                                <TextField fx:id="adEstiloField" promptText="Estilo"/>
+                                <CheckBox fx:id="adAdornosCheckBox" text="Adornos"/>
+                                <CheckBox fx:id="adNegritaCheckBox" text="Negrita"/>
+                                <CheckBox fx:id="adSubrayadoCheckBox" text="Subrayado"/>
+                                <CheckBox fx:id="adUsarColoresCheckBox" text="Usar colores"/>
+                                <TextField fx:id="adFicheroEstilosField" text="IRcapEstilos"/>
+                                <ListView fx:id="adAdornosListView"/>
+                                <HBox spacing="5">
+                                    <Button fx:id="adAgregarButton" text="+"/>
+                                    <Button fx:id="adEliminarButton" text="-"/>
+                                </HBox>
+                            </VBox>
+                        </children>
+                    </AnchorPane>
                 </Tab>
 
             </tabs>
         </TabPane>
     </children>
 </AnchorPane>
+
+
+

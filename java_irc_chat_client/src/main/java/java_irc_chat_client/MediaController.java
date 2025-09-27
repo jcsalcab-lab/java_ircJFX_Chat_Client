@@ -3,6 +3,7 @@ package java_irc_chat_client;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
+import java_irc_chat_client.formularios_persistencia.FormularioMediaConfig;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
@@ -39,31 +40,33 @@ public class MediaController {
     public void loadConfig() {
         try {
             if (configFile.exists()) {
-                JAXBContext context = JAXBContext.newInstance(MediaConfig.class);
+                JAXBContext context = JAXBContext.newInstance(FormularioMediaConfig.class);
                 Unmarshaller um = context.createUnmarshaller();
-                MediaConfig config = (MediaConfig) um.unmarshal(configFile);
+                FormularioMediaConfig config = (FormularioMediaConfig) um.unmarshal(configFile);
 
                 sonidoLocalCheckBox.setSelected(config.isSonidoLocal());
-                eventoComboBox.setValue(config.getEventoSeleccionado());
-                sonidoTextField.setText(config.getSonidoPath());
-                audioTextField.setText(config.getAudioDir());
-                videoTextField.setText(config.getVideoDir());
+                if (config.getEventoSeleccionado() != null) {
+                    eventoComboBox.setValue(config.getEventoSeleccionado());
+                }
+                sonidoTextField.setText(safeString(config.getSonidoPath()));
+                audioTextField.setText(safeString(config.getAudioDir()));
+                videoTextField.setText(safeString(config.getVideoDir()));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void saveConfig() {
+    public void guardarConfiguracion() {
         try {
-            MediaConfig config = new MediaConfig();
+            FormularioMediaConfig config = new FormularioMediaConfig();
             config.setSonidoLocal(sonidoLocalCheckBox.isSelected());
             config.setEventoSeleccionado(eventoComboBox.getValue());
-            config.setSonidoPath(sonidoTextField.getText());
-            config.setAudioDir(audioTextField.getText());
-            config.setVideoDir(videoTextField.getText());
+            config.setSonidoPath(safeString(sonidoTextField.getText()));
+            config.setAudioDir(safeString(audioTextField.getText()));
+            config.setVideoDir(safeString(videoTextField.getText()));
 
-            JAXBContext context = JAXBContext.newInstance(MediaConfig.class);
+            JAXBContext context = JAXBContext.newInstance(FormularioMediaConfig.class);
             Marshaller m = context.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             m.marshal(config, configFile);
@@ -72,5 +75,12 @@ public class MediaController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Devuelve cadena segura: si es null, devuelve cadena vacía
+     */
+    private String safeString(String text) {
+        return text != null ? text : "";
     }
 }

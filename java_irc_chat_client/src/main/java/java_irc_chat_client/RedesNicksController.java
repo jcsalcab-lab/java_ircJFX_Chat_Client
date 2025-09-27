@@ -81,7 +81,7 @@ public class RedesNicksController {
     }
 
     // ---------------- Guardar configuración ----------------
-    public void guardarConfig() {
+    public void guardarConfiguracion() {
         try {
             FormularioRedesNicksConfig config = new FormularioRedesNicksConfig();
             config.listaRedes = redesList;

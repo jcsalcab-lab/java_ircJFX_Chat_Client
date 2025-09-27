@@ -13,7 +13,7 @@
     </padding>
 
     <!-- Checkbox Activo -->
-    <CheckBox text="Activo" />
+    <CheckBox fx:id="chkActivo" text="Activo" />
 
     <!-- Cuadro Apartados -->
     <TitledPane text="Apartados" collapsible="false">

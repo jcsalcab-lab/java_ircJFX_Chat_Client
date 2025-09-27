@@ -46,11 +46,11 @@ public class SetupSetController {
     @FXML private CheckBox chkIncluirArrobaMas;
 
     // Archivo de configuración
-    private final File configFile = new File("setup_config.xml");
+    private final File configFile = new File(System.getProperty("user.home"), "setup_config.xml");
 
     // ---------------- Configuración interna ----------------
     @jakarta.xml.bind.annotation.XmlRootElement(name = "setupConfig")
-    private static class SetupConfig {
+    public static class SetupConfig {
         public boolean correctoOrtografico;
         public boolean conversorUnidades;
         public boolean encriptador;
@@ -79,7 +79,11 @@ public class SetupSetController {
         lblMiNick.setText("@El_ArWen|");
         txtJustificacionValor.setText("27");
 
-        // Cargar configuración si existe
+        loadConfig();
+    }
+
+    // ---------------- Cargar configuración ----------------
+    public void loadConfig() {
         try {
             if (configFile.exists()) {
                 JAXBContext context = JAXBContext.newInstance(SetupConfig.class);
@@ -92,7 +96,7 @@ public class SetupSetController {
         }
     }
 
-    // ---------------- Cargar valores al formulario ----------------
+    // ---------------- Aplicar valores al formulario ----------------
     private void loadToForm(SetupConfig config) {
         chkCorrectoOrtografico.setSelected(config.correctoOrtografico);
         chkConversorUnidades.setSelected(config.conversorUnidades);
@@ -117,7 +121,7 @@ public class SetupSetController {
 
     // ---------------- Guardar configuración ----------------
     @FXML
-    public void saveConfig() {
+    public void guardarConfiguracion() {
         try {
             SetupConfig config = new SetupConfig();
 
@@ -163,4 +167,3 @@ public class SetupSetController {
         System.out.println("Configurar timestamp activado");
     }
 }
-

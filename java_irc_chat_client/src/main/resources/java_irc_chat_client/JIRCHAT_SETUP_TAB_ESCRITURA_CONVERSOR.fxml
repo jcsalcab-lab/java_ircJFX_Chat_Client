@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<TitledPane fx:id="conversorPane" text="Conversor" xmlns:fx="http://javafx.com/fxml" collapsible="false">
+<TitledPane fx:controller="java_irc_chat_client.ConversorController" fx:id="conversorPane" text="Conversor" xmlns:fx="http://javafx.com/fxml" collapsible="false">
     <VBox spacing="10">
         <padding>
             <Insets top="10" right="10" bottom="10" left="10"/>

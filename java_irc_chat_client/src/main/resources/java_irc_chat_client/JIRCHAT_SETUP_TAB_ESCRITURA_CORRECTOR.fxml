@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<TitledPane fx:id="correctorPane" text="Corrector de texto" xmlns:fx="http://javafx.com/fxml" collapsible="false">
+<TitledPane fx:controller="java_irc_chat_client.CorrectorController" fx:id="correctorPane" text="Corrector de texto" xmlns:fx="http://javafx.com/fxml" collapsible="false">
     <HBox spacing="10">
         <padding>
             <Insets top="10" right="10" bottom="10" left="10"/>

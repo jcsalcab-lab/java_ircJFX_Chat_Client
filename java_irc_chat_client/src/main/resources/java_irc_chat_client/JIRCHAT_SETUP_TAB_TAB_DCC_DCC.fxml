@@ -25,7 +25,7 @@
                             </padding>
                             <HBox spacing="15">
                                 <VBox spacing="5">
-                                    <CheckBox text="Acepta"/>
+                                    <CheckBox fx:id="chkAcepta" text="Acepta"/>
                                     <ListView fx:id="listAcepta" prefHeight="120" prefWidth="120"/>
                                     <HBox spacing="5">
                                         <Button text="+" fx:id="btnAddAcepta"/>
@@ -33,7 +33,7 @@
                                     </HBox>
                                 </VBox>
                                 <VBox spacing="5">
-                                    <CheckBox text="Rechazar"/>
+                                    <CheckBox fx:id="chkRechazar" text="Rechazar"/>
                                     <ListView fx:id="listRechazar" prefHeight="120" prefWidth="120"/>
                                     <HBox spacing="5">
                                         <Button text="+" fx:id="btnAddRechazar"/>
@@ -41,7 +41,7 @@
                                     </HBox>
                                 </VBox>
                                 <VBox spacing="5">
-                                    <CheckBox text="No enviar"/>
+                                    <CheckBox fx:id="chkNoEnviar" text="No enviar"/>
                                     <ListView fx:id="listNoEnviar" prefHeight="120" prefWidth="120"/>
                                     <HBox spacing="5">
                                         <Button text="+" fx:id="btnAddNoEnviar"/>
@@ -67,12 +67,12 @@
                             <ComboBox fx:id="cbAutoAceptarEnvios"/>
 
                             <VBox spacing="5">
-                                <CheckBox text="Visor de Fserve automático"/>
-                                <CheckBox text="Al abrir chat cerrar queries"/>
-                                <CheckBox text="Pedir si falta al recibir"/>
-                                <CheckBox text="Permite DCC por IP"/>
-                                <CheckBox text="DCC pasivo"/>
-                                <CheckBox text="Responder comandos cola"/>
+                                <CheckBox fx:id="chkVisorFserve" text="Visor de Fserve automático"/>
+                                <CheckBox fx:id="chkCerrarQueries" text="Al abrir chat cerrar queries"/>
+                                <CheckBox fx:id="chkPedirSiFalta" text="Pedir si falta al recibir"/>
+                                <CheckBox fx:id="chkPermiteDCCIP" text="Permite DCC por IP"/>
+                                <CheckBox fx:id="chkDCCPasivo" text="DCC pasivo"/>
+                                <CheckBox fx:id="chkResponderComandosCola" text="Responder comandos cola"/>
                             </VBox>
                         </VBox>
                     </content>
@@ -95,6 +95,8 @@
         </VBox>
     </children>
 </AnchorPane>
+
+
 
 
 

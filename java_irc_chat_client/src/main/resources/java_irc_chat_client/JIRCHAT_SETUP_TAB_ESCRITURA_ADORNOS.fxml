@@ -4,7 +4,10 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<HBox fx:id="adornosPane" spacing="10" xmlns:fx="http://javafx.com/fxml">
+<HBox fx:id="adornosPane" spacing="10"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="java_irc_chat_client.AdornosController">
+
     <padding>
         <Insets top="10" right="10" bottom="10" left="10"/>
     </padding>

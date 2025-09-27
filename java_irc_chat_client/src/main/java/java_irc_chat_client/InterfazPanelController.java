@@ -15,25 +15,23 @@ public class InterfazPanelController {
     @FXML private ListView<String> listApartados;
     @FXML private Button btnAgregar;
     @FXML private Button btnEliminar;
+    @FXML private CheckBox chkActivo; // <- ahora enlazado al FXML
 
     private final File configFile = new File(System.getProperty("user.home"), "formulario_setup_panel.xml");
 
     @FXML
     public void initialize() {
-        // Cargar configuración
-        loadConfig();
-
-        // Configurar botones
+        // Solo configurar botones aquí, no cargar aún (lo hará INTERFAZController)
         btnAgregar.setOnAction(e -> {
             listApartados.getItems().add("Nuevo Apartado");
-            saveConfig();
+            guardarConfiguracion();
         });
 
         btnEliminar.setOnAction(e -> {
             int selectedIndex = listApartados.getSelectionModel().getSelectedIndex();
             if (selectedIndex >= 0) {
                 listApartados.getItems().remove(selectedIndex);
-                saveConfig();
+                guardarConfiguracion();
             }
         });
     }
@@ -50,16 +48,19 @@ public class InterfazPanelController {
                 if (config.getApartados() != null) {
                     listApartados.getItems().addAll(config.getApartados());
                 }
+
+                chkActivo.setSelected(config.isActivo()); // <- persistencia del CheckBox
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void saveConfig() {
+    public void guardarConfiguracion() {
         try {
             FormularioInterfazPanelConfig config = new FormularioInterfazPanelConfig();
             config.setApartados(new ArrayList<>(listApartados.getItems()));
+            config.setActivo(chkActivo.isSelected()); // <- guardar estado del CheckBox
 
             JAXBContext context = JAXBContext.newInstance(FormularioInterfazPanelConfig.class);
             Marshaller m = context.createMarshaller();
@@ -72,4 +73,3 @@ public class InterfazPanelController {
         }
     }
 }
-

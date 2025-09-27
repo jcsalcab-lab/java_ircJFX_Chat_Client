@@ -5,7 +5,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 import java_irc_chat_client.formularios_persistencia.FormularioAdornosConfig;
@@ -15,115 +14,83 @@ import java.util.ArrayList;
 
 public class AdornosController {
 
-    @FXML private CheckBox activoCheckBox;
-    @FXML private TextField estiloField;
-    @FXML private CheckBox adornosCheckBox;
-    @FXML private TextField textField1;
-    @FXML private TextField textField2;
-    @FXML private CheckBox negritaCheckBox;
-    @FXML private CheckBox subrayadoCheckBox;
-    @FXML private CheckBox usarColoresCheckBox;
-    @FXML private TextField ficheroEstilosField;
+    @FXML private CheckBox adActivoCheckBox;
+    @FXML private TextField adEstiloField;
+    @FXML private CheckBox adAdornosCheckBox;
+    @FXML private CheckBox adNegritaCheckBox;
+    @FXML private CheckBox adSubrayadoCheckBox;
+    @FXML private CheckBox adUsarColoresCheckBox;
+    @FXML private TextField adFicheroEstilosField;
+    @FXML private ListView<String> adAdornosListView;
 
-    @FXML private Button estilosTextoButton;
-    @FXML private Button estilosColorButton;
-    @FXML private Button ojoButton;
-    @FXML private Button botonExclamacion;
-    @FXML private Button masEstilosButton;
+    private final ObservableList<String> adAdornosData = FXCollections.observableArrayList();
+    private final File adornosFile = new File(System.getProperty("user.home"), "adornos_config.xml");
 
-    @FXML private ListView<String> adornosListView;
-    @FXML private Button agregarButton;
-    @FXML private Button eliminarButton;
-
-    private final File configFile = new File("adornos_config.xml");
-
-    private ObservableList<String> adornosList = FXCollections.observableArrayList();
-
-    // ---------------- Inicialización ----------------
     @FXML
     public void initialize() {
-        adornosListView.setItems(adornosList);
-
-        agregarButton.setOnAction(e -> agregarAdorno());
-        eliminarButton.setOnAction(e -> eliminarAdorno());
-
-        // Cargar configuración persistente
-        FormularioAdornosConfig config = cargarConfig();
-        if (config != null) {
-            aplicarConfigAlFormulario(config);
-        }
+        adAdornosListView.setItems(adAdornosData);
+        loadConfig();
     }
 
-    // ---------------- Cargar configuración ----------------
-    private FormularioAdornosConfig cargarConfig() {
+    public void loadConfig() {
         try {
-            if (configFile.exists()) {
+            if (adornosFile.exists()) {
                 JAXBContext context = JAXBContext.newInstance(FormularioAdornosConfig.class);
                 Unmarshaller unmarshaller = context.createUnmarshaller();
-                return (FormularioAdornosConfig) unmarshaller.unmarshal(configFile);
+                FormularioAdornosConfig config =
+                        (FormularioAdornosConfig) unmarshaller.unmarshal(adornosFile);
+
+                adActivoCheckBox.setSelected(config.isActivo());
+                adEstiloField.setText(config.getEstilo());
+                adAdornosCheckBox.setSelected(config.isAdornos());
+                adNegritaCheckBox.setSelected(config.isNegrita());
+                adSubrayadoCheckBox.setSelected(config.isSubrayado());
+                adUsarColoresCheckBox.setSelected(config.isUsarColores());
+                adFicheroEstilosField.setText(config.getFicheroEstilos());
+                if (config.getAdornosList() != null) adAdornosData.setAll(config.getAdornosList());
             }
-        } catch (JAXBException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
     }
 
-    // ---------------- Aplicar configuración al formulario ----------------
-    private void aplicarConfigAlFormulario(FormularioAdornosConfig config) {
-        activoCheckBox.setSelected(config.activo);
-        estiloField.setText(config.estilo);
-        adornosCheckBox.setSelected(config.adornos);
-        textField1.setText(config.textField1);
-        textField2.setText(config.textField2);
-        negritaCheckBox.setSelected(config.negrita);
-        subrayadoCheckBox.setSelected(config.subrayado);
-        usarColoresCheckBox.setSelected(config.usarColores);
-        ficheroEstilosField.setText(config.ficheroEstilos);
-        if (config.listaAdornos != null) {
-            adornosList.setAll(config.listaAdornos);
-        }
-    }
-
-    // ---------------- Guardar configuración ----------------
-    public void guardarConfig() {
+    public void guardarConfiguracion() {
         try {
             FormularioAdornosConfig config = new FormularioAdornosConfig();
-            config.activo = activoCheckBox.isSelected();
-            config.estilo = estiloField.getText();
-            config.adornos = adornosCheckBox.isSelected();
-            config.textField1 = textField1.getText();
-            config.textField2 = textField2.getText();
-            config.negrita = negritaCheckBox.isSelected();
-            config.subrayado = subrayadoCheckBox.isSelected();
-            config.usarColores = usarColoresCheckBox.isSelected();
-            config.ficheroEstilos = ficheroEstilosField.getText();
-            config.listaAdornos = new ArrayList<>(adornosList);
+            config.setActivo(adActivoCheckBox.isSelected());
+            config.setEstilo(adEstiloField.getText());
+            config.setAdornos(adAdornosCheckBox.isSelected());
+            config.setNegrita(adNegritaCheckBox.isSelected());
+            config.setSubrayado(adSubrayadoCheckBox.isSelected());
+            config.setUsarColores(adUsarColoresCheckBox.isSelected());
+            config.setFicheroEstilos(adFicheroEstilosField.getText());
+            config.setAdornosList(new ArrayList<>(adAdornosData));
 
             JAXBContext context = JAXBContext.newInstance(FormularioAdornosConfig.class);
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(config, configFile);
+            marshaller.marshal(config, adornosFile);
 
-            System.out.println("Configuración de Adornos guardada en: " + configFile.getAbsolutePath());
-        } catch (JAXBException e) {
+            System.out.println("Configuración de adornos guardada en: " + adornosFile.getAbsolutePath());
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // ---------------- Acciones botones ListView ----------------
+    // Métodos adicionales para manejar la lista de adornos
+    @FXML
     private void agregarAdorno() {
-        adornosList.add("");
-    }
-
-    private void eliminarAdorno() {
-        String seleccionado = adornosListView.getSelectionModel().getSelectedItem();
-        if (seleccionado != null) {
-            adornosList.remove(seleccionado);
-        }
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Agregar Adorno");
+        dialog.setHeaderText("Introduce el nombre del adorno:");
+        dialog.showAndWait().ifPresent(adAdornosData::add);
     }
 
     @FXML
-    private void guardarEstilo() {
-        guardarConfig();
+    private void quitarAdorno() {
+        String selected = adAdornosListView.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            adAdornosData.remove(selected);
+        }
     }
 }

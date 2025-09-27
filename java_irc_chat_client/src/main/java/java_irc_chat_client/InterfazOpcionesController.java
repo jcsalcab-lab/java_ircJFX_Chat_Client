@@ -6,41 +6,63 @@ import jakarta.xml.bind.Unmarshaller;
 import java_irc_chat_client.formularios_persistencia.FormularioInterfazOpcionesConfig;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
+
 import java.io.File;
 
 public class InterfazOpcionesController {
 
-    @FXML private ComboBox<String> comboModoVentanas;
+    @FXML
+    private BorderPane rootPane; // root del FXML, usado para setUserData
 
-    @FXML private CheckBox chkPanelCanalPv;
-    @FXML private CheckBox chkAbrirPrivados;
-    @FXML private CheckBox chkCargarLog;
-    @FXML private CheckBox chkDobleClickPriv;
-    @FXML private CheckBox chkHotlinks;
-    @FXML private CheckBox chkTooltips;
+    @FXML
+    private ComboBox<String> comboModoVentanas;
 
-    @FXML private CheckBox chkWhois;
-    @FXML private CheckBox chkNotices;
-    @FXML private CheckBox chkNotify;
-    @FXML private CheckBox chkCTCP;
+    @FXML
+    private CheckBox chkPanelCanalPv;
+    @FXML
+    private CheckBox chkAbrirPrivados;
+    @FXML
+    private CheckBox chkCargarLog;
+    @FXML
+    private CheckBox chkDobleClickPriv;
+    @FXML
+    private CheckBox chkHotlinks;
+    @FXML
+    private CheckBox chkTooltips;
 
-    @FXML private CheckBox chkVentanasNoticias;
-    @FXML private TextField txtFiltrosNoticias;
-    @FXML private Button btnTiposTamano;
+    @FXML
+    private CheckBox chkWhois;
+    @FXML
+    private CheckBox chkNotices;
+    @FXML
+    private CheckBox chkNotify;
+    @FXML
+    private CheckBox chkCTCP;
+
+    @FXML
+    private CheckBox chkVentanasNoticias;
+    @FXML
+    private TextField txtFiltrosNoticias;
+    @FXML
+    private Button btnTiposTamano;
 
     private final File configFile = new File(System.getProperty("user.home"), "formulario_setup_opciones.xml");
 
     @FXML
     private void initialize() {
-        // --- Lógica original ---
+        // Asociar el controlador al nodo root para que el padre lo pueda obtener
+        rootPane.setUserData(this);
+
+        // Inicializar comboBox
         comboModoVentanas.getItems().addAll("Modo 1", "Modo 2", "Modo 3");
         comboModoVentanas.getSelectionModel().selectFirst();
 
-        // --- Cargar configuración desde XML si existe ---
+        // Cargar configuración si existe
         loadConfig();
     }
 
-    // --- Carga de configuración ---
+    // --- Carga de configuración desde XML ---
     public void loadConfig() {
         try {
             if (configFile.exists()) {
@@ -70,8 +92,8 @@ public class InterfazOpcionesController {
         }
     }
 
-    // --- Guardado de configuración ---
-    public void saveConfig() {
+    // --- Guardado de configuración a XML ---
+    public void guardarConfiguracion() {
         try {
             FormularioInterfazOpcionesConfig config = new FormularioInterfazOpcionesConfig();
 
@@ -103,3 +125,4 @@ public class InterfazOpcionesController {
         }
     }
 }
+

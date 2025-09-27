@@ -4,7 +4,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "mediaConfig")
-public class formularioMediaConfig {
+public class FormularioMediaConfig {
 
     private boolean sonidoLocal;
     private String eventoSeleccionado;

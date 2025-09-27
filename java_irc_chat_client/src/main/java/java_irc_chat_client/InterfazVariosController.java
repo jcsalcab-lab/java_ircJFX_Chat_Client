@@ -60,7 +60,7 @@ public class InterfazVariosController {
         }
     }
 
-    public void saveConfig() {
+    public void guardarConfiguracion() {
         try {
             FormularioVariosVariosConfig config = new FormularioVariosVariosConfig();
             config.setColores(new ArrayList<>(coloresData));

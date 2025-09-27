@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RedesConfig>
+    <FormularioRedesConfig>
+        <nombreRed>3</nombreRed>
+        <ficheroMenus>3</ficheroMenus>
+        <apareceComo>3</apareceComo>
+        <mascaraIpBots>3</mascaraIpBots>
+        <nickserv>3</nickserv>
+        <chanserv>3</chanserv>
+        <memoserv>3</memoserv>
+        <pideId>3</pideId>
+        <autoCargarMenus>true</autoCargarMenus>
+        <mensajeBotsPrivado>true</mensajeBotsPrivado>
+        <sinPerfil>false</sinPerfil>
+        <identificarNick>true</identificarNick>
+        <liberarOcupado>true</liberarOcupado>
+        <autoFundador>true</autoFundador>
+        <autoEntrar>false</autoEntrar>
+        <retardo>ssshhhhhhhh</retardo>
+        <nicks/>
+        <canales/>
+        <canalesAutoEntrar/>
+    </FormularioRedesConfig>
+</RedesConfig>

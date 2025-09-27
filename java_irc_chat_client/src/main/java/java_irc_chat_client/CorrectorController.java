@@ -9,111 +9,112 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
-import java_irc_chat_client.formularios_persistencia.FormularioCorrectorConfig;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java_irc_chat_client.formularios_persistencia.FormularioCorrectorConfig;
 
 public class CorrectorController {
 
-    @FXML private CheckBox activoCheckBox;
-    @FXML private CheckBox mayusculaCheckBox;
-    @FXML private CheckBox subrayarUrlCheckBox;
+    @FXML private CheckBox crActivoCheckBox;
+    @FXML private CheckBox crMayusculaCheckBox;
+    @FXML private CheckBox crSubrayarUrlCheckBox;
 
-    @FXML private Button agregarButton;
-    @FXML private Button eliminarButton;
+    @FXML private TableView<FormularioCorrectorConfig.Palabra> crPalabrasTableView;
+    @FXML private TableColumn<FormularioCorrectorConfig.Palabra, String> crColReemplazar;
+    @FXML private TableColumn<FormularioCorrectorConfig.Palabra, String> crColPor;
 
-    @FXML private TableView<FormularioCorrectorConfig.Palabra> palabrasTableView;
-    @FXML private TableColumn<FormularioCorrectorConfig.Palabra, String> reemplazarColumn;
-    @FXML private TableColumn<FormularioCorrectorConfig.Palabra, String> porColumn;
+    @FXML private Button crAgregarButton;
+    @FXML private Button crEliminarButton;
 
-    private final File configFile = new File("corrector_config.xml");
+    private final File correctorFile = new File(System.getProperty("user.home"), "corrector_config.xml");
 
-    private ObservableList<FormularioCorrectorConfig.Palabra> palabrasList = FXCollections.observableArrayList();
+    private final ObservableList<FormularioCorrectorConfig.Palabra> palabrasData = FXCollections.observableArrayList();
 
-    // ---------------- Inicialización ----------------
     @FXML
     public void initialize() {
-        // Inicializar TableView
-        palabrasTableView.setItems(palabrasList);
-
-        reemplazarColumn.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().reemplazar));
-
-        porColumn.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().por));
-
-
-        // Asociar botones
-        agregarButton.setOnAction(e -> agregarPalabra());
-        eliminarButton.setOnAction(e -> eliminarPalabra());
-
         // Cargar configuración
-        FormularioCorrectorConfig config = cargarConfig();
-        if (config != null) {
-            aplicarConfigAlFormulario(config);
-        }
+        loadCorrectorConfig();
+
+        // Listeners para CheckBoxes
+        crActivoCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> saveCorrectorConfig());
+        crMayusculaCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> saveCorrectorConfig());
+        crSubrayarUrlCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> saveCorrectorConfig());
+
+        // Inicializar TableView
+        crPalabrasTableView.setItems(palabrasData);
+        crColReemplazar.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getReemplazar()));
+        crColPor.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().getPor()));
+
+        // Listener para cambios en lista de palabras
+        palabrasData.addListener((javafx.collections.ListChangeListener.Change<? extends FormularioCorrectorConfig.Palabra> c) -> saveCorrectorConfig());
+
+        // Botones
+        crAgregarButton.setOnAction(e -> agregarPalabra());
+        crEliminarButton.setOnAction(e -> eliminarPalabra());
     }
 
     // ---------------- Cargar configuración ----------------
-    private FormularioCorrectorConfig cargarConfig() {
+    public void loadCorrectorConfig() {
         try {
-            if (configFile.exists()) {
+            if (correctorFile.exists()) {
                 JAXBContext context = JAXBContext.newInstance(FormularioCorrectorConfig.class);
                 Unmarshaller unmarshaller = context.createUnmarshaller();
-                return (FormularioCorrectorConfig) unmarshaller.unmarshal(configFile);
+                FormularioCorrectorConfig config = (FormularioCorrectorConfig) unmarshaller.unmarshal(correctorFile);
+
+                // Aplicar valores a los controles
+                crActivoCheckBox.setSelected(config.isActivo());
+                crMayusculaCheckBox.setSelected(config.isMayuscula());
+                crSubrayarUrlCheckBox.setSelected(config.isSubrayarUrl());
+
+                List<FormularioCorrectorConfig.Palabra> lista = config.getPalabras();
+                if (lista != null) {
+                    palabrasData.setAll(lista);
+                }
             }
         } catch (JAXBException e) {
             e.printStackTrace();
         }
-        return null;
-    }
-
-    // ---------------- Aplicar configuración al formulario ----------------
-    private void aplicarConfigAlFormulario(FormularioCorrectorConfig config) {
-        activoCheckBox.setSelected(config.activo);
-        mayusculaCheckBox.setSelected(config.mayuscula);
-        subrayarUrlCheckBox.setSelected(config.subrayarUrl);
-        if (config.palabras != null) {
-            palabrasList.setAll(config.palabras);
-        }
     }
 
     // ---------------- Guardar configuración ----------------
-    public void guardarConfig() {
+    public void saveCorrectorConfig() {
         try {
             FormularioCorrectorConfig config = new FormularioCorrectorConfig();
-            config.activo = activoCheckBox.isSelected();
-            config.mayuscula = mayusculaCheckBox.isSelected();
-            config.subrayarUrl = subrayarUrlCheckBox.isSelected();
-            config.palabras = new ArrayList<>(palabrasList);
+            config.setActivo(crActivoCheckBox.isSelected());
+            config.setMayuscula(crMayusculaCheckBox.isSelected());
+            config.setSubrayarUrl(crSubrayarUrlCheckBox.isSelected());
+            config.setPalabras(new ArrayList<>(palabrasData));
 
             JAXBContext context = JAXBContext.newInstance(FormularioCorrectorConfig.class);
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(config, configFile);
-
-            System.out.println("Configuración del Corrector guardada en: " + configFile.getAbsolutePath());
+            marshaller.marshal(config, correctorFile);
         } catch (JAXBException e) {
             e.printStackTrace();
         }
     }
 
-    // ---------------- Acciones de botones ----------------
+    // ---------------- Agregar palabra ----------------
     private void agregarPalabra() {
-        // Ejemplo: agregar palabra vacía para edición
-        palabrasList.add(new FormularioCorrectorConfig.Palabra("", ""));
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Agregar palabra");
+        dialog.setHeaderText("Agregar reemplazo");
+        dialog.setContentText("Formato: palabra|por");
+        dialog.showAndWait().ifPresent(input -> {
+            String[] partes = input.split("\\|", 2);
+            if (partes.length == 2) {
+                FormularioCorrectorConfig.Palabra p = new FormularioCorrectorConfig.Palabra(partes[0], partes[1]);
+                palabrasData.add(p);
+            }
+        });
     }
 
+    // ---------------- Eliminar palabra ----------------
     private void eliminarPalabra() {
-        FormularioCorrectorConfig.Palabra seleccionado = palabrasTableView.getSelectionModel().getSelectedItem();
-        if (seleccionado != null) {
-            palabrasList.remove(seleccionado);
+        FormularioCorrectorConfig.Palabra selected = crPalabrasTableView.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            palabrasData.remove(selected);
         }
-    }
-
-    // Puedes llamar a guardarConfig() desde algún botón de guardar
-    @FXML
-    private void guardarEstilo() {
-        guardarConfig();
     }
 }

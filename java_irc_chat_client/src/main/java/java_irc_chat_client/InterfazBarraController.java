@@ -72,7 +72,7 @@ public class InterfazBarraController {
         }
     }
 
-    public void saveConfig() {
+    public void guardarConfiguracion() {
         try {
             FormularioInterfazBarraConfig config = new FormularioInterfazBarraConfig();
             config.setActiva(chkActiva.isSelected());

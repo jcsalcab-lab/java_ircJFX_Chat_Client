@@ -5,7 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -17,7 +16,6 @@ public class SetupController {
     @FXML
     private TabPane setupTabPane;
 
-    // Lista genérica de todos los controladores de Tabs
     private final List<Object> tabControllers = new ArrayList<>();
 
     @FXML
@@ -25,7 +23,6 @@ public class SetupController {
         System.out.println("SetupController inicializado.");
 
         try {
-            // Cargar todos los Tabs con sus FXML y controladores
             cargarTab("/java_irc_chat_client/JIRCHAT_SETUP_TAB_GENERAL.fxml", 0);
             cargarTab("/java_irc_chat_client/JIRCHAT_SETUP_TAB_PROTECCION.fxml", 1);
             cargarTab("/java_irc_chat_client/JIRCHAT_SETUP_TAB_AWAY.fxml", 2);
@@ -41,47 +38,40 @@ public class SetupController {
         }
     }
 
-    
-    
     private void cargarTab(String fxmlPath, int tabIndex) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-        Parent tabRoot = loader.load();  // Esto inicializa todos los @FXML
+        Parent root = loader.load();
         Object controller = loader.getController();
-        tabRoot.setUserData(controller);
+        root.setUserData(controller);
 
         Tab tab = setupTabPane.getTabs().get(tabIndex);
-        tab.setContent(tabRoot);
+        tab.setContent(root);
 
-        tabControllers.add(controller); // Guardamos el controlador para luego
+        tabControllers.add(controller);
     }
 
-
-    /**
-     * Debe llamarse desde quien crea el Stage para capturar el evento de cierre.
-     */
     public void setStage(Stage stage) {
-        stage.setOnCloseRequest(event -> {
-            guardarTodasConfiguraciones();
-        });
+        stage.setOnCloseRequest(event -> guardarTodasConfiguraciones());
     }
 
-    /**
-     * Llama a todos los métodos de persistencia de cada controlador.
-     */
     private void guardarTodasConfiguraciones() {
         for (Object controller : tabControllers) {
-            if (controller == null) continue; // ignorar null
+            if (controller == null) continue;
             try {
-                controller.getClass().getMethod("guardarConfiguracion").invoke(controller);
-            } catch (NoSuchMethodException nsme) {
-                // Ignorar controladores que no tengan guardarConfiguracion
+                controller.getClass().getMethod("guardarTodasSubpestanas").invoke(controller);
+            } catch (NoSuchMethodException e1) {
+                // Si no tiene subpestañas, intentar guardarConfiguracion
+                try {
+                    controller.getClass().getMethod("guardarConfiguracion").invoke(controller);
+                } catch (Exception e2) {
+                    System.err.println("Error guardando configuración en " + controller.getClass().getSimpleName());
+                    e2.printStackTrace();
+                }
             } catch (Exception e) {
-                // Log para que no rompa la aplicación
                 System.err.println("Error guardando configuración en " + controller.getClass().getSimpleName());
                 e.printStackTrace();
             }
         }
         System.out.println("Todas las configuraciones se han guardado correctamente.");
     }
-
 }

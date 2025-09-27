@@ -134,7 +134,7 @@ public class DCC_DCC_Controller {
         }
     }
 
-    public void saveConfig() {
+    public void guardarConfiguracion() {
         try {
             FormularioDCCConfig config = new FormularioDCCConfig();
             config.setAcepta(new ArrayList<>(aceptaData));

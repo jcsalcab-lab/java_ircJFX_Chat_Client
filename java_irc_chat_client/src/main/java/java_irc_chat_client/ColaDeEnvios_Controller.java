@@ -51,7 +51,7 @@ public class ColaDeEnvios_Controller {
         }
     }
 
-    public void saveConfig() {
+    public void guardarConfiguracion() {
         try {
             FormularioColaEnviosConfig config = new FormularioColaEnviosConfig();
             config.setMaxEnvios(parseInt(txtMaxEnvios.getText(), 4));

@@ -4,10 +4,12 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="java_irc_chat_client.InterfazOpcionesController"
-            prefWidth="600" prefHeight="600">
-
+            fx:id="rootPane"
+            prefWidth="600" prefHeight="400">
+            
+            
     <center>
         <VBox spacing="12">
             <padding>
@@ -76,4 +78,6 @@
 
         </VBox>
     </center>
+    
 </BorderPane>
+

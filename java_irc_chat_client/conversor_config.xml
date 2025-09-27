@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ConversorConfig>
+    <activo>true</activo>
+    <cantidadMedida>dddd</cantidadMedida>
+    <euroDolares>ddd</euroDolares>
+    <resultado>Resultado</resultado>
+</ConversorConfig>

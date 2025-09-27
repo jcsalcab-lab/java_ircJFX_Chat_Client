@@ -233,20 +233,6 @@
     <Tooltip text="Vertical View" />
   </tooltip>
 </Button>
-
-<Button mnemonicParsing="false" prefHeight="37" prefWidth="37" text="">
-  <graphic>
-    <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
-      <image>
-        <Image url="@icons/icons8-cambiar-tamaño-vertical-50.png" />
-      </image>
-    </ImageView>
-  </graphic>
-  <tooltip>
-    <Tooltip text="Vertical View" />
-  </tooltip>
-</Button>
-
 <Button mnemonicParsing="false" prefHeight="37" prefWidth="37" text="">
   <graphic>
     <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
@@ -259,7 +245,18 @@
     <Tooltip text="Cascade Windows View" />
   </tooltip>
 </Button>
-
+<Button fx:id="btnListadoCanales" mnemonicParsing="false" prefHeight="37" prefWidth="37" text="" onAction="#abrirVentanaListadodeCanales">
+  <graphic>
+    <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">
+      <image>
+        <Image url="@icons/icons8-boleta-de-calificaciones-50.png" />
+      </image>
+    </ImageView>
+  </graphic>
+  <tooltip>
+    <Tooltip text="Listados de Canales" />
+  </tooltip>
+</Button>
 <Button fx:id="btnConnect" mnemonicParsing="false" prefHeight="37" prefWidth="37" text="" onAction="#abrirVentanaConexion">
   <graphic>
     <ImageView fitHeight="20" fitWidth="20" pickOnBounds="true" preserveRatio="true">

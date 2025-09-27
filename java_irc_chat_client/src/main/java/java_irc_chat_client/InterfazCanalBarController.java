@@ -93,7 +93,7 @@ public class InterfazCanalBarController {
         }
     }
 
-    public void saveConfig() {
+    public void guardarConfiguracion() {
         try {
             FormularioCanalBarConfig config = new FormularioCanalBarConfig();
             config.setActiva(chkActiva.isSelected());
