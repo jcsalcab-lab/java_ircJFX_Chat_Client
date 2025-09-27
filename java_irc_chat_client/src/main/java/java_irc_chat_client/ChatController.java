@@ -33,6 +33,7 @@ import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import Cliente_DCC.DCCManager;
 
 public class ChatController {
 
@@ -378,8 +379,40 @@ public class ChatController {
                                 String nick = event.getUser().getNick();
                                 String mensaje = event.getMessage();
 
+                                // DCC SEND
+                                if (mensaje.startsWith("/DCC SEND ")) {
+                                    String[] parts = mensaje.split(" ", 4);
+                                    String fileName = parts[2];
+                                    long fileSize = Long.parseLong(parts[3]);
+
+                                    Platform.runLater(() -> {
+                                        // Solicitud de aceptación
+                                        boolean accepted = showFileAcceptanceDialog(nick, fileName, fileSize);
+                                        if (accepted) {
+                                            bot.sendIRC().message(nick, "/DCC ACCEPT " + fileName);
+                                            DCCManager.receiveFile(nick, fileName); // Aquí inicias la recepción
+                                        } else {
+                                            bot.sendIRC().message(nick, "/DCC REJECT " + fileName);
+                                        }
+                                    });
+                                    return;
+                                }
+
+                                // DCC ACCEPT / REJECT
+                                if (mensaje.startsWith("/DCC ACCEPT ")) {
+                                    String fileName = mensaje.split(" ")[2];
+                                    DCCManager.startSendingFile(nick, fileName); // Método que envía bytes
+                                    return;
+                                }
+                                if (mensaje.startsWith("/DCC REJECT ")) {
+                                    String fileName = mensaje.split(" ")[2];
+                                    appendSystemMessage("⚠ El usuario " + nick + " rechazó la transferencia de " + fileName);
+                                    return;
+                                }
+
                                 Platform.runLater(() -> onPrivateMessageRemoto(nick, mensaje));
                             }
+
 
 
                             @Override
@@ -599,6 +632,46 @@ public class ChatController {
         return bot;
     }
     
+    public boolean showFileAcceptanceDialog(String nick, String fileName, long fileSize) {
+        final boolean[] accepted = {false};
+
+        // Creamos el diálogo
+        Platform.runLater(() -> {
+            Stage stage = new Stage();
+            stage.setTitle("Aceptar archivo de " + nick);
+
+            VBox vbox = new VBox(10);
+            vbox.setStyle("-fx-padding: 10;");
+            javafx.scene.control.Label label = new javafx.scene.control.Label(
+                    nick + " quiere enviarte el archivo:\n" + fileName + " (" + fileSize + " bytes)"
+            );
+
+            javafx.scene.control.Button aceptar = new javafx.scene.control.Button("Aceptar");
+            javafx.scene.control.Button rechazar = new javafx.scene.control.Button("Rechazar");
+
+            aceptar.setOnAction(e -> {
+                accepted[0] = true;
+                stage.close();
+            });
+            rechazar.setOnAction(e -> {
+                accepted[0] = false;
+                stage.close();
+            });
+
+            vbox.getChildren().addAll(label, aceptar, rechazar);
+            stage.setScene(new Scene(vbox));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+        });
+
+        // Espera a que el usuario cierre el diálogo
+        while (Platform.isFxApplicationThread() && !Platform.isFxApplicationThread()) {
+            // Esperamos...
+        }
+
+        return accepted[0];
+    }
+
     
 
 }

@@ -12,6 +12,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.pircbotx.PircBotX;
+import Cliente_DCC.DCCManager;
 
 public class PrivadoController {
 
@@ -34,7 +35,27 @@ public class PrivadoController {
     public void initialize() {
         symbolMapper = new SymbolMapper();
         inputField_privado.setOnAction(e -> sendMessage());
+
+        // Drag & Drop para archivos
+        rootPane.setOnDragOver(event -> {
+            if (event.getDragboard().hasFiles()) event.acceptTransferModes(javafx.scene.input.TransferMode.COPY);
+            event.consume();
+        });
+
+        rootPane.setOnDragDropped(event -> {
+            var db = event.getDragboard();
+            if (db.hasFiles()) {
+                db.getFiles().forEach(file -> {
+                    if (bot != null && destinatario != null) {
+                        sendDCCFile(file.getAbsolutePath());
+                    }
+                });
+            }
+            event.setDropCompleted(true);
+            event.consume();
+        });
     }
+
 
     private void sendMessage() {
         String text = inputField_privado.getText().trim();
@@ -137,6 +158,24 @@ public class PrivadoController {
     public void initializeChat() {
         Platform.runLater(() -> chatScrollPane.setVvalue(1.0));
     }
+    
+    private void sendDCCFile(String filePath) {
+        try {
+            var file = new java.io.File(filePath);
+            if (!file.exists()) return;
+
+            appendSystemMessage("Solicitud de envío de archivo: " + file.getName() + " a " + destinatario);
+
+            // Mensaje al receptor
+            bot.sendIRC().message(destinatario, "/DCC SEND " + file.getName() + " " + file.length());
+
+            // Guardamos el archivo en un mapa para seguimiento si quieres
+            DCCManager.addOutgoingFile(destinatario, file);
+        } catch (Exception e) {
+            appendSystemMessage("⚠ Error al enviar archivo: " + e.getMessage());
+        }
+    }
+
 }
 
 
