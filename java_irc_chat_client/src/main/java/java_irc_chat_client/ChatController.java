@@ -25,15 +25,26 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
-import org.pircbotx.*;
-import org.pircbotx.hooks.ListenerAdapter;
-import org.pircbotx.hooks.events.*;
-import org.pircbotx.hooks.types.GenericMessageEvent;
 import javax.net.ssl.SSLSocketFactory;
+import org.pircbotx.PircBotX;
+import org.pircbotx.hooks.ListenerAdapter;
+import org.pircbotx.hooks.events.ConnectEvent;
+import org.pircbotx.hooks.events.JoinEvent;
+import org.pircbotx.hooks.events.MessageEvent;
+import org.pircbotx.hooks.events.PartEvent;
+import org.pircbotx.hooks.events.PrivateMessageEvent;
+import org.pircbotx.hooks.events.UserListEvent;
+import org.pircbotx.hooks.types.GenericMessageEvent;
+import org.pircbotx.Channel;
+import org.pircbotx.Configuration;
+import org.pircbotx.hooks.events.QuitEvent;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import Cliente_DCC.DCCManager;
+
+
 
 public class ChatController {
 
@@ -62,6 +73,9 @@ public class ChatController {
 
     private final PauseTransition resizePause = new PauseTransition(Duration.millis(250));
     private Stage lastFocusedWindow = null;
+    
+    private DCCManager dccManager;
+    
 
     private String password;
     
@@ -98,6 +112,79 @@ public class ChatController {
             if (lastFocusedWindow != null) Platform.runLater(() -> lastFocusedWindow.toFront());
         });
     }
+    
+   
+     
+        private PrivadoController privadoController;
+
+        // 👇 ESTE es el que necesita FXMLLoader
+        public ChatController() {
+        }
+
+        // Constructor alternativo (cuando creas a mano el controlador)
+        
+        
+        
+
+        public void setPrivadoController(PrivadoController privadoController) {
+            this.privadoController = privadoController;
+            this.dccManager = new DCCManager(privadoController);
+        }
+  
+
+    
+    public ChatController(PircBotX bot, PrivadoController privadoController) {
+        this.bot = bot;
+        this.dccManager = new DCCManager(privadoController);
+    }
+    
+ // Método que procesa mensajes privados recibidos
+    public void processPrivateMessage(String nick, String mensaje) {
+        if (mensaje.startsWith("/DCC SEND ")) {
+            try {
+                String payload = mensaje.substring(10).trim();
+                payload = payload.replace("\u0001", "");
+
+                String[] tokens = payload.split(" ");
+                if (tokens.length < 4) {
+                    appendSystemMessage("⚠ Mensaje DCC SEND mal formado.");
+                    return;
+                }
+
+                String filename = tokens[0].replace("\"", "");
+                long ipLong = Long.parseLong(tokens[1]);
+                int port = Integer.parseInt(tokens[2]);
+                long fileSize = Long.parseLong(tokens[3]);
+
+                String ip = longToIp(ipLong);
+
+                boolean aceptado = privadoController.showFileAcceptanceDialog(nick, filename, fileSize);
+                if (aceptado) {
+                    bot.sendIRC().message(nick, "/DCC ACCEPT \"" + filename + "\"");
+                    DCCManager.receiveFile(nick, filename);
+
+                } else {
+                    bot.sendIRC().message(nick, "/DCC REJECT \"" + filename + "\"");
+                }
+            } catch (Exception e) {
+                appendSystemMessage("⚠ Error al procesar DCC SEND: " + e.getMessage());
+            }
+            return;
+        }
+
+        // Otros mensajes normales
+        // ...
+    }
+
+    private String longToIp(long ip) {
+        return String.format("%d.%d.%d.%d",
+            (ip >> 24) & 0xFF,
+            (ip >> 16) & 0xFF,
+            (ip >> 8) & 0xFF,
+            ip & 0xFF);
+    }
+
+    
 
     // ------------------ COMANDOS ------------------
     private void sendCommand() {

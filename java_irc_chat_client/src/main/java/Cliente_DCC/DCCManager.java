@@ -3,12 +3,21 @@ package Cliente_DCC;
 import java.util.HashMap;
 import java.util.Map;
 
+import java_irc_chat_client.PrivadoController;
+
 public class DCCManager {
 
     private static final Map<String, java.io.File> outgoingFiles = new HashMap<>();
 
     public static void addOutgoingFile(String nick, java.io.File file) {
         outgoingFiles.put(nick, file);
+    }
+    
+    
+    private PrivadoController privadoController;
+
+    public DCCManager(PrivadoController privadoController) {
+        this.privadoController = privadoController;
     }
 
     public static void startSendingFile(String nick, String fileName) {

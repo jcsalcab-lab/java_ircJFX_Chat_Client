@@ -2,6 +2,9 @@ package java_irc_chat_client;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -11,6 +14,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
 import org.pircbotx.PircBotX;
 import Cliente_DCC.DCCManager;
 
@@ -175,6 +181,45 @@ public class PrivadoController {
             appendSystemMessage("⚠ Error al enviar archivo: " + e.getMessage());
         }
     }
+    
+    public boolean showFileAcceptanceDialog(String nick, String fileName, long fileSize) {
+        final boolean[] accepted = {false};
+
+        Platform.runLater(() -> {
+            Stage stage = new Stage();
+            stage.setTitle("Aceptar archivo de " + nick);
+
+            VBox vbox = new VBox(10);
+            vbox.setStyle("-fx-padding: 10;");
+            Label label = new Label(nick + " quiere enviarte el archivo:\n" + fileName + " (" + fileSize + " bytes)");
+
+            Button aceptar = new Button("Aceptar");
+            Button rechazar = new Button("Rechazar");
+
+            aceptar.setOnAction(e -> {
+                accepted[0] = true;
+                stage.close();
+            });
+
+            rechazar.setOnAction(e -> {
+                accepted[0] = false;
+                stage.close();
+            });
+
+            vbox.getChildren().addAll(label, aceptar, rechazar);
+            stage.setScene(new Scene(vbox));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+        });
+
+        // Espera mientras se muestra el diálogo
+        while (Platform.isFxApplicationThread() && !Platform.isFxApplicationThread()) {
+            // Esperando…
+        }
+
+        return accepted[0];
+    }
+
 
 }
 
