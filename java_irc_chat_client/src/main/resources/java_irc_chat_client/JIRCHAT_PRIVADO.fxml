@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17" 
+<BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="java_irc_chat_client.PrivadoController"
             prefWidth="600.0" prefHeight="400.0"
@@ -24,13 +25,19 @@
         </ScrollPane>
     </center>
 
-    <!-- Zona inferior: campo de texto para escribir -->
+    <!-- Zona inferior: progreso + campo de texto -->
     <bottom>
         <VBox spacing="5">
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
+
+            <!-- Nueva barra de progreso -->
+            <ProgressBar fx:id="progressBar" prefWidth="Infinity" visible="false" />
+
+            <!-- Campo de texto -->
             <TextField fx:id="inputField_privado" promptText="Escribe un mensaje privado..."/>
         </VBox>
     </bottom>
 </BorderPane>
+

@@ -2,9 +2,6 @@ package java_irc_chat_client;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -15,22 +12,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.Window;
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import javax.swing.JOptionPane;
 import org.pircbotx.PircBotX;
-import org.pircbotx.dcc.FileTransfer;
 import org.pircbotx.hooks.ListenerAdapter;
-import org.pircbotx.hooks.events.PrivateMessageEvent;
-import org.pircbotx.hooks.events.IncomingFileTransferEvent;
-import org.pircbotx.hooks.types.GenericMessageEvent;
 import Cliente_DCC.DCCManager;
-
 public class PrivadoController extends ListenerAdapter {
 
     @FXML private BorderPane rootPane;

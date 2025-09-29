@@ -301,8 +301,6 @@ public class ChatController {
 
             this.privadoController = controller;
 
-            
-            this.privadoController = controller;
 
             Stage stage = new Stage();
             stage.setTitle("Privado con " + nick);
@@ -322,9 +320,11 @@ public class ChatController {
             stage.setOnCloseRequest(ev -> cerrarPrivado(nick));
 
             stage.show();
-        } catch (Exception e) {
+        }  catch (Exception e) {
+            e.printStackTrace();  // Para ver el error completo en consola
             appendSystemMessage("⚠ Error al abrir privado con " + nick + ": " + e.getMessage());
         }
+
     }
 
     public void cerrarPrivado(String nick) {
@@ -338,9 +338,15 @@ public class ChatController {
     }
 
     public void appendPrivateMessage(String nick, String mensaje, boolean esMio) {
+        System.out.println("Recibido mensaje privado de: " + nick);
+        System.out.println("privateChatsController contiene nick? " + privateChatsController.containsKey(nick));
         PrivadoController controller = privateChatsController.get(nick);
-        if (controller != null) controller.appendMessage(esMio ? "Yo" : nick, mensaje);
+        if (controller != null)
+            controller.appendMessage(esMio ? "Yo" : nick, mensaje);
+        else
+            System.out.println("⚠ No se encontró PrivadoController para: " + nick);
     }
+
 
     // ------------------ MENSAJES CON COLORES ------------------
  // Mensaje normal de usuario
@@ -477,7 +483,10 @@ public class ChatController {
                                 // Delegar al PrivadoController
                                 if (privadoController != null) {
                                 	try {
-                                	    privadoController.onPrivateMessage(event);
+                                		if (privadoController != null) {
+                                		    privadoController.handleIncomingPrivateMessage(nick, rawMsg); // 👈 Llama a tu método real
+                                		}
+
                                 	} catch (Exception e) {
                                 	    e.printStackTrace();
                                 	    // Opcional: mostrar mensaje o manejar la excepción de forma adecuada
