@@ -17,18 +17,18 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
-import java.io.BufferedOutputStream;
+import javafx.stage.Window;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
-
+import javax.swing.JOptionPane;
 import org.pircbotx.PircBotX;
+import org.pircbotx.dcc.FileTransfer;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
+import org.pircbotx.hooks.events.IncomingFileTransferEvent;
+import org.pircbotx.hooks.types.GenericMessageEvent;
 import Cliente_DCC.DCCManager;
 
 public class PrivadoController extends ListenerAdapter {
@@ -45,6 +45,12 @@ public class PrivadoController extends ListenerAdapter {
     private SymbolMapper symbolMapper;
     private DCCManager dccManager;
 
+    private ChatController chatController;
+
+    public void setChatController(ChatController chatController) {
+        this.chatController = chatController;
+    }
+
     public void setBot(PircBotX bot) { this.bot = bot; }
     public void setDestinatario(String nick) { this.destinatario = nick; }
     public void setMainController(ChatController mainController) { this.mainController = mainController; }
@@ -57,9 +63,14 @@ public class PrivadoController extends ListenerAdapter {
         symbolMapper = new SymbolMapper();
         inputField_privado.setOnAction(e -> sendMessage());
 
+        // Ocultamos barra de progreso inicialmente
+        progressBar.setVisible(false);
+        progressBar.setProgress(0);
+
         // Drag & Drop para archivos
         rootPane.setOnDragOver(event -> {
-            if (event.getDragboard().hasFiles()) event.acceptTransferModes(javafx.scene.input.TransferMode.COPY);
+            if (event.getDragboard().hasFiles())
+                event.acceptTransferModes(javafx.scene.input.TransferMode.COPY);
             event.consume();
         });
 
@@ -106,13 +117,11 @@ public class PrivadoController extends ListenerAdapter {
     public void appendSystemMessage(String mensaje) {
         Platform.runLater(() -> {
             TextFlow messageFlow = parseIRCMessage(mensaje);
-
             for (var t : messageFlow.getChildren()) {
                 ((Text) t).setFill(Color.GRAY);
                 ((Text) t).setFont(Font.font("Segoe UI Emoji", FontWeight.NORMAL, 13));
                 ((Text) t).setStyle("-fx-font-style: italic;");
             }
-
             chatBox.getChildren().add(messageFlow);
             autoScroll();
         });
@@ -129,13 +138,21 @@ public class PrivadoController extends ListenerAdapter {
             if (c == '\u0003') {
                 i++;
                 StringBuilder num = new StringBuilder();
-                while (i < mensaje.length() && Character.isDigit(mensaje.charAt(i))) num.append(mensaje.charAt(i++));
-                try { currentColor = ircColorToFX(Integer.parseInt(num.toString())); } 
-                catch (Exception e) { currentColor = Color.BLACK; }
+                while (i < mensaje.length() && Character.isDigit(mensaje.charAt(i))) {
+                    num.append(mensaje.charAt(i++));
+                }
+                try {
+                    currentColor = ircColorToFX(Integer.parseInt(num.toString()));
+                } catch (Exception e) {
+                    currentColor = Color.BLACK;
+                }
             } else if (c == '\u000F') {
-                currentColor = Color.BLACK; bold = false; i++;
+                currentColor = Color.BLACK;
+                bold = false;
+                i++;
             } else if (c == '\u0002') {
-                bold = !bold; i++;
+                bold = !bold;
+                i++;
             } else {
                 int codePoint = mensaje.codePointAt(i);
                 String mapped = symbolMapper.mapChar((char) codePoint);
@@ -151,11 +168,22 @@ public class PrivadoController extends ListenerAdapter {
 
     private Color ircColorToFX(int code) {
         return switch (code) {
-            case 0 -> Color.WHITE; case 1 -> Color.BLACK; case 2 -> Color.DODGERBLUE;
-            case 3 -> Color.LIMEGREEN; case 4 -> Color.RED; case 5 -> Color.SADDLEBROWN;
-            case 6 -> Color.MEDIUMPURPLE; case 7 -> Color.ORANGE; case 8 -> Color.GOLD;
-            case 9 -> Color.GREEN; case 10 -> Color.CYAN; case 11 -> Color.TURQUOISE;
-            case 12 -> Color.ROYALBLUE; case 13 -> Color.HOTPINK; case 14 -> Color.DARKGREY; case 15 -> Color.LIGHTGREY;
+            case 0 -> Color.WHITE;
+            case 1 -> Color.BLACK;
+            case 2 -> Color.DODGERBLUE;
+            case 3 -> Color.LIMEGREEN;
+            case 4 -> Color.RED;
+            case 5 -> Color.SADDLEBROWN;
+            case 6 -> Color.MEDIUMPURPLE;
+            case 7 -> Color.ORANGE;
+            case 8 -> Color.GOLD;
+            case 9 -> Color.GREEN;
+            case 10 -> Color.CYAN;
+            case 11 -> Color.TURQUOISE;
+            case 12 -> Color.ROYALBLUE;
+            case 13 -> Color.HOTPINK;
+            case 14 -> Color.DARKGREY;
+            case 15 -> Color.LIGHTGREY;
             default -> Color.BLACK;
         };
     }
@@ -170,168 +198,16 @@ public class PrivadoController extends ListenerAdapter {
         Platform.runLater(() -> chatScrollPane.setVvalue(1.0));
     }
 
-    
-
-
-
-
     private long ipToLong(String ip) {
         String[] parts = ip.split("\\.");
         long result = 0;
-        for (String part : parts) result = (result << 8) | (Integer.parseInt(part) & 0xFF);
+        for (String part : parts) {
+            result = (result << 8) | (Integer.parseInt(part) & 0xFF);
+        }
         return result;
     }
 
-    public boolean showFileAcceptanceDialog(String nick, String fileName, long fileSize) {
-        final boolean[] accepted = {false};
-
-        Platform.runLater(() -> {
-            Stage stage = new Stage();
-            stage.setTitle("Aceptar archivo de " + nick);
-            VBox vbox = new VBox(10);
-            vbox.setStyle("-fx-padding: 10;");
-            Label label = new Label(nick + " quiere enviarte el archivo:\n" + fileName + " (" + fileSize + " bytes)");
-            Button aceptar = new Button("Aceptar");
-            Button rechazar = new Button("Rechazar");
-
-            aceptar.setOnAction(e -> { accepted[0] = true; stage.close(); });
-            rechazar.setOnAction(e -> { accepted[0] = false; stage.close(); });
-
-            vbox.getChildren().addAll(label, aceptar, rechazar);
-            stage.setScene(new Scene(vbox));
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.showAndWait();
-        });
-
-        while (Platform.isFxApplicationThread() && !Platform.isFxApplicationThread()) { /* Esperando… */ }
-
-        return accepted[0];
-    }
-
-    public void iniciarBarraProgreso(String filename, long fileSize) {
-        Platform.runLater(() -> {
-            if (progressBar != null) { progressBar.setProgress(0); progressBar.setVisible(true); }
-            appendSystemMessage("Transferencia iniciada de fichero: " + filename);
-        });
-    }
-
-    public void actualizarBarraProgreso(double progreso) {
-        Platform.runLater(() -> { if (progressBar != null) progressBar.setProgress(progreso); });
-    }
-
-    public void finalizarBarraProgreso(String filename) {
-        Platform.runLater(() -> {
-            if (progressBar != null) progressBar.setVisible(false);
-            appendSystemMessage("Transferencia del archivo " + filename + " terminada en c:\\temp\\descargas");
-        });
-    }
-
-    // ---------------- Listener para mensajes privados ----------------
- // -------------------- PrivadoController --------------------
-    @Override
-    public void onPrivateMessage(PrivateMessageEvent event) {
-        String nick = event.getUser().getNick();
-        String rawMsg = event.getMessage();
-
-        System.out.println("DEBUG: Raw PRIVMSG recibido de " + nick + ": [" + rawMsg + "]");
-
-        try {
-            // Quitar delimitadores CTCP
-            String mensaje = rawMsg.replace("\u0001", "").trim();
-
-            // -------------------- DCC SEND --------------------
-            if (mensaje.startsWith("DCC SEND ")) {
-                String payload = mensaje.substring(9).trim();
-
-                int firstQuote = payload.indexOf('"');
-                int secondQuote = payload.indexOf('"', firstQuote + 1);
-
-                if (firstQuote == -1 || secondQuote == -1) {
-                    appendSystemMessage("⚠ Mensaje DCC SEND mal formado de " + nick + ": " + mensaje);
-                    return;
-                }
-
-                // Token 0: nombre del archivo
-                String fileName = payload.substring(firstQuote + 1, secondQuote);
-
-                // Tokens 1,2,3: IP, puerto, tamaño
-                String[] remainingTokens = payload.substring(secondQuote + 1).trim().split(" ");
-                if (remainingTokens.length < 3) {
-                    appendSystemMessage("⚠ DCC SEND incompleto de " + nick);
-                    return;
-                }
-
-                long ipLong = Long.parseLong(remainingTokens[0]);
-                int port = Integer.parseInt(remainingTokens[1]);
-                long fileSize = Long.parseLong(remainingTokens[2]);
-                String ip = longToIp(ipLong);
-
-                // DEBUG: Enumerar tokens como en el emisor
-                System.out.println("=== DEBUG: DCC SEND recibido ===");
-                System.out.println("De: " + nick);
-                System.out.println("Archivo: " + fileName);
-                System.out.println("IP long: " + ipLong + " -> " + ip);
-                System.out.println("Puerto: " + port);
-                System.out.println("Tamaño: " + fileSize + " bytes");
-                System.out.println("Tokens enumerados:");
-                System.out.println("Token 0: \"" + fileName + "\"");
-                System.out.println("Token 1: " + ipLong);
-                System.out.println("Token 2: " + port);
-                System.out.println("Token 3: " + fileSize);
-                System.out.println("Mensaje bruto recibido (sin CTCP): " + mensaje);
-
-                // Mostrar diálogo de aceptación en hilo de JavaFX
-                Platform.runLater(() -> {
-                    boolean accepted = showFileAcceptanceDialog(nick, fileName, fileSize);
-                    if (accepted) {
-                        String acceptMsg = "\u0001DCC ACCEPT \"" + fileName + "\" " + port + "\u0001";
-                        bot.sendRaw().rawLineNow("PRIVMSG " + nick + " :" + acceptMsg);
-                        System.out.println("DEBUG: DCC ACCEPT enviado: " + acceptMsg);
-
-                        // Iniciar recepción
-                        dccManager.receiveFile(nick, fileName, ip, port, fileSize);
-
-                    } else {
-                        String rejectMsg = "\u0001DCC REJECT \"" + fileName + "\"\u0001";
-                        bot.sendRaw().rawLineNow("PRIVMSG " + nick + " :" + rejectMsg);
-                        System.out.println("DEBUG: DCC REJECT enviado: " + rejectMsg);
-                    }
-                });
-                return;
-            }
-
-            // -------------------- DCC ACCEPT --------------------
-            if (mensaje.startsWith("DCC ACCEPT ")) {
-                String[] tokens = mensaje.split(" ");
-                if (tokens.length < 3) return;
-                String fileName = tokens[2].replace("\"", "");
-                int port = (tokens.length >= 4) ? Integer.parseInt(tokens[3]) : -1;
-
-                System.out.println("DEBUG: DCC ACCEPT recibido de " + nick + " para " + fileName + " en puerto " + port);
-                dccManager.startSendingFile(nick); // Solo ahora se inicia el envío de bytes
-                return;
-            }
-
-            // -------------------- DCC REJECT --------------------
-            if (mensaje.startsWith("DCC REJECT ")) {
-                String[] tokens = mensaje.split(" ");
-                if (tokens.length < 3) return;
-                String fileName = tokens[2].replace("\"", "");
-                System.out.println("DEBUG: DCC REJECT recibido de " + nick + " para " + fileName);
-                appendSystemMessage("⚠ El usuario " + nick + " rechazó la transferencia de " + fileName);
-                return;
-            }
-
-            // -------------------- Mensaje privado normal --------------------
-            Platform.runLater(() -> appendMessage(nick, mensaje));
-
-        } catch (Exception e) {
-            appendSystemMessage("⚠ Error procesando mensaje privado de " + nick + ": " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    // -------------------- sendDCCFile --------------------
+    /** Enviar solicitud DCC SEND al otro usuario */
     private void sendDCCFile(String filePath) {
         try {
             File file = new File(filePath);
@@ -339,61 +215,135 @@ public class PrivadoController extends ListenerAdapter {
 
             appendSystemMessage("Solicitud de envío de archivo: " + file.getName() + " a " + destinatario);
 
-            // Preparar ServerSocket
             ServerSocket serverSocket = new ServerSocket(0);
             int port = serverSocket.getLocalPort();
             String ip = InetAddress.getLocalHost().getHostAddress();
             long size = file.length();
             long ipLong = ipToLong(ip);
 
-            // Tokens para DCC SEND
             String safeFilename = file.getName().replace("\"", "\\\"");
-            String[] tokens = { "\"" + safeFilename + "\"", String.valueOf(ipLong), String.valueOf(port), String.valueOf(size) };
+            String[] tokens = {
+                "\"" + safeFilename + "\"",
+                String.valueOf(ipLong),
+                String.valueOf(port),
+                String.valueOf(size)
+            };
 
-            // Mensaje bruto y debug token por token
             StringBuilder rawMsgBuilder = new StringBuilder("DCC SEND");
-            System.out.println("=== DEBUG: Preparando DCC SEND ===");
+            for (String token : tokens) {
+                rawMsgBuilder.append(" ").append(token);
+            }
+            String rawMsg = rawMsgBuilder.toString();
+            String ctcpMsg = "\u0001" + rawMsg + "\u0001";
+
+            System.out.println("DEBUG: Preparando DCC SEND");
             System.out.println("Archivo: " + file.getAbsolutePath());
-            System.out.println("Tamaño (bytes): " + size);
+            System.out.println("Tamaño: " + size + " bytes");
             System.out.println("IP local: " + ip + " -> ipLong=" + ipLong);
             System.out.println("Puerto ServerSocket: " + port);
+            System.out.println("Mensaje CTCP a enviar: " + ctcpMsg);
 
-            for (int i = 0; i < tokens.length; i++) {
-                rawMsgBuilder.append(" ").append(tokens[i]);
-                System.out.println("Token " + i + ": " + tokens[i]);
-            }
+            dccManager.addOutgoingFile(destinatario, file, serverSocket, port, ipLong, size);
 
-            String rawMsg = rawMsgBuilder.toString();
-            System.out.println("Mensaje bruto a enviar: " + rawMsg);
+            bot.sendRaw().rawLineNow("PRIVMSG " + destinatario + " :" + ctcpMsg);
+            System.out.println("DEBUG: DCC SEND enviado a " + destinatario);
 
-            String ctcp = "\u0001" + rawMsg + "\u0001";
-            System.out.println("Mensaje final CTCP a enviar: " + ctcp);
-
-            // Guardamos en DCCManager para usar más tarde si el receptor acepta
-            DCCManager.addOutgoingFile(destinatario, file, serverSocket, port, ipLong, size);
-
-            // Enviar mensaje DCC SEND al receptor
-            bot.sendRaw().rawLineNow("PRIVMSG " + destinatario + " :" + ctcp);
-            System.out.println("DEBUG: DCC SEND enviado al receptor." + destinatario);
-
-            // ⚠ NOTA: no iniciamos la transferencia aquí. 
-            // Esperamos el DCC ACCEPT en onPrivateMessage → entonces se llamará a dccManager.startSendingFile(nick).
+            // Mostrar barra progreso al iniciar envío
+            Platform.runLater(() -> {
+                actualizarBarraProgreso(0);
+                progressBar.setVisible(true);
+            });
 
         } catch (Exception e) {
             appendSystemMessage("⚠ Error al enviar archivo: " + e.getMessage());
             e.printStackTrace();
         }
     }
+    
+    /**
+     * Muestra un diálogo para aceptar o rechazar la recepción del archivo.
+     *
+     * @param nick El nick del remitente
+     * @param filename El nombre del archivo
+     * @param fileSize El tamaño del archivo en bytes
+     * @return true si el usuario acepta la transferencia, false en caso contrario
+     */
+    public boolean showFileAcceptanceDialog(String nick, String filename, long fileSize) {
+        String message = String.format(
+            "%s quiere enviarte el archivo:\n%s\nTamaño: %d bytes\n¿Aceptar?",
+            nick, filename, fileSize
+        );
 
+        int option = JOptionPane.showConfirmDialog(null, message, "Confirmar recepción de archivo",
+            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
-
-
-
-    private String longToIp(long ipLong) {
-        return String.format("%d.%d.%d.%d",
-                (ipLong >> 24) & 0xFF,
-                (ipLong >> 16) & 0xFF,
-                (ipLong >> 8) & 0xFF,
-                ipLong & 0xFF);
+        return option == JOptionPane.YES_OPTION;
     }
+    
+
+    /** Maneja mensajes entrantes (privados o CTCP) */
+    public void handleIncomingPrivateMessage(String nick, String rawMsg) {
+        System.out.println("DEBUG: handleIncomingPrivateMessage: Raw PRIVMSG recibido de " + nick + ": [" + rawMsg + "]");
+
+        // Detectar CTCP DCC SEND o ACCEPT
+        if (rawMsg.startsWith("\u0001DCC SEND")) {
+            // Aquí podrías agregar lógica para aceptar o mostrar diálogo
+            Platform.runLater(() -> {
+                // Ejemplo básico: aceptar automáticamente
+                boolean aceptar = mostrarDialogoAceptarArchivo(nick, rawMsg);
+                if (aceptar) {
+                    try {
+                        dccManager.handleIncomingSend(bot, nick, rawMsg, this);
+                        // Mostrar barra progreso al iniciar recepción
+                        actualizarBarraProgreso(0);
+                        progressBar.setVisible(true);
+                    } catch (Exception e) {
+                        appendSystemMessage("Error al aceptar archivo: " + e.getMessage());
+                    }
+                } else {
+                    appendSystemMessage("Transferencia de archivo rechazada.");
+                }
+            });
+        } else if (rawMsg.startsWith("\u0001DCC ACCEPT")) {
+            // Procesar aceptación de archivo para iniciar envío
+            try {
+                dccManager.handleIncomingAccept(bot, nick, rawMsg, this);
+                // Mostrar barra progreso al iniciar envío
+                actualizarBarraProgreso(0);
+                progressBar.setVisible(true);
+            } catch (Exception e) {
+                appendSystemMessage("Error al procesar aceptación: " + e.getMessage());
+            }
+        } else {
+            // Mensaje normal
+            appendMessage(nick, rawMsg);
+        }
+    }
+
+    private boolean mostrarDialogoAceptarArchivo(String nick, String rawMsg) {
+        // Aquí debes implementar un diálogo modal para que el usuario acepte o no
+        // Por simplicidad, devolvemos true para aceptar siempre
+        // Mejor implementar diálogo JavaFX real
+        return true;
+    }
+
+    /**
+     * Este método será llamado por DCCManager periódicamente para actualizar progreso
+     * @param progreso valor entre 0 y 1 que indica el progreso de la transferencia
+     */
+    public void actualizarBarraProgreso(double progreso) {
+        Platform.runLater(() -> {
+            if (!progressBar.isVisible()) {
+                progressBar.setVisible(true);
+            }
+            progressBar.setProgress(progreso);
+            if (progreso >= 1.0) {
+                progressBar.setVisible(false);
+                progressBar.setProgress(0);
+                appendSystemMessage("Transferencia finalizada");
+            }
+        });
+    }
+
 }
+
