@@ -17,9 +17,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.scene.control.TextArea;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -161,7 +158,9 @@ public class ChatController {
                 boolean aceptado = privadoController.showFileAcceptanceDialog(nick, filename, fileSize);
                 if (aceptado) {
                     bot.sendIRC().message(nick, "/DCC ACCEPT \"" + filename + "\"");
-                    DCCManager.receiveFile(nick, filename);
+                    DCCManager manager = new DCCManager(privadoController);
+                    privadoController.setDccManager(manager);
+
 
                 } else {
                     bot.sendIRC().message(nick, "/DCC REJECT \"" + filename + "\"");
@@ -464,41 +463,122 @@ public class ChatController {
                             @Override
                             public void onPrivateMessage(PrivateMessageEvent event) {
                                 String nick = event.getUser().getNick();
-                                String mensaje = event.getMessage();
+                                String rawMsg = event.getMessage();
 
-                                // DCC SEND
-                                if (mensaje.startsWith("/DCC SEND ")) {
-                                    String[] parts = mensaje.split(" ", 4);
-                                    String fileName = parts[2];
-                                    long fileSize = Long.parseLong(parts[3]);
+                                // DEBUG inicial: lo que llega bruto
+                                System.out.println("DEBUG: Mensaje privado recibido de " + nick + ": " + rawMsg);
 
-                                    Platform.runLater(() -> {
-                                        // Solicitud de aceptación
-                                        boolean accepted = showFileAcceptanceDialog(nick, fileName, fileSize);
-                                        if (accepted) {
-                                            bot.sendIRC().message(nick, "/DCC ACCEPT " + fileName);
-                                            DCCManager.receiveFile(nick, fileName); // Aquí inicias la recepción
-                                        } else {
-                                            bot.sendIRC().message(nick, "/DCC REJECT " + fileName);
+                                try {
+                                    // 1) Normalizar CTCP (quitar \u0001)
+                                    String mensaje = rawMsg.replace("\u0001", "").trim();
+
+                                    // -------------------- DCC SEND --------------------
+                                 // -------------------- DCC SEND --------------------
+                                    if (mensaje.startsWith("DCC SEND ")) {
+                                    	
+                                    	System.out.println("DEBUG: Recibido : " + mensaje);
+                                        // Quitamos "DCC SEND " inicial
+                                        String payload = mensaje.substring(9).trim();
+
+                                        // Separamos en tokens pero considerando que el primer token puede estar entre comillas
+                                        // Ejemplo: "icons8-corazón-50.png" 3232235786 52662 3354
+                                        int firstQuote = payload.indexOf('"');
+                                        int secondQuote = payload.indexOf('"', firstQuote + 1);
+
+                                        if (firstQuote == -1 || secondQuote == -1) {
+                                            appendSystemMessage("⚠ Mensaje DCC SEND mal formado de " + nick + ": " + mensaje);
+                                            return;
                                         }
-                                    });
-                                    return;
-                                }
 
-                                // DCC ACCEPT / REJECT
-                                if (mensaje.startsWith("/DCC ACCEPT ")) {
-                                    String fileName = mensaje.split(" ")[2];
-                                    DCCManager.startSendingFile(nick, fileName); // Método que envía bytes
-                                    return;
-                                }
-                                if (mensaje.startsWith("/DCC REJECT ")) {
-                                    String fileName = mensaje.split(" ")[2];
-                                    appendSystemMessage("⚠ El usuario " + nick + " rechazó la transferencia de " + fileName);
-                                    return;
-                                }
+                                        String fileName = payload.substring(firstQuote + 1, secondQuote);
+                                        String rest = payload.substring(secondQuote + 1).trim();
+                                        String[] tokens = rest.split(" ");
 
-                                Platform.runLater(() -> onPrivateMessageRemoto(nick, mensaje));
+                                        if (tokens.length < 3) {
+                                            appendSystemMessage("⚠ Mensaje DCC SEND mal formado de " + nick + ": " + mensaje);
+                                            return;
+                                        }
+
+                                        try {
+                                            long ipLong = Long.parseLong(tokens[0]);
+                                            int port = Integer.parseInt(tokens[1]);
+                                            long fileSize = Long.parseLong(tokens[2]);
+                                            String ip = longToIp(ipLong);
+
+                                            // DEBUG parseo
+                                            System.out.println("=== DEBUG: DCC SEND recibido ===");
+                                            System.out.println("De: " + nick);
+                                            System.out.println("Archivo: " + fileName);
+                                            System.out.println("IP long: " + ipLong + " -> " + ip);
+                                            System.out.println("Puerto : " + port);
+                                            System.out.println("Tamaño : " + fileSize + " bytes");
+
+                                            // Mostrar diálogo de aceptación en el hilo de JavaFX
+                                            Platform.runLater(() -> {
+                                                boolean accepted = showFileAcceptanceDialog(nick, fileName, fileSize);
+                                                if (accepted) {
+                                                    // Enviar confirmación
+                                                    String acceptMsg = "\u0001DCC ACCEPT \"" + fileName + "\" " + port + "\u0001";
+                                                    bot.sendRaw().rawLineNow("PRIVMSG " + nick + " :" + acceptMsg);
+                                                    System.out.println("DEBUG: Enviado " + acceptMsg);
+
+                                                    // Iniciar recepción
+                                                    dccManager.receiveFile(nick, fileName, ip, port, fileSize);
+                                                } else {
+                                                    String rejectMsg = "\u0001DCC REJECT \"" + fileName + "\"\u0001";
+                                                    bot.sendRaw().rawLineNow("PRIVMSG " + nick + " :" + rejectMsg);
+                                                    System.out.println("DEBUG: Enviado " + rejectMsg);
+                                                }
+                                            });
+
+                                        } catch (NumberFormatException nfe) {
+                                            appendSystemMessage("⚠ Error parseando DCC SEND de " + nick + ": " + nfe.getMessage());
+                                        }
+
+                                        return;
+                                    }
+
+
+                                    // -------------------- DCC ACCEPT --------------------
+                                    if (mensaje.startsWith("DCC ACCEPT ")) {
+                                        String[] tokens = mensaje.split(" ");
+                                        if (tokens.length < 3) return;
+
+                                        String fileName = tokens[2].replace("\"", "");
+                                        int port = (tokens.length >= 4) ? Integer.parseInt(tokens[3]) : -1;
+
+                                        System.out.println("DEBUG: Recibido DCC ACCEPT de " + nick + " para " + fileName +
+                                                (port != -1 ? " en puerto " + port : ""));
+
+                                        // Iniciamos envío
+                                        dccManager.startSendingFile(nick);
+                                        return;
+                                    }
+
+                                    // -------------------- DCC REJECT --------------------
+                                    if (mensaje.startsWith("DCC REJECT ")) {
+                                        String[] tokens = mensaje.split(" ");
+                                        if (tokens.length < 3) return;
+
+                                        String fileName = tokens[2].replace("\"", "");
+                                        System.out.println("DEBUG: Recibido DCC REJECT de " + nick + " para " + fileName);
+
+                                        appendSystemMessage("⚠ El usuario " + nick + " rechazó la transferencia de " + fileName);
+                                        return;
+                                    }
+
+                                    // -------------------- Mensaje privado normal --------------------
+                                    Platform.runLater(() -> onPrivateMessageRemoto(nick, mensaje));
+
+                                } catch (Exception e) {
+                                    appendSystemMessage("⚠ Error procesando mensaje privado de " + nick + ": " + e.getMessage());
+                                    e.printStackTrace();
+                                }
                             }
+
+
+
+
 
 
 
@@ -758,6 +838,8 @@ public class ChatController {
 
         return accepted[0];
     }
+    
+    
 
     
 

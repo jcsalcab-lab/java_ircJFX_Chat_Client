@@ -1,9 +1,8 @@
 package Cliente_DCC;
 
-
 import java.io.*;
 import java.net.*;
-import java.nio.file.Files;
+import java.util.function.BiConsumer;
 
 import org.pircbotx.PircBotX;
 
@@ -11,61 +10,71 @@ public class DccFileSender {
 
     private final File file;
     private final String destinatario;
-    private final String filename;
 
     public DccFileSender(File file, String destinatario) {
         this.file = file;
         this.destinatario = destinatario;
-        this.filename = file.getName();
     }
 
-    public void send(PircBotX bot) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(0); // puerto libre
-        int port = serverSocket.getLocalPort();
-        String ip = InetAddress.getLocalHost().getHostAddress();
-        long size = file.length();
+    public void send(PircBotX bot, BiConsumer<Long, Long> progressCallback) throws IOException {
+        // Creamos un ServerSocket en un puerto libre
+        try (ServerSocket serverSocket = new ServerSocket(0)) {
+            int port = serverSocket.getLocalPort();
+            String ip = InetAddress.getLocalHost().getHostAddress();
+            long size = file.length();
 
-        // Aseguramos que el filename vaya entre comillas (y escapamos comillas internas)
-        String safeFilename = filename.replace("\"", "\\\""); 
-        long ipLong = ipToLong(ip);
+            // Aseguramos que el nombre de archivo no rompa el formato
+            String safeFilename = file.getName().replace("\"", "");
+            long ipLong = ipToLong(ip);
 
-        // Payload DCC (sin \u0001; lo añadimos a la raw line)
-        String dccPayload = "DCC SEND \"" + safeFilename + "\" " + ipLong + " " + port + " " + size;
+            // Construimos el mensaje CTCP DCC SEND
+            String ctcp = "\u0001DCC SEND \"" + safeFilename + "\" " + ipLong + " " + port + " " + size + "\u0001";
 
-        // Construimos el CTCP crudo
-        String ctcp = "\u0001" + dccPayload + "\u0001";
+            // Lo enviamos al destinatario
+            bot.sendRaw().rawLineNow("PRIVMSG " + destinatario + " :" + ctcp);
 
-        // Enviar la línea cruda PRIVMSG (CTCP)
-        String rawLine = "PRIVMSG " + destinatario + " :" + ctcp;
-        bot.sendRaw().rawLineNow(rawLine);
+            // DEBUG
+            System.out.println("=== DccFileSender DEBUG ===");
+            System.out.println("Archivo a enviar: " + file.getAbsolutePath());
+            System.out.println("Destinatario: " + destinatario);
+            System.out.println("IP local: " + ip + " (long=" + ipLong + ")");
+            System.out.println("Puerto: " + port);
+            System.out.println("Tamaño: " + size + " bytes");
+            System.out.println("Mensaje CTCP enviado: " + ctcp);
 
-        System.out.println("CTCP DCC enviado a " + destinatario + ": " + dccPayload);
-        System.out.println("Esperando conexión DCC para: " + filename + " puerto: " + port);
+            // Esperamos que el receptor se conecte
+            try (Socket socket = serverSocket.accept();
+                 BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
+                 FileInputStream fis = new FileInputStream(file)) {
 
-        try (Socket socket = serverSocket.accept();
-             BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());
-             FileInputStream fis = new FileInputStream(file)) {
+                System.out.println("Conexión establecida con receptor en " +
+                        socket.getInetAddress() + ":" + socket.getPort());
 
-            byte[] buffer = new byte[4096];
-            int read;
-            while ((read = fis.read(buffer)) != -1) {
-                out.write(buffer, 0, read);
+                byte[] buffer = new byte[4096];
+                int read;
+                long totalSent = 0;
+
+                while ((read = fis.read(buffer)) != -1) {
+                    out.write(buffer, 0, read);
+                    totalSent += read;
+
+                    if (progressCallback != null) {
+                        progressCallback.accept(totalSent, size);
+                    }
+                }
+                out.flush();
+
+                System.out.println("Archivo enviado con éxito. Total: " + totalSent + " bytes");
             }
-            out.flush();
-            System.out.println("Archivo enviado correctamente a " + destinatario);
-        } finally {
-            serverSocket.close();
         }
     }
 
-
-    // Convierte IP a long (requerido por protocolo DCC)
+    // Convierte IP en formato "127.0.0.1" a número long sin signo
     private long ipToLong(String ip) {
         String[] parts = ip.split("\\.");
         long result = 0;
         for (String part : parts) {
-            result = result << 8;
-            result |= Integer.parseInt(part) & 0xFF;
+            result = (result << 8) | (Integer.parseInt(part) & 0xFF);
         }
         return result;
     }

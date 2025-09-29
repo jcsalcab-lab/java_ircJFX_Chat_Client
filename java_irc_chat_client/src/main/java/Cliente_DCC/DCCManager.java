@@ -1,52 +1,79 @@
 package Cliente_DCC;
 
+import java.io.File;
+import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.Map;
-
 import java_irc_chat_client.PrivadoController;
 
 public class DCCManager {
 
-    private static final Map<String, java.io.File> outgoingFiles = new HashMap<>();
+	private static final Map<String, OutgoingFile> outgoingFiles = new HashMap<>();
 
-    public static void addOutgoingFile(String nick, java.io.File file) {
-        outgoingFiles.put(nick, file);
-    }
-    
-    
-    private PrivadoController privadoController;
+
+    private final PrivadoController privadoController;
 
     public DCCManager(PrivadoController privadoController) {
         this.privadoController = privadoController;
     }
 
-    public static void startSendingFile(String nick, String fileName) {
-        java.io.File file = outgoingFiles.get(nick);
-        if (file == null) return;
-
-        new Thread(() -> {
-            try (var in = new java.io.FileInputStream(file)) {
-                // Aquí deberías abrir un socket DCC y enviar bytes
-                // Simulación: mostramos mensajes de inicio y fin
-                System.out.println("Iniciando envío a " + nick + ": " + fileName);
-                Thread.sleep(1000); // Simulación
-                System.out.println("Finalizado envío a " + nick + ": " + fileName);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
+    public static void addOutgoingFile(String nick, File file, ServerSocket serverSocket, int port, long ipLong, long size) {
+        OutgoingFile of = new OutgoingFile(file, serverSocket, port, ipLong, size);
+        outgoingFiles.put(nick, of);
     }
 
-    public static void receiveFile(String nick, String fileName) {
+
+
+    // Envía el archivo al destinatario
+    public void startSendingFile(String nick) {
+    	 OutgoingFile of = outgoingFiles.get(nick);
+        if (of == null) return;
+
+        File file = of.getFile();
+        
+        PrivadoController controller = privadoController;
+        privadoController.appendSystemMessage("Transferencia aceptada de fichero " + file.getName());
+        privadoController.iniciarBarraProgreso(file.getName(), file.length());
+
         new Thread(() -> {
             try {
-                // Aquí abrirías un socket DCC y guardarías en descargas
-                System.out.println("Recibiendo " + fileName + " de " + nick);
-                Thread.sleep(1000); // Simulación
-                System.out.println("Archivo recibido de " + nick + ": " + fileName);
+                DccFileSender sender = new DccFileSender(file, nick);
+                sender.send(privadoController.getBot(), (transferred, total) -> privadoController.actualizarBarraProgreso((double) transferred / total));
+                privadoController.finalizarBarraProgreso(file.getName());
+                controller.appendSystemMessage("Transferencia del archivo " + file.getName() + " terminada en c:\\temp\\descargas");
             } catch (Exception e) {
-                e.printStackTrace();
+            	privadoController.finalizarBarraProgreso(file.getName());
+            	privadoController.appendSystemMessage("⚠ Error enviando archivo: " + e.getMessage());
+
             }
         }).start();
     }
+
+    // Recibe archivo del nick
+    public void receiveFile(String nick, String fileName, String ip, int port, long fileSize) {
+        try {
+            File saveDir = new File("c:\\temp\\descargas");
+            if (!saveDir.exists()) saveDir.mkdirs();
+            File destino = new File(saveDir, fileName);
+
+            privadoController.appendSystemMessage("Transferencia aceptada de fichero " + fileName);
+            privadoController.iniciarBarraProgreso(fileName, fileSize);
+
+            DccFileReceiver receiver = new DccFileReceiver(ip, port, destino, fileSize);
+            new Thread(() -> {
+                try {
+                    receiver.receive((transferred, total) -> privadoController.actualizarBarraProgreso((double) transferred / total));
+                    privadoController.finalizarBarraProgreso(fileName);
+
+                    privadoController.appendSystemMessage("Transferencia del archivo " + fileName + " terminada en " + destino.getAbsolutePath());
+                } catch (Exception e) {
+                    privadoController.finalizarBarraProgreso(fileName);
+                    privadoController.appendSystemMessage("⚠ Error recibiendo archivo: " + e.getMessage());
+                }
+            }).start();
+        } catch (Exception e) {
+            privadoController.appendSystemMessage("⚠ Error iniciando recepción: " + e.getMessage());
+        }
+    }
 }
+
